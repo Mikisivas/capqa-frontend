@@ -1,3 +1,6 @@
 /* capqa.css holds the design tokens and component classes from the design handoff. */
 @import "./capqa.css";
 @tailwind utilities;
+
+/* Component classes set display:flex, which would otherwise override the hidden attribute. */
+[hidden] { display: none !important; }

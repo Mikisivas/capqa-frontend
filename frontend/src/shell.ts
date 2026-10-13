@@ -73,7 +73,7 @@ function paintSidebar(key: string): void {
 }
 
 function openDrawer(): void {
-  const layer = document.createElement("div"); layer.className = "overlay"; layer.style.cssText = "position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.5);display:flex";
+  const layer = document.createElement("div"); layer.className = "overlay capqa"; layer.style.cssText = "position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.5);display:flex";
   layer.innerHTML = sidebar("drawer", activeKey, false, unreadCount) + `<button type="button" aria-label="Close menu" style="flex:1 1 auto;border:0;background:transparent;cursor:pointer"></button>`;
   const close = () => { layer.remove(); document.removeEventListener("keydown", onKey); };
   const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
@@ -101,7 +101,7 @@ function paintTopbar(current: string, parent: { label: string; href: string } | 
 
   $("#open-drawer", bar)!.addEventListener("click", openDrawer);
   $("#tb-search", bar)?.addEventListener("submit", (e) => { e.preventDefault(); const q = (new FormData(e.target as HTMLFormElement).get("q") as string).trim(); location.hash = q ? `${R.mail}?q=${encodeURIComponent(q)}` : R.mail; });
-  closeAll = () => { $("#bell-panel")!.innerHTML = ""; $("#user-panel")!.innerHTML = ""; $("#bell-btn")?.setAttribute("aria-expanded", "false"); $("#user-btn")?.setAttribute("aria-expanded", "false"); };
+  closeAll = () => { const b = $("#bell-panel"), u = $("#user-panel"); if (b) b.innerHTML = ""; if (u) u.innerHTML = ""; $("#bell-btn")?.setAttribute("aria-expanded", "false"); $("#user-btn")?.setAttribute("aria-expanded", "false"); };
   $("#bell-btn", bar)!.addEventListener("click", (e) => { e.stopPropagation(); const open = $("#bell-panel")!.innerHTML !== ""; closeAll(); if (!open) { $("#bell-btn")!.setAttribute("aria-expanded", "true"); void showBell(); } });
   $("#user-btn", bar)!.addEventListener("click", (e) => { e.stopPropagation(); const open = $("#user-panel")!.innerHTML !== ""; closeAll(); if (!open) { $("#user-btn")!.setAttribute("aria-expanded", "true"); showUserMenu(); } });
   if (!docListeners) {

@@ -158,7 +158,7 @@ export function bindForm(form: HTMLFormElement, submit: (v: Record<string, strin
 // ---------- toasts / modals / drawers ----------
 export function toast(kind: "success" | "error" | "live", title: string, text = ""): void {
   let host = document.querySelector<HTMLElement>(".toasts");
-  if (!host) { host = document.createElement("div"); host.className = "toasts"; host.setAttribute("aria-live", "polite"); document.body.appendChild(host); }
+  if (!host) { host = document.createElement("div"); host.className = "toasts capqa"; host.setAttribute("aria-live", "polite"); document.body.appendChild(host); }
   const ic = kind === "success" ? "check" : kind === "error" ? "alert-circle" : "bell";
   const el = document.createElement("div"); el.className = `toast toast-${kind}`; el.setAttribute("role", kind === "error" ? "alert" : "status");
   el.innerHTML = html`<span class="t-icon">${icon(ic, 16)}</span><div class="t-body"><div class="t-title">${title}</div>${text ? html`<div class="t-text">${text}</div>` : ""}</div>
@@ -169,7 +169,7 @@ export function toast(kind: "success" | "error" | "live", title: string, text = 
 
 export function modal(opts: { title: string; body: Safe; footer?: Safe; icon?: { name: string; tone: "danger" | "warn" | "brand" }; large?: boolean }, onMount?: (root: HTMLElement, close: () => void) => void): () => void {
   const prev = document.activeElement as HTMLElement | null;
-  const layer = document.createElement("div"); layer.className = "modal-layer";
+  const layer = document.createElement("div"); layer.className = "modal-layer capqa";
   layer.innerHTML = html`<div class="modal ${opts.large ? "modal-lg" : ""}" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-head"><div class="row" style="flex-wrap:nowrap;gap:12px">${opts.icon ? html`<span class="modal-icon ${opts.icon.tone}">${icon(opts.icon.name, 22)}</span>` : ""}<h2 class="h2" id="modal-title">${opts.title}</h2></div>
       <button type="button" class="tb-icon" data-close aria-label="Close">${icon("x", 20)}</button></div>

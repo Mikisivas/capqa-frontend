@@ -240,7 +240,7 @@ async function timetablePage({ root, query }: RouteContext): Promise<void> {
       : html`<div class="card">${emptyState("Nothing booked this week", "Allocations for this week will appear here.", hasRole(...MANAGE) ? { href: R.allocate, text: "Allocate hall" } : undefined)}</div>`}`);
   const open = (id: string) => {
     const a = allocs.find((x) => x.id === id); if (!a) return; const hall = halls.find((h) => h.id === a.classroom_id);
-    const layer = document.createElement("div"); layer.className = "drawer-layer";
+    const layer = document.createElement("div"); layer.className = "drawer-layer capqa";
     layer.innerHTML = html`<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tt-d"><div class="drawer-head"><div class="stack-sm" style="gap:4px">${badge("pur", a.purpose)}<h2 class="h3" id="tt-d">${a.course_id ? `Course #${a.course_id}` : label(a.purpose)}</h2></div><button type="button" class="btn btn-ghost btn-icon" aria-label="Close" data-x>${icon("x", 18)}</button></div>
       <div class="drawer-body"><dl class="dl" style="grid-template-columns:1fr;margin:0"><div><dt>Hall</dt><dd>${hall?.name ?? a.classroom_id}</dd></div><div><dt>When</dt><dd>${whenRange(a)}</dd></div><div><dt>Expected students</dt><dd>${a.student_count}${hall ? ` of ${hall.capacity} seats` : ""}</dd></div><div><dt>Level</dt><dd>${a.level ?? "-"}</dd></div></dl></div>
       <div class="drawer-foot">${hasRole(...MANAGE) ? html`<a class="btn btn-primary" href="${R.allocationEdit(a.id)}">Edit or cancel</a>` : ""}</div></aside>`.value;
