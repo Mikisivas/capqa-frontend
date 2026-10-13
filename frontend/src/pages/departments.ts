@@ -65,8 +65,10 @@ const addDept = ({ root }: RouteContext) => formPage(root, { title: "Add departm
 async function addStaff({ root, query }: RouteContext): Promise<void> {
   const depts = await loadDepartments();
   formPage(root, { title: "Add staff member", sub: "Staff are counted in the staff-to-student ratio.", back: R.depts, submit: "Add staff member",
-    body: html`<div class="span-2">${deptSelect(depts, "department_id", query.get("dept") ?? "")}</div><div class="span-2">${field("full_name", "Full name", { required: true, attrs: 'minlength="2" maxlength="120"' })}</div><div class="span-2">${field("staff_rank", "Rank", { optional: true, placeholder: "e.g. Senior Lecturer", attrs: 'maxlength="60"' })}</div>`,
-    run: async (v) => { const s = await academic.createStaff({ department_id: Number(v.department_id), full_name: v.full_name!, staff_rank: v.staff_rank || undefined }); rememberStaff(s); toast("success", "Staff member added", `${s.full_name} (staff ID ${s.id.slice(0, 8)}…)`); location.hash = R.deptDetail(s.department_id); } });
+    body: html`<div class="span-2">${deptSelect(depts, "department_id", query.get("dept") ?? "")}</div><div class="span-2">${field("full_name", "Full name", { required: true, attrs: 'minlength="2" maxlength="120"' })}</div><div class="span-2">${field("staff_rank", "Rank", { optional: true, placeholder: "e.g. Senior Lecturer", attrs: 'maxlength="60"' })}</div>
+      <div class="span-2">${field("user_id", "Linked user account", { optional: true, mono: true, placeholder: "User ID (UUID)", help: "Link this staff record to a CAPQA login so their evaluations and tasks line up. Leave empty if they have no account." })}</div>`,
+    run: async (v, form) => { if (v.user_id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.user_id)) { fieldError(form, "user_id", "Enter a valid user ID."); return; }
+      const s = await academic.createStaff({ department_id: Number(v.department_id), full_name: v.full_name!, staff_rank: v.staff_rank || undefined, user_id: v.user_id || undefined }); rememberStaff(s); toast("success", "Staff member added", `${s.full_name} (staff ID ${s.id.slice(0, 8)}…)`); location.hash = R.deptDetail(s.department_id); } });
 }
 async function addCourse({ root, query }: RouteContext): Promise<void> {
   const depts = await loadDepartments();

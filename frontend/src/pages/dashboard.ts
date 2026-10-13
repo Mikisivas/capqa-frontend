@@ -57,19 +57,22 @@ async function assignedPanel(): Promise<Safe> {
 }
 
 export const dashboardRoutes: Route[] = [
-  { path: "/", title: "Dashboard", async render({ root }) {
+  { path: "/", title: "Dashboard", async render({ root, query }) {
     const user = getUser()!;
+    const session = query.get("session") ?? "";
     const isDirector = user.role === "DIRECTOR", isInspector = user.role === "QUALITY-INSPECTOR", isViewer = user.role === "VIEWER";
     const canMail = hasRole("ADMIN", "ACADEMIC-OFFICER");
     const [d, queue, assigned] = await Promise.all([
-      dashboard.get(),
+      dashboard.get(session || undefined),
       isDirector ? dispatch.list({ tracking_status: "PENDING", limit: 10 }).catch(() => null) : Promise.resolve(null),
       isInspector ? assignedPanel() : Promise.resolve(null),
     ]);
     const first = user.full_name.replace(/^(Mr|Mrs|Ms|Dr|Prof)\.?\s+/i, "").split(/\s+/)[0];
     const trend = d.evaluation_trends.map((t) => ({ label: `S${t.semester}`, group: t.session, value: Math.round(t.average_rating * 100) / 100 }));
+    const y = new Date().getFullYear(); const cur = new Date().getMonth() >= 8 ? y : y - 1; const sessions = [0, 1, 2].map((i) => `${cur - i}/${cur - i + 1}`);
+    const picker = html`<label class="row t-sm" style="gap:8px">Session <select class="select" style="width:160px" id="dash-session" aria-label="Session filter for quality scores and evaluation trend"><option value="">All sessions</option>${sessions.map((s) => html`<option ${s === session ? "selected" : ""}>${s}</option>`)}</select></label>`;
     mount(root, html`${pageHead(`${greeting()}, ${first}`, new Date().toLocaleDateString("en-NG", { weekday: "long", day: "numeric", month: "long", year: "numeric" }),
-      !isViewer && !isDirector && !isInspector ? html`${hasRole("ADMIN", "ACADEMIC-OFFICER") ? html`<a class="btn btn-secondary" href="${R.allocate}">${icon("building", 16)}Allocate hall</a>` : ""}${canMail ? html`<a class="btn btn-primary" href="${R.mailNew}">${icon("plus", 16)}Record mail</a>` : ""}` : "")}
+      html`${picker}${!isViewer && !isDirector && !isInspector ? html`${hasRole("ADMIN", "ACADEMIC-OFFICER") ? html`<a class="btn btn-secondary" href="${R.allocate}">${icon("building", 16)}Allocate hall</a>` : ""}${canMail ? html`<a class="btn btn-primary" href="${R.mailNew}">${icon("plus", 16)}Record mail</a>` : ""}` : ""}`)}
       ${isViewer ? alert("info", "Read-only access", "You can view dashboards and download finalised reports. Actions are hidden for the Viewer role.", "eye") : ""}
       ${isDirector && queue ? approvalQueue(queue.items) : ""}${assigned ?? ""}
       <section class="grid-stats" aria-label="Summary">
@@ -84,6 +87,7 @@ export const dashboardRoutes: Route[] = [
             <div class="legend" style="margin-top:8px"><span><i style="background:#1a763f"></i>70+ meets target</span><span><i style="background:#d97706"></i>50–69 watch</span><span><i style="background:#dc2626"></i>below 50 action</span></div>` : emptyState("No scores yet", "Quality scores recorded by inspectors will appear here.")}</div></section>
         <section class="card" aria-labelledby="et-h"><div class="card-head"><h2 class="h3" id="et-h">Staff evaluation trend</h2>${hasRole("ADMIN", "DIRECTOR", "QUALITY-INSPECTOR") ? html`<a href="${R.evalTrends}" class="t-sm strong">Details</a>` : ""}</div>
           <div class="card-body">${trendChart(trend)}<p class="t-sm muted" style="margin-top:8px">Average rating (1–5) across Student, Peer and Management evaluations.</p></div></section></div>`);
+    root.querySelector<HTMLSelectElement>("#dash-session")?.addEventListener("change", (e) => { const v = (e.target as HTMLSelectElement).value; location.hash = v ? `${R.dashboard}?session=${encodeURIComponent(v)}` : R.dashboard; });
   } },
 
   { path: "/tasks", title: "My tasks", roles: ["ADMIN", "DIRECTOR", "ACADEMIC-OFFICER", "QUALITY-INSPECTOR"], async render({ root }) {

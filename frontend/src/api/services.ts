@@ -24,7 +24,7 @@ export const users = {
   update: (id: string, body: { role?: string; account_status?: string; department_id?: number }) => patch<T.User>(`/users/${id}`, body),
 };
 
-export const dashboard = { get: () => get<T.Dashboard>("/dashboard") };
+export const dashboard = { get: (session_name?: string) => get<T.Dashboard>("/dashboard", { session_name }) };
 
 export const dispatch = {
   list: (q: { query?: string; tracking_status?: string; sort_field?: string; sort_direction?: string; offset?: number; limit?: number }) => get<T.Page<T.Dispatch>>("/dispatch", q),
@@ -48,7 +48,7 @@ export const facilities = {
 export const academic = {
   departments: () => get<T.Department[]>("/academic/departments"),
   createDepartment: (body: { name: string; faculty: string }) => post<T.Department>("/academic/departments", body),
-  createStaff: (body: { department_id: number; full_name: string; staff_rank?: string }) => post<T.Staff>("/academic/staff", body),
+  createStaff: (body: { department_id: number; full_name: string; staff_rank?: string; user_id?: string }) => post<T.Staff>("/academic/staff", body),
   createCourse: (body: Record<string, unknown>) => post<T.Course>("/academic/courses", body),
   upsertStats: (departmentId: number, body: Record<string, unknown>) => put<T.DepartmentStats>(`/academic/departments/${departmentId}/stats`, body),
   createBenchmark: (body: Record<string, unknown>) => post<T.Benchmark>("/academic/benchmarks", body),
@@ -79,6 +79,7 @@ export const reports = {
 export const notifications = {
   list: (q: { unread_only?: boolean; offset?: number; limit?: number }) => get<T.Page<T.Notification>>("/notifications", q),
   markRead: (id: string) => patch<T.Message>(`/notifications/${id}/read`, {}),
+  create: (body: { user_id: string; notification_type: string; message: string; link?: string }) => post<T.Notification>("/notifications", body),
 };
 
 export const auditLogs = { list: (q: { user_id?: string; resource_type?: string; offset?: number; limit?: number }) => get<T.Page<T.AuditLog>>("/audit-logs", q) };

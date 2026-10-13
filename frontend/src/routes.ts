@@ -21,7 +21,7 @@ export const R = {
   invoiceNew: "#/payments/invoices/new", invoices: "#/payments/invoices", invoiceDetail: (id: string) => `#/payments/invoices/${id}`,
   payStart: "#/payments/start", checkout: (id: string) => `#/payments/checkout/${id}`, payVerify: "#/payments/verify",
   payResult: (id: string, ok: boolean) => `#/payments/result/${id}/${ok ? "success" : "failed"}`, payments: "#/payments", receipt: (id: string) => `#/payments/receipt/${id}`,
-  notifications: "#/notifications", notifPrefs: "#/notifications/preferences",
+  notifications: "#/notifications", notifPrefs: "#/notifications/preferences", notifSend: "#/notifications/send",
   users: "#/admin/users", userReview: (id: string) => `#/admin/users/${id}`, userNew: "#/admin/users/new", auditLog: "#/admin/audit-log",
   auditLogDetail: (id: number | string) => `#/admin/audit-log/${id}`, rolePerms: "#/admin/roles", security: "#/admin/security", backup: "#/admin/backup",
 } as const;

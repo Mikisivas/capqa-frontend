@@ -55,6 +55,12 @@ Search the code for `TODO(backend)`. The missing endpoints, in the order that ma
 7. Hall edit and delete, hall type and equipment, edit or cancel an allocation.
 8. In-page report preview.
 
+## Backend features the design did not show
+
+These exist in the API but had no screen in the design, so they were added afterwards:
+the dashboard session filter, live refresh of mail, payment and dashboard pages from WebSocket events,
+sending a notification (`POST /notifications`), and linking a staff record to a user account.
+
 ## Other notes for the team
 
 - The backend allows only `http://localhost:3000` in CORS by default. Add the deployed origin to

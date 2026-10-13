@@ -53,5 +53,23 @@ onSessionEvent((event, payload) => {
   window.dispatchEvent(new CustomEvent("capqa:live", { detail: { event, payload } }));
 });
 
+/**
+ * Refresh the list-style pages when the server says data changed. Never re-render while someone is
+ * typing, and only touch screens that are read-only lists or dashboards.
+ */
+const LIVE_PAGES = ["#/", "#/dispatch", "#/payments", "#/halls", "#/allocations", "#/timetable", "#/tasks"];
+let liveTimer = 0;
+window.addEventListener("capqa:live", (e) => {
+  const { event } = (e as CustomEvent<{ event: string }>).detail;
+  if (!["DISPATCH_UPDATED", "DASHBOARD_UPDATED", "PAYMENT_UPDATED", "APPROVAL_UPDATED", "ASSIGNMENT_UPDATED"].includes(event)) return;
+  clearTimeout(liveTimer);
+  liveTimer = window.setTimeout(() => {
+    const path = (location.hash || "#/").split("?")[0]!;
+    const a = document.activeElement;
+    const typing = a instanceof HTMLElement && main?.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+    if (LIVE_PAGES.includes(path) && !typing && !document.querySelector(".modal-layer,.drawer-layer")) void navigate();
+  }, 600);
+});
+
 window.addEventListener("hashchange", () => void navigate());
 void restoreSession().then(() => { shellMounted = false; return navigate(); });

@@ -1,10 +1,12 @@
 import { ApiError } from "../api/client";
+import { activeUsers, canListUsers, isUuid, loadDirectory } from "../api/directory";
+import { hasRole } from "../session";
 import { notifications } from "../api/services";
 import type { Notification, NotificationType } from "../api/types";
 import { R } from "../routes";
 import type { Route, RouteContext } from "../router";
 import { noteHref, noteStyle, refreshUnread } from "../shell";
-import { badge, emptyState, errorState, icon, needsApiBanner, onPage, pageHead, pagination, skeletonRows, toast, backLink } from "../ui/components";
+import { badge, bindForm, bindCounters, emptyState, errorState, field, fieldError, formAlert, icon, needsApiBanner, onPage, pageHead, pagination, select, skeletonRows, textarea, toast, backLink } from "../ui/components";
 import { $, $$, html, label, mount, timeAgo } from "../ui/html";
 
 const TABS: { k: NotificationType | ""; t: string }[] = [{ k: "", t: "All" }, { k: "PENDING_APPROVAL", t: "Approvals" }, { k: "ASSIGNED_TASK", t: "Tasks" }, { k: "DEADLINE", t: "Deadlines" }, { k: "SYSTEM_UPDATE", t: "System" }];
@@ -12,7 +14,7 @@ const TABS: { k: NotificationType | ""; t: string }[] = [{ k: "", t: "All" }, { 
 async function centre({ root }: RouteContext): Promise<void> {
   let tab: NotificationType | "" = ""; let unreadOnly = false; let offset = 0; const limit = 10;
   mount(root, html`<div style="max-width:960px;width:100%;display:flex;flex-direction:column;gap:20px"><div class="page-head"><div><h1 class="h1">Notifications</h1><p class="sub" id="sub"></p></div>
-    <div class="row"><a class="btn btn-ghost" href="${R.notifPrefs}">${icon("settings", 16)}Preferences</a><button type="button" class="btn btn-secondary" id="all">${icon("check", 16)}Mark all read</button></div></div>
+    <div class="row"><a class="btn btn-ghost" href="${R.notifPrefs}">${icon("settings", 16)}Preferences</a>${hasRole("ADMIN", "DIRECTOR", "ACADEMIC-OFFICER") ? html`<a class="btn btn-secondary" href="${R.notifSend}">${icon("send", 16)}Send notification</a>` : ""}<button type="button" class="btn btn-secondary" id="all">${icon("check", 16)}Mark all read</button></div></div>
     <div class="tabs" role="tablist" id="tabs">${TABS.map((t) => html`<button type="button" class="tab" role="tab" data-tab="${t.k}" aria-selected="${t.k === tab}">${t.t}</button>`)}</div>
     <label class="check"><input type="checkbox" id="unread">Show unread only</label><section class="card" id="list">${skeletonRows(4)}</section></div>`);
   const list = $("#list", root)!;
@@ -54,7 +56,28 @@ function prefs({ root }: RouteContext): void {
   $$("input[data-k]", root).forEach((i) => i.addEventListener("change", () => { saved[(i as HTMLInputElement).dataset.k!] = (i as HTMLInputElement).checked; try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch { /* ignore */ } }));
 }
 
+async function send({ root }: RouteContext): Promise<void> {
+  const dir = await loadDirectory();
+  mount(root, html`<div class="page-narrow stack-lg" style="width:100%">${backLink(R.notifications, "Back to notifications")}${pageHead("Send notification", "Send a message to one person. It appears in their bell and arrives live if they are online.")}
+    <form class="stack-lg" id="f" novalidate>${formAlert()}<div class="card"><div class="card-body grid-form">
+      <div class="span-2">${canListUsers() ? select("user_id", "Recipient", activeUsers(dir).map((u) => ({ value: u.id, text: `${u.full_name} · ${label(u.role)}` })), { required: true, blank: "Choose a recipient" }) : field("user_id", "Recipient user ID", { required: true, mono: true, placeholder: "User ID (UUID)", help: "Only Admins can browse users. Paste the recipient's user ID." })}</div>
+      <fieldset class="field span-2" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:6px">Type <span class="req" aria-hidden="true">*</span></legend><div class="radio-cards">${(["PENDING_APPROVAL", "ASSIGNED_TASK", "DEADLINE", "SYSTEM_UPDATE"] as const).map((t, i) => html`<label class="radio-card ${i === 1 ? "is-on" : ""}"><input type="radio" name="notification_type" value="${t}" ${i === 1 ? "checked" : ""}>${badge("ntf", t)}</label>`)}</div></fieldset>
+      <div class="span-2">${textarea("message", "Message", { required: true, max: 255, placeholder: "e.g. Please confirm the hall booking before Thursday." })}</div>
+      <div class="span-2">${field("link", "Link", { optional: true, placeholder: "/dispatch/<mail id>", help: "An app path the notification should open, such as /dispatch/<id>.", attrs: 'maxlength="255"' })}</div></div></div>
+      <div class="action-bar"><a class="btn btn-secondary" href="${R.notifications}">Cancel</a><button type="submit" class="btn btn-primary">${icon("send", 16)}Send notification</button></div></form></div>`);
+  const form = $<HTMLFormElement>("#f", root)!; bindCounters(form);
+  $$("input[name=notification_type]", form).forEach((r) => r.addEventListener("change", () => $$(".radio-card", form).forEach((c) => c.classList.toggle("is-on", (c.querySelector("input") as HTMLInputElement).checked))));
+  bindForm(form, async (v) => {
+    if (!isUuid(v.user_id ?? "")) { fieldError(form, "user_id", "Choose a recipient (a valid user ID)."); return; }
+    if ((v.message ?? "").length < 2) { fieldError(form, "message", "Write at least 2 characters."); return; }
+    if (v.link && !v.link.startsWith("/")) { fieldError(form, "link", "Start the link with / (for example /dispatch/123)."); return; }
+    await notifications.create({ user_id: v.user_id!, notification_type: v.notification_type!, message: v.message!, link: v.link || undefined });
+    toast("success", "Notification sent"); location.hash = R.notifications;
+  });
+}
+
 export const notificationRoutes: Route[] = [
+  { path: "/notifications/send", title: "Send notification", roles: ["ADMIN", "DIRECTOR", "ACADEMIC-OFFICER"], render: send },
   { path: "/notifications", title: "Notifications", render: centre },
   { path: "/notifications/preferences", title: "Notification preferences", render: prefs },
 ];
