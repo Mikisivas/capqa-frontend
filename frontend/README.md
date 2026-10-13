@@ -54,8 +54,8 @@ entries now come from the API. The screens below are still built but marked with
 6. In-page report preview; a receipt PDF.
 7. A payment-history view for managers (today `/payments/history` returns only the caller's own payments).
 
-Backend fix still open: `PATCH /dispatch/{id}` accepts `tracking_status: APPROVED/REJECTED`, which
-skips the Director's approval and digital stamp. The UI only approves through `POST /dispatch/{id}/approval`.
+Approval and rejection go only through `POST /dispatch/{id}/approval` (Director); `PATCH /dispatch/{id}`
+no longer accepts `APPROVED` or `REJECTED`.
 
 ## Backend features the design did not show
 
