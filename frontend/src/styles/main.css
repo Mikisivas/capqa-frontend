@@ -1,0 +1,3 @@
+/* capqa.css holds the design tokens and component classes from the design handoff. */
+@import "./capqa.css";
+@tailwind utilities;
