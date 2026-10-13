@@ -14,7 +14,7 @@ export const R = {
   evals: "#/evaluations", evalNew: "#/evaluations/new", evalHistory: "#/evaluations/history", evalTrends: "#/evaluations/trends", evalDetail: (id: string) => `#/evaluations/${id}`,
   depts: "#/departments", deptNew: "#/departments/new", deptDetail: (id: number | string) => `#/departments/${id}`, deptEdit: (id: number | string) => `#/departments/${id}/edit`,
   staffNew: "#/departments/staff/new", staffList: "#/departments/staff", courseNew: "#/departments/courses/new", courseList: "#/departments/courses",
-  courseAccreditation: (id: number | string) => `#/departments/courses/${id}/accreditation`,
+  courseAccreditation: (id: number | string) => `#/departments/courses/${id}/accreditation`, courseEdit: (id: number | string) => `#/departments/courses/${id}/edit`, staffEdit: (id: string) => `#/departments/staff/${id}/edit`,
   deptStats: "#/departments/stats", nuc: "#/departments/benchmark", qualityScore: "#/departments/quality-score",
   compliance: "#/departments/compliance", complianceDashboard: "#/departments/compliance-dashboard",
   reports: "#/reports", reportNew: "#/reports/new", reportDetail: (id: string) => `#/reports/${id}`, reportPrint: (id: string) => `#/reports/${id}/print`,

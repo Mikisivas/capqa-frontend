@@ -1,5 +1,5 @@
 import { ApiError } from "../api/client";
-import { deptName, hallName, loadClassrooms, loadDepartments } from "../api/directory";
+import { courseLabel, deptName, hallName, loadClassrooms, loadCourses, loadDepartments } from "../api/directory";
 import { facilities } from "../api/services";
 import type { Allocation, AllocationPurpose, Classroom } from "../api/types";
 import { R } from "../routes";
@@ -79,7 +79,7 @@ async function hallAdd({ root }: RouteContext): Promise<void> {
 
 // ============ HALL DETAIL ============
 async function hallDetail({ root, params }: RouteContext): Promise<void> {
-  const [halls, depts, allocs] = await Promise.all([loadClassrooms(true), loadDepartments(), facilities.allocations({})]);
+  const [halls, depts, allocs] = await Promise.all([loadClassrooms(true), loadDepartments(), facilities.allocations({}), loadCourses()]);
   const hall = halls.find((h) => String(h.id) === params.id); if (!hall) throw new ApiError(404, "NOT_FOUND", "That hall does not exist.");
   const mine = allocs.filter((a) => a.classroom_id === hall.id).sort((a, b) => a.start_time.localeCompare(b.start_time));
   const upcoming = mine.filter((a) => new Date(a.end_time) >= new Date()).slice(0, 8);
@@ -91,7 +91,7 @@ async function hallDetail({ root, params }: RouteContext): Promise<void> {
     <section class="grid-stats" aria-label="Key figures">${statCard({ label: "Capacity", value: hall.capacity.toLocaleString("en-NG"), foot: "seats", icon: "seat" })}${statCard({ label: "Booked this week", value: `${Math.round(hours * 10) / 10} h`, foot: "from allocations", icon: "calendar" })}
       ${statCard({ label: "Latest audit", value: "-", foot: "Per-hall audit history needs a backend endpoint", icon: "clipboard" })}</section>
     <section class="card"><div class="card-head"><h2 class="h3">Upcoming allocations</h2><a class="t-sm strong" href="${R.allocations}">All allocations</a></div>
-      ${dataTable<Allocation>([{ header: "When", lead: true, cell: (a) => whenRange(a) }, { header: "Course / event", cell: (a) => a.course_id ? `Course #${a.course_id}` : label(a.purpose) }, { header: "Purpose", cell: (a) => badge("pur", a.purpose) },
+      ${dataTable<Allocation>([{ header: "When", lead: true, cell: (a) => whenRange(a) }, { header: "Course / event", cell: (a) => a.course_id ? courseLabel(a.course_id) : label(a.purpose) }, { header: "Purpose", cell: (a) => badge("pur", a.purpose) },
         { header: "Level", cell: (a) => a.level ?? "-" }, { header: "Students", right: true, cls: "num", cell: (a) => html`<span class="strong">${a.student_count}</span>${a.student_count > hall.capacity ? html` ${badge("hall", "OVERCROWDED")}` : ""}` }], upcoming, emptyState("No upcoming allocations", "This hall is free."))}</section>`);
 }
 
@@ -109,12 +109,12 @@ function hallEdit({ root, params }: RouteContext): Promise<void> {
 interface AllocReq { classroom_id: number; course_id?: number; purpose: AllocationPurpose; student_count: number; level: number; start_time: string; end_time: string }
 
 async function allocatePage({ root, query }: RouteContext): Promise<void> {
-  const halls = await loadClassrooms(true);
+  const [halls, courses] = await Promise.all([loadClassrooms(true), loadCourses()]);
   const pre = query.get("hall"); const start = new Date(); start.setDate(start.getDate() + 1); start.setHours(9, 0, 0, 0); const end = new Date(start.getTime() + 2 * 3600000);
   mount(root, html`<div class="page-narrow stack-lg" style="width:100%" id="alloc-view">${pageHead("Allocate hall", "We check capacity and clashes before saving.", html`<a class="btn btn-ghost" href="${R.alternatives}">${icon("search", 16)}Find a free hall instead</a>`)}
     <form class="stack-lg" id="f" novalidate>${formAlert()}<div class="card"><div class="card-body grid-form">
       <div class="span-2">${select("classroom_id", "Hall", halls.map((h) => ({ value: h.id, text: `${h.name} · ${h.capacity.toLocaleString("en-NG")} seats` })), { required: true, blank: "Choose a hall", value: pre ?? "" })}</div>
-      ${field("course_id", "Course ID", { optional: true, type: "number", help: "A course list needs a backend endpoint; enter the numeric course ID if you have it.", attrs: 'min="1"' })}
+      ${courses.length ? select("course_id", "Course", courses.map((c) => ({ value: c.id, text: `${c.code} ${c.title} · ${c.level}L` })), { optional: true, blank: "— No course (event or general use) —", value: query.get("course") ?? "" }) : field("course_id", "Course ID", { optional: true, type: "number", help: "No courses are recorded yet. Add them under Departments → Courses.", attrs: 'min="1"' })}
       ${select("level", "Level", LEVELS.map((l) => ({ value: l, text: String(l) })), { required: true, value: 100 })}
       <fieldset class="field span-2" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:6px">Purpose <span class="req" aria-hidden="true">*</span></legend><div class="radio-cards">${PURPOSES.map((p) => html`<label class="radio-card ${p === "CLASS" ? "is-on" : ""}"><input type="radio" name="purpose" value="${p}" ${raw(p === "CLASS" ? "checked" : "")}>${badge("pur", p)}</label>`)}</div></fieldset>
       <div class="field span-2">${field("student_count", "Expected students", { required: true, type: "number", attrs: 'min="0" max="10000" style="max-width:240px"' })}<div id="fit"></div></div>
@@ -129,6 +129,8 @@ async function allocatePage({ root, query }: RouteContext): Promise<void> {
       : html`<span class="help" style="color:#15703c;display:flex;gap:6px;align-items:center;margin-top:6px">${icon("check-circle", 16)}${n === hall.capacity ? "Exactly full" : "Fits"}: ${pct}% of ${hall.capacity} seats</span>`.value;
   };
   form.addEventListener("input", check);
+  // Picking a course fills in its level.
+  (form.elements.namedItem("course_id") as HTMLElement | null)?.addEventListener("change", (e: Event) => { const c = courses.find((x) => String(x.id) === (e.target as HTMLSelectElement).value); if (c) (form.elements.namedItem("level") as HTMLSelectElement).value = String(c.level); });
   bindForm(form, async (v) => {
     if (new Date(v.end!) <= new Date(v.start!)) { fieldError(form, "end", "End must be later than start."); return; }
     const req: AllocReq = { classroom_id: Number(v.classroom_id), course_id: v.course_id ? Number(v.course_id) : undefined, purpose: v.purpose as AllocationPurpose, student_count: Number(v.student_count), level: Number(v.level), start_time: iso(v.start!), end_time: iso(v.end!) };
@@ -191,7 +193,7 @@ async function alternativesPage({ root, query }: RouteContext): Promise<void> {
 
 // ============ ALLOCATIONS LIST ============
 async function allocationsList({ root }: RouteContext): Promise<void> {
-  const [halls, depts] = await Promise.all([loadClassrooms(), loadDepartments()]);
+  const [halls, depts] = await Promise.all([loadClassrooms(), loadDepartments(), loadCourses()]);
   mount(root, html`${pageHead("Allocations", "Hall bookings for classes, exams and events.", html`<a class="btn btn-secondary" href="${R.timetable}">${icon("calendar", 16)}Timetable view</a>${hasRole(...MANAGE) ? html`<a class="btn btn-primary" href="${R.allocate}">${icon("plus", 16)}Allocate hall</a>` : ""}`)}${hallTabs("alloc")}
     <section class="card"><form class="filter-bar" id="f">
       <label class="field"><span class="label">Department</span><select class="select" name="department_id" ${raw(depts.length ? "" : "disabled")}><option value="">All departments</option>${depts.map((d) => html`<option value="${d.id}">${d.name}</option>`)}</select></label>
@@ -205,7 +207,7 @@ async function allocationsList({ root }: RouteContext): Promise<void> {
       const all = await facilities.allocations({ department_id: d.get("department_id") ? Number(d.get("department_id")) : undefined, level: d.get("level") ? Number(d.get("level")) : undefined, starts_after: d.get("from") ? iso(String(d.get("from"))) : undefined, ends_before: d.get("to") ? iso(String(d.get("to"))) : undefined });
       const slice = all.slice(offset, offset + limit);
       results.innerHTML = html`${dataTable<Allocation>([
-        { header: "Hall", lead: true, cell: (a) => html`<a class="strong" href="${R.hallDetail(a.classroom_id)}">${hallName(a.classroom_id, halls)}</a>` }, { header: "Course / event", cell: (a) => a.course_id ? `Course #${a.course_id}` : label(a.purpose) },
+        { header: "Hall", lead: true, cell: (a) => html`<a class="strong" href="${R.hallDetail(a.classroom_id)}">${hallName(a.classroom_id, halls)}</a>` }, { header: "Course / event", cell: (a) => a.course_id ? courseLabel(a.course_id) : label(a.purpose) },
         { header: "Purpose", cell: (a) => badge("pur", a.purpose) }, { header: "Level", cell: (a) => a.level ?? "-" },
         { header: "Students", right: true, cls: "num", cell: (a) => { const cap = halls.find((h) => h.id === a.classroom_id)?.capacity; return html`<span class="strong">${a.student_count}</span>${cap ? html` <span class="muted">/ ${cap}</span>${a.student_count > cap ? html`<br>${badge("hall", "OVERCROWDED")}` : ""}` : ""}`; } },
         { header: "Start", cls: "num", cell: (a) => fmtDateTime(a.start_time) }, { header: "End", cls: "num", cell: (a) => hhmm(a.end_time) },
@@ -225,13 +227,13 @@ function allocationEdit({ root, params }: RouteContext): void {
 
 // ============ TIMETABLE ============
 async function timetablePage({ root, query }: RouteContext): Promise<void> {
-  const [halls, allocs] = await Promise.all([loadClassrooms(), facilities.allocations({})]);
+  const [halls, allocs] = await Promise.all([loadClassrooms(), facilities.allocations({}), loadCourses()]);
   const base = query.get("week") ? new Date(query.get("week")!) : new Date(); const mon = new Date(base); mon.setDate(base.getDate() - ((base.getDay() + 6) % 7)); mon.setHours(0, 0, 0, 0);
   const days = Array.from({ length: 5 }, (_, i) => new Date(mon.getTime() + i * 86400000)); const fri = days[4]!;
   const weekAllocs = allocs.filter((a) => { const s = new Date(a.start_time); return s >= mon && s < new Date(fri.getTime() + 86400000); });
   const usedHalls = halls.filter((h) => weekAllocs.some((a) => a.classroom_id === h.id));
   const wk = (d: Date) => toLocal(d).slice(0, 10); const prev = new Date(mon.getTime() - 7 * 86400000), next = new Date(mon.getTime() + 7 * 86400000);
-  const slot = (a: Allocation) => html`<button type="button" class="slot slot-${a.purpose.toLowerCase()}" data-alloc="${a.id}" aria-label="${label(a.purpose)}: ${hallName(a.classroom_id, halls)}, ${hhmm(a.start_time)}–${hhmm(a.end_time)}"><b>${a.course_id ? `Course #${a.course_id}` : label(a.purpose)}</b><span>${hhmm(a.start_time)}–${hhmm(a.end_time)}</span><span class="t-xs">${label(a.purpose)} · ${a.student_count}</span></button>`;
+  const slot = (a: Allocation) => html`<button type="button" class="slot slot-${a.purpose.toLowerCase()}" data-alloc="${a.id}" aria-label="${label(a.purpose)}: ${hallName(a.classroom_id, halls)}, ${hhmm(a.start_time)}–${hhmm(a.end_time)}"><b>${a.course_id ? courseLabel(a.course_id) : label(a.purpose)}</b><span>${hhmm(a.start_time)}–${hhmm(a.end_time)}</span><span class="t-xs">${label(a.purpose)} · ${a.student_count}</span></button>`;
   mount(root, html`${pageHead("Timetable", `Week of ${fmtDate(mon.toISOString())} to ${fmtDate(fri.toISOString())} · built from allocations`, html`<div class="row" style="gap:4px"><a class="btn btn-secondary btn-icon" href="${R.timetable}?week=${wk(prev)}" aria-label="Previous week">${icon("chev-left", 18)}</a><a class="btn btn-secondary" href="${R.timetable}">This week</a><a class="btn btn-secondary btn-icon" href="${R.timetable}?week=${wk(next)}" aria-label="Next week">${icon("chev-right", 18)}</a></div>${hasRole(...MANAGE) ? html`<a class="btn btn-primary" href="${R.allocate}">${icon("plus", 16)}Allocate</a>` : ""}`)}${hallTabs("tt")}
     <div class="legend" aria-label="Legend">${badge("pur", "CLASS")}${badge("pur", "EXAM")}${badge("pur", "EVENT")}</div>
     ${usedHalls.length ? html`<section class="card only-md" style="overflow-x:auto;display:block" aria-label="Weekly timetable grid"><div class="tt" role="grid"><div class="tt-h" role="columnheader">Hall</div>${days.map((d) => html`<div class="tt-h" role="columnheader">${d.toLocaleDateString("en-NG", { weekday: "short", day: "numeric", month: "short" })}</div>`)}
@@ -241,7 +243,7 @@ async function timetablePage({ root, query }: RouteContext): Promise<void> {
   const open = (id: string) => {
     const a = allocs.find((x) => x.id === id); if (!a) return; const hall = halls.find((h) => h.id === a.classroom_id);
     const layer = document.createElement("div"); layer.className = "drawer-layer capqa";
-    layer.innerHTML = html`<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tt-d"><div class="drawer-head"><div class="stack-sm" style="gap:4px">${badge("pur", a.purpose)}<h2 class="h3" id="tt-d">${a.course_id ? `Course #${a.course_id}` : label(a.purpose)}</h2></div><button type="button" class="btn btn-ghost btn-icon" aria-label="Close" data-x>${icon("x", 18)}</button></div>
+    layer.innerHTML = html`<aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tt-d"><div class="drawer-head"><div class="stack-sm" style="gap:4px">${badge("pur", a.purpose)}<h2 class="h3" id="tt-d">${a.course_id ? courseLabel(a.course_id) : label(a.purpose)}</h2></div><button type="button" class="btn btn-ghost btn-icon" aria-label="Close" data-x>${icon("x", 18)}</button></div>
       <div class="drawer-body"><dl class="dl" style="grid-template-columns:1fr;margin:0"><div><dt>Hall</dt><dd>${hall?.name ?? a.classroom_id}</dd></div><div><dt>When</dt><dd>${whenRange(a)}</dd></div><div><dt>Expected students</dt><dd>${a.student_count}${hall ? ` of ${hall.capacity} seats` : ""}</dd></div><div><dt>Level</dt><dd>${a.level ?? "-"}</dd></div></dl></div>
       <div class="drawer-foot">${hasRole(...MANAGE) ? html`<a class="btn btn-primary" href="${R.allocationEdit(a.id)}">Edit or cancel</a>` : ""}</div></aside>`.value;
     const close = () => { layer.remove(); document.removeEventListener("keydown", esc); }; const esc = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
@@ -251,13 +253,13 @@ async function timetablePage({ root, query }: RouteContext): Promise<void> {
   const agenda = $("#agenda", root);
   if (agenda) { const show = (i: number) => { $$("[data-day]", root).forEach((t) => t.setAttribute("aria-selected", String(Number(t.dataset.day) === i))); const d = days[i]!;
     const items = weekAllocs.filter((a) => new Date(a.start_time).toDateString() === d.toDateString()).sort((a, b) => a.start_time.localeCompare(b.start_time));
-    agenda.innerHTML = items.length ? items.map((a) => html`<button type="button" class="slot slot-${a.purpose.toLowerCase()}" data-alloc="${a.id}" style="padding:12px;gap:4px"><b style="font-size:14px">${a.course_id ? `Course #${a.course_id}` : label(a.purpose)}</b><span>${hhmm(a.start_time)}–${hhmm(a.end_time)} · ${hallName(a.classroom_id, halls)}</span><span>${label(a.purpose)} · ${a.student_count} students</span></button>`.value).join("") : `<p class="muted">Nothing booked.</p>`; };
+    agenda.innerHTML = items.length ? items.map((a) => html`<button type="button" class="slot slot-${a.purpose.toLowerCase()}" data-alloc="${a.id}" style="padding:12px;gap:4px"><b style="font-size:14px">${a.course_id ? courseLabel(a.course_id) : label(a.purpose)}</b><span>${hhmm(a.start_time)}–${hhmm(a.end_time)} · ${hallName(a.classroom_id, halls)}</span><span>${label(a.purpose)} · ${a.student_count} students</span></button>`.value).join("") : `<p class="muted">Nothing booked.</p>`; };
     $$("[data-day]", root).forEach((t) => t.addEventListener("click", () => show(Number(t.dataset.day)))); show(Math.min(4, (new Date().getDay() + 6) % 7)); }
 }
 
 // ============ CAPACITY ANALYSIS (computed from allocations and hall capacity) ============
 async function capacityPage({ root }: RouteContext): Promise<void> {
-  const [halls, allocs] = await Promise.all([loadClassrooms(), facilities.allocations({})]);
+  const [halls, allocs] = await Promise.all([loadClassrooms(), facilities.allocations({}), loadCourses()]);
   const rows = allocs.filter((a) => a.purpose !== "EVENT").map((a) => { const h = halls.find((x) => x.id === a.classroom_id); return { a, h, pct: h ? Math.round((a.student_count / h.capacity) * 100) : 0 }; }).filter((r) => r.h).sort((x, y) => y.pct - x.pct);
   const over = rows.filter((r) => r.pct > 100); const avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.pct, 0) / rows.length) : 0;
   mount(root, html`${pageHead("Capacity vs enrolment", "Class and exam allocations compared with hall capacity.")}${hallTabs("cap")}
@@ -266,7 +268,7 @@ async function capacityPage({ root }: RouteContext): Promise<void> {
       ${statCard({ label: "Average utilisation", value: `${avg}%`, foot: "target 60–90%", icon: "percent" })}</section>
     <section class="card"><div class="filter-bar"><label class="field"><span class="label">Show</span><select class="select" id="show"><option value="all">All allocations</option><option value="over">Overcrowded only</option><option value="low">Under 40% used</option></select></label></div><div id="tbl"></div></section>`);
   const paint = () => { const f = ($("#show", root) as HTMLSelectElement).value; const list = rows.filter((r) => f === "all" || (f === "over" && r.pct > 100) || (f === "low" && r.pct < 40));
-    $("#tbl", root)!.innerHTML = dataTable<(typeof rows)[number]>([{ header: "Course", lead: true, cell: (r) => html`<span class="strong">${r.a.course_id ? `Course #${r.a.course_id}` : label(r.a.purpose)}</span><br><span class="t-xs muted">${r.a.level ?? "-"} level · ${whenRange(r.a)}</span>` }, { header: "Hall", cell: (r) => r.h!.name },
+    $("#tbl", root)!.innerHTML = dataTable<(typeof rows)[number]>([{ header: "Course", lead: true, cell: (r) => html`<span class="strong">${r.a.course_id ? courseLabel(r.a.course_id) : label(r.a.purpose)}</span><br><span class="t-xs muted">${r.a.level ?? "-"} level · ${whenRange(r.a)}</span>` }, { header: "Hall", cell: (r) => r.h!.name },
       { header: "Students", right: true, cls: "num strong", cell: (r) => r.a.student_count }, { header: "Capacity", right: true, cls: "num", cell: (r) => r.h!.capacity },
       { header: "Utilisation", cell: (r) => html`<div style="display:flex;align-items:center;gap:10px;min-width:160px"><div class="progress" style="flex:1 1 auto"><span style="width:${Math.min(100, r.pct)}%;background:${r.pct > 100 ? "#dc2626" : r.pct >= 90 ? "#d97706" : "#166534"}"></span></div><span class="num strong">${r.pct}%</span></div>` },
       { header: "Status", cell: (r) => r.pct > 100 ? badge("hall", "OVERCROWDED") : r.pct === 100 ? badge("hall", "FULL") : badge("hall", "SUITABLE") }], list, emptyState("Nothing to show", "No allocations match this view.")).value; };

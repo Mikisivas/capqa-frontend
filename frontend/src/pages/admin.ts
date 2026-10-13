@@ -82,7 +82,7 @@ async function auditLogPage({ root }: RouteContext): Promise<void> {
     try {
       const page = await auditLogs.list({ user_id: String(d.get("user_id")) || undefined, resource_type: String(d.get("resource_type")) || undefined, offset, limit });
       rows.innerHTML = html`${dataTable<AuditLog>([{ header: "Date and time", lead: true, cls: "num mono t-sm", cell: (l) => fmtDateTime(l.created_at) }, { header: "Who", cell: (l) => l.user_id ? userName(l.user_id, dir) : "System" }, { header: "Action", cell: (l) => actionTag(l.action) },
-        { header: "Resource type", cell: (l) => l.resource_type ? label(l.resource_type) : "-" }, { header: "Record ID", cls: "mono t-sm", cell: (l) => l.resource_id ? l.resource_id.slice(0, 13) : "-" }, { header: "Details", right: true, cls: "td-actions", cell: (l) => html`<a class="btn btn-ghost btn-sm" href="${R.auditLogDetail(l.id)}?d=${encodeURIComponent(JSON.stringify(l))}">Details</a>` }],
+        { header: "Resource type", cell: (l) => l.resource_type ? label(l.resource_type) : "-" }, { header: "Record ID", cls: "mono t-sm", cell: (l) => l.resource_id ? l.resource_id.slice(0, 13) : "-" }, { header: "Details", right: true, cls: "td-actions", cell: (l) => html`<a class="btn btn-ghost btn-sm" href="${R.auditLogDetail(l.id)}">Details</a>` }],
         page.items, emptyState("No activity for these filters", "Try another user or resource type."))}${pagination(page.total, page.offset, page.limit)}`.value;
       onPage(rows, (o) => { offset = Math.max(0, o); void load(); });
     } catch (e) { rows.innerHTML = errorState(e).value; $("[data-retry]", rows)?.addEventListener("click", () => void load()); }
@@ -90,9 +90,8 @@ async function auditLogPage({ root }: RouteContext): Promise<void> {
   f.addEventListener("submit", (e) => { e.preventDefault(); offset = 0; void load(); }); await load();
 }
 
-async function auditLogDetail({ root, query }: RouteContext): Promise<void> {
-  const dir = await loadDirectory(); let l: AuditLog | null = null; try { l = JSON.parse(query.get("d") ?? "null") as AuditLog | null; } catch { l = null; }
-  if (!l) throw new ApiError(404, "NOT_FOUND", "Open this entry from the audit log list.");
+async function auditLogDetail({ root, params }: RouteContext): Promise<void> {
+  const [dir, l] = await Promise.all([loadDirectory(), auditLogs.get(params.id!)]);
   const json = (o: Record<string, unknown> | null) => o ? JSON.stringify(o, null, 2) : "No data recorded";
   mount(root, html`${backLink(R.auditLog, "Back to audit log")}${pageHead("Audit log entry", `${l.action} · ${l.resource_type ? label(l.resource_type) : "General"} · ${fmtDateTime(l.created_at)}`)}
     <div class="grid-2"><section class="card"><div class="card-head"><h2 class="h3">Before</h2></div><pre class="card-body mono" style="margin:0;white-space:pre-wrap;word-break:break-word">${json(l.old_value)}</pre></section><section class="card"><div class="card-head"><h2 class="h3">After</h2></div><pre class="card-body mono" style="margin:0;white-space:pre-wrap;word-break:break-word">${json(l.new_value)}</pre></section></div>

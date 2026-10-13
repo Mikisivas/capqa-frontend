@@ -1,5 +1,5 @@
 import { ApiError } from "../api/client";
-import { activeUsers, canListUsers, loadDirectory, userName } from "../api/directory";
+import { activeUsers, canListUsers, loadDirectory, userName, type Person } from "../api/directory";
 import { dispatch } from "../api/services";
 import type { Attachment, Dispatch, DispatchPriority, DispatchTrackingStatus } from "../api/types";
 import { R } from "../routes";
@@ -19,14 +19,20 @@ const SORTS: { value: string; text: string; field: string; dir: string }[] = [
 ];
 const today = () => new Date().toISOString().slice(0, 10);
 
-// ---- attachments uploaded from this browser (the API has no "list attachments" endpoint yet) ----
-const attKey = (id: string) => `capqa.att.${id}`;
-const loadAtt = (id: string): Attachment[] => { try { return JSON.parse(sessionStorage.getItem(attKey(id)) ?? "[]") as Attachment[]; } catch { return []; } };
-const saveAtt = (id: string, a: Attachment[]) => { try { sessionStorage.setItem(attKey(id), JSON.stringify(a)); } catch { /* ignore */ } };
+// ---- attachments: open in a new tab (preview) or save to disk ----
+async function openAttachment(recordId: string, a: Attachment, mode: "preview" | "download"): Promise<void> {
+  const tab = mode === "preview" ? window.open("", "_blank") : null;
+  try {
+    const url = URL.createObjectURL(await dispatch.attachmentBlob(recordId, a.id));
+    if (tab) tab.location.href = url;
+    else { const link = document.createElement("a"); link.href = url; link.download = a.original_name; link.click(); }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (err) { tab?.close(); toast("error", "Could not open the file", err instanceof ApiError ? err.message : ""); }
+}
 const fileKind = (name: string) => /\.pdf$/i.test(name) ? { t: "PDF", style: "" } : /\.docx?$/i.test(name) ? { t: "DOC", style: "background:#eff6ff;color:#1d4ed8" } : { t: /\.png$/i.test(name) ? "PNG" : "JPG", style: "" };
 const fmtSize = (n: number) => n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
 
-function assigneeField(dir: Map<string, import("../api/types").User>, value = ""): Safe {
+function assigneeField(dir: Map<string, Person>, value = ""): Safe {
   if (canListUsers()) return select("assigned_to", "Assign to staff", activeUsers(dir).map((u) => ({ value: u.id, text: `${u.full_name} · ${label(u.role)}` })), { optional: true, blank: "— Leave unassigned —", value });
   return field("assigned_to", "Assign to staff", { optional: true, value, mono: true, placeholder: "Staff user ID (UUID)", help: "Only Admins can browse staff names. Paste the staff member's user ID." });
 }
@@ -131,21 +137,20 @@ async function uploadPage({ root, params }: RouteContext): Promise<void> {
   drop.addEventListener("drop", (e) => add((e as DragEvent).dataTransfer?.files ?? []));
   $("#finish", root)!.addEventListener("click", async (e) => {
     const btn = e.currentTarget as HTMLButtonElement; btn.disabled = true;
-    const saved = loadAtt(rec.id); let failed = 0;
+    let failed = 0; let uploaded = 0;
     for (const it of items.filter((x) => x.state === "ready")) {
       it.state = "uploading"; paint();
-      try { saved.push(await dispatch.upload(rec.id, it.file)); it.state = "done"; } catch (err) { it.state = "error"; it.error = err instanceof ApiError ? err.message : "Upload failed"; failed++; }
+      try { await dispatch.upload(rec.id, it.file); it.state = "done"; uploaded++; } catch (err) { it.state = "error"; it.error = err instanceof ApiError ? err.message : "Upload failed"; failed++; }
       paint();
     }
-    saveAtt(rec.id, saved);
     if (failed) { btn.disabled = false; toast("error", "Some files did not upload", "Remove them or try again."); return; }
-    try { if (rec.tracking_status === "DRAFT" && saved.length) await dispatch.update(rec.id, { tracking_status: "PENDING" }); } catch { /* status change is best effort */ }
+    try { if (rec.tracking_status === "DRAFT" && (uploaded || items.some((x) => x.state === "done"))) await dispatch.update(rec.id, { tracking_status: "PENDING" }); } catch { /* status change is best effort */ }
     toast("success", "Mail recorded", rec.reference_number); location.hash = R.mailDetail(rec.id);
   });
 }
 
 // ============ DETAIL ============
-function stampBlock(r: Dispatch, dir: Map<string, import("../api/types").User>): Safe {
+function stampBlock(r: Dispatch, dir: Map<string, Person>): Safe {
   const by = userName(r.approved_by, dir).replace(" (you)", ""); const when = r.stamped_at ?? r.approved_at;
   const d = when ? new Date(when) : null; const short = d ? d.toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" }) + " · " + d.toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit" }) : "";
   return html`<section class="card" aria-labelledby="stamp-h" style="border-color:#fde68a;background:#fffbeb"><div class="card-body" style="display:flex;flex-wrap:wrap;gap:24px;align-items:center">
@@ -154,10 +159,9 @@ function stampBlock(r: Dispatch, dir: Map<string, import("../api/types").User>):
 }
 
 async function detailPage({ root, params }: RouteContext): Promise<void> {
-  const [rec, dir] = await Promise.all([dispatch.get(params.id!), loadDirectory()]);
+  const [rec, dir, atts] = await Promise.all([dispatch.get(params.id!), loadDirectory(), dispatch.attachments(params.id!).catch(() => [] as Attachment[])]);
   const me = getUser()!; const canEdit = hasRole(...EDITORS); const approved = rec.tracking_status === "APPROVED"; const finalised = approved || rec.tracking_status === "REJECTED";
   const canApprove = me.role === "DIRECTOR" && !approved;
-  const atts = loadAtt(rec.id);
   const next: { status: DispatchTrackingStatus; text: string } | null = rec.tracking_status === "DRAFT" ? { status: "PENDING", text: "Submit" } : rec.tracking_status === "PENDING" || rec.tracking_status === "FORWARDED" ? { status: "REVIEWED", text: "Mark reviewed" } : null;
   const tl: { icon: string; tone: string; title: string; meta: string }[] = [{ icon: "inbox", tone: "", title: "Recorded as Draft", meta: `${userName(rec.created_by, dir)} · ${fmtDateTime(rec.created_at)}` }];
   if (rec.tracking_status !== "DRAFT") tl.push({ icon: rec.tracking_status === "FORWARDED" ? "forward" : "clock", tone: rec.tracking_status === "FORWARDED" ? "info" : "warn", title: `Status: ${label(rec.tracking_status)}${rec.assigned_to && rec.tracking_status === "FORWARDED" ? ` to ${userName(rec.assigned_to, dir)}` : ""}`, meta: `Last updated ${fmtDateTime(rec.updated_at)}` });
@@ -176,8 +180,9 @@ async function detailPage({ root, params }: RouteContext): Promise<void> {
         <div><dt>Reference number</dt><dd class="mono">${rec.reference_number}</dd></div><div><dt>Date received</dt><dd>${fmtDate(rec.date_received)}</dd></div><div><dt>Sender</dt><dd>${rec.sender}</dd></div>
         <div><dt>Recorded by</dt><dd>${userName(rec.created_by, dir)}</dd></div><div><dt>Priority</dt><dd>${badge("pri", rec.priority)}</dd></div><div><dt>Workflow</dt><dd>${label(rec.workflow_status)}</dd></div></dl></section>
       <section class="card" aria-labelledby="att-h"><div class="card-head"><h2 class="h3" id="att-h">Attachments (${atts.length})</h2>${canEdit && !finalised ? html`<a class="btn btn-secondary btn-sm" href="${R.mailUpload(rec.id)}">${icon("upload", 16)}Upload</a>` : ""}</div>
-        <div class="card-body stack">${needsApiBanner("The server stores uploaded documents but has no endpoint to list, preview or download them yet. Only files uploaded from this browser session are shown.")}
-          ${atts.map((a) => { const k = fileKind(a.original_name); return html`<div class="file-row"><span class="f-ico" style="${k.style}">${k.t}</span><div class="f-main"><span class="f-name">${a.original_name}</span><span class="t-xs muted">${fmtSize(a.size_bytes)} · uploaded ${fmtDate(a.created_at)}</span></div></div>`; })}</div></section>
+        <div class="card-body stack">${atts.length ? "" : html`<p class="muted">No documents attached yet.</p>`}
+          ${atts.map((a) => { const k = fileKind(a.original_name); return html`<div class="file-row"><span class="f-ico" style="${k.style}">${k.t}</span><div class="f-main"><span class="f-name">${a.original_name}</span><span class="t-xs muted">${fmtSize(a.size_bytes)} · uploaded ${fmtDate(a.created_at)}</span></div>
+            <button type="button" class="btn btn-ghost btn-sm" data-preview="${a.id}">${icon("eye", 16)}Preview</button><button type="button" class="btn btn-ghost btn-icon btn-sm" data-download="${a.id}" aria-label="Download ${a.original_name}">${icon("download", 16)}</button></div>`; })}</div></section>
       <section class="card" aria-labelledby="cm-h"><div class="card-head"><h2 class="h3" id="cm-h">Comments</h2></div><div class="card-body stack">${needsApiBanner("Comments on mail need a backend endpoint. Rejection reasons are shown above.")}
         <div class="field"><label class="label" for="cm-new">Add a comment</label><textarea id="cm-new" class="textarea" style="min-height:80px" disabled placeholder="Coming soon"></textarea></div></div></section></div>
       <aside class="stack-lg" aria-label="Assignment and history"><section class="card card-body stack"><h2 class="h3">Assigned to</h2>
@@ -189,11 +194,13 @@ async function detailPage({ root, params }: RouteContext): Promise<void> {
   const reload = () => detailPage({ root, params, query: new URLSearchParams() });
   $("#advance", root)?.addEventListener("click", async () => { try { await dispatch.update(rec.id, { tracking_status: next!.status }); toast("success", `Status set to ${label(next!.status)}`); await reload(); } catch (e) { toast("error", "Could not update", e instanceof ApiError ? e.message : ""); } });
   $("#print", root)?.addEventListener("click", () => window.print());
+  $$("[data-preview]", root).forEach((b) => b.addEventListener("click", () => { const a = atts.find((x) => x.id === b.dataset.preview); if (a) void openAttachment(rec.id, a, "preview"); }));
+  $$("[data-download]", root).forEach((b) => b.addEventListener("click", () => { const a = atts.find((x) => x.id === b.dataset.download); if (a) void openAttachment(rec.id, a, "download"); }));
   const openAssign = () => assignModal(rec, dir, reload);
   $("#assign", root)?.addEventListener("click", openAssign); $("#assign2", root)?.addEventListener("click", openAssign);
 }
 
-function assignModal(rec: Dispatch, dir: Map<string, import("../api/types").User>, done: () => Promise<void>): void {
+function assignModal(rec: Dispatch, dir: Map<string, Person>, done: () => Promise<void>): void {
   modal({ title: "Assign or forward", large: true, body: html`<p class="t-sm muted" style="margin-top:-8px"><span class="mono">${rec.reference_number}</span> · ${rec.assigned_to ? `assigned to ${userName(rec.assigned_to, dir)}` : "currently unassigned"}</p>
     <form id="af" class="stack" novalidate><div id="form-alert" class="alert alert-danger" role="alert" hidden><span class="a-icon">${icon("alert-circle", 18)}</span><div><span id="form-alert-text"></span></div></div>
       <fieldset style="border:0;padding:0;margin:0" class="field"><legend class="label" style="margin-bottom:6px">Action</legend><div class="radio-cards">

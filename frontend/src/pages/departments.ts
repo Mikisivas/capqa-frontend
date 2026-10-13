@@ -1,12 +1,12 @@
 import { ApiError } from "../api/client";
-import { deptName, knownCourses, knownStaff, loadDepartments, rememberCourse, rememberStaff, resetDepartments } from "../api/directory";
+import { activeUsers, deptName, isUuid, loadCourses, loadDepartments, loadDirectory, loadStaff, resetDepartments, userName } from "../api/directory";
 import { academic } from "../api/services";
-import type { AccreditationStatus, BenchmarkSource, Course, Department, DepartmentCompliance } from "../api/types";
+import type { AccreditationStatus, BenchmarkSource, Course, Department, DepartmentCompliance, Staff } from "../api/types";
 import { R } from "../routes";
 import type { Route, RouteContext } from "../router";
 import { hasRole } from "../session";
-import { backLink, badge, bindCounters, bindForm, dataTable, emptyState, errorState, field, fieldError, formAlert, hbar, icon, needsApiBanner, pageHead, select, skeletonRows, textarea, toast } from "../ui/components";
-import { $, $$, fmtDateTime, html, label, mount, Safe } from "../ui/html";
+import { backLink, badge, bindCounters, bindForm, confirmDialog, dataTable, emptyState, errorState, field, fieldError, formAlert, hbar, icon, needsApiBanner, onPage, pageHead, pagination, select, skeletonRows, textarea, toast } from "../ui/components";
+import { $, $$, fmtDate, html, label, mount, Safe } from "../ui/html";
 import { dashboard } from "../api/services";
 
 const ACADEMIC = ["ADMIN", "DIRECTOR", "ACADEMIC-OFFICER"] as const;
@@ -25,12 +25,23 @@ function deptSelect(depts: Department[], name = "department_id", value?: string 
 const sessionSelect = (name = "session", value = sessions()[0]) => select(name, "Session", sessions().map((s) => ({ value: s, text: s })), { required: true, value });
 
 /** Shared shell for the small "record something" forms. */
-function formPage(root: HTMLElement, opts: { title: string; sub?: string; back: string; body: Safe; submit: string; run: (v: Record<string, string>, form: HTMLFormElement) => Promise<void>; after?: (form: HTMLFormElement) => void }): void {
-  mount(root, html`<div class="page-narrow stack-lg" style="width:100%">${pageHead(opts.title, opts.sub ?? "")}<form class="stack-lg" id="f" novalidate>${formAlert()}<div class="card"><div class="card-body grid-form">${opts.body}</div></div>
+function formPage(root: HTMLElement, opts: { title: string; sub?: string; back: string; body: Safe; submit: string; run: (v: Record<string, string>, form: HTMLFormElement) => Promise<void>; after?: (form: HTMLFormElement) => void; backText?: string }): void {
+  mount(root, html`<div class="page-narrow stack-lg" style="width:100%">${opts.backText ? backLink(opts.back, opts.backText) : ""}${pageHead(opts.title, opts.sub ?? "")}<form class="stack-lg" id="f" novalidate>${formAlert()}<div class="card"><div class="card-body grid-form">${opts.body}</div></div>
     <div class="action-bar"><a class="btn btn-secondary" href="${opts.back}">Cancel</a><button type="submit" class="btn btn-primary">${opts.submit}</button></div></form></div>`);
   const form = $<HTMLFormElement>("#f", root)!; bindCounters(form); opts.after?.(form);
   bindForm(form, async (v) => { try { await opts.run(v, form); } catch (e) { if (e instanceof ApiError && e.status === 409) { fieldError(form, "name", e.message); return; } throw e; } });
 }
+
+const ACC: AccreditationStatus[] = ["FULL", "INTERIM", "DENIED"];
+const accRadios = (value: AccreditationStatus = "INTERIM") => html`<fieldset class="field span-2" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:6px">Accreditation status</legend><div class="radio-cards">${ACC.map((s) => html`<label class="radio-card ${s === value ? "is-on" : ""}"><input type="radio" name="accreditation_status" value="${s}" ${s === value ? "checked" : ""}>${badge("acc", s)}</label>`)}</div></fieldset>`;
+const bindRadioCards = (f: HTMLFormElement, name: string) => $$(`input[name=${name}]`, f).forEach((r) => r.addEventListener("change", () => $$(".radio-card", f).forEach((c) => c.classList.toggle("is-on", (c.querySelector("input") as HTMLInputElement).checked))));
+/** Optional link from a staff record to a CAPQA login, picked from the user directory. */
+async function userLinkField(value = ""): Promise<Safe> {
+  const dir = await loadDirectory(); const users = activeUsers(dir);
+  if (value && !users.some((u) => u.id === value)) users.unshift({ id: value, full_name: userName(value, dir), role: "VIEWER" });
+  return select("user_id", "Linked user account", users.map((u) => ({ value: u.id, text: `${u.full_name}${u.username ? ` · ${u.username}` : ""}` })), { optional: true, blank: "— No CAPQA account —", value, help: "Link this staff record to a CAPQA login so their evaluations and tasks line up." });
+}
+const courseConflict = (root: HTMLElement) => (e: unknown) => { if (e instanceof ApiError && e.status === 409) { fieldError($<HTMLFormElement>("#f", root)!, "code", e.message); return; } throw e; };
 
 // ============ LIST ============
 async function listPage({ root }: RouteContext): Promise<void> {
@@ -63,21 +74,42 @@ const addDept = ({ root }: RouteContext) => formPage(root, { title: "Add departm
   run: async (v) => { const d = await academic.createDepartment({ name: v.name!, faculty: v.faculty! }); resetDepartments(); toast("success", "Department added", d.name); location.hash = R.deptDetail(d.id); } });
 
 async function addStaff({ root, query }: RouteContext): Promise<void> {
-  const depts = await loadDepartments();
-  formPage(root, { title: "Add staff member", sub: "Staff are counted in the staff-to-student ratio.", back: R.depts, submit: "Add staff member",
+  const [depts, link] = await Promise.all([loadDepartments(), userLinkField()]);
+  formPage(root, { title: "Add staff member", sub: "Staff are counted in the staff-to-student ratio.", back: R.staffList, submit: "Add staff member",
     body: html`<div class="span-2">${deptSelect(depts, "department_id", query.get("dept") ?? "")}</div><div class="span-2">${field("full_name", "Full name", { required: true, attrs: 'minlength="2" maxlength="120"' })}</div><div class="span-2">${field("staff_rank", "Rank", { optional: true, placeholder: "e.g. Senior Lecturer", attrs: 'maxlength="60"' })}</div>
-      <div class="span-2">${field("user_id", "Linked user account", { optional: true, mono: true, placeholder: "User ID (UUID)", help: "Link this staff record to a CAPQA login so their evaluations and tasks line up. Leave empty if they have no account." })}</div>`,
-    run: async (v, form) => { if (v.user_id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v.user_id)) { fieldError(form, "user_id", "Enter a valid user ID."); return; }
-      const s = await academic.createStaff({ department_id: Number(v.department_id), full_name: v.full_name!, staff_rank: v.staff_rank || undefined, user_id: v.user_id || undefined }); rememberStaff(s); toast("success", "Staff member added", `${s.full_name} (staff ID ${s.id.slice(0, 8)}…)`); location.hash = R.deptDetail(s.department_id); } });
+      <div class="span-2">${link}</div>`,
+    run: async (v, form) => { if (v.user_id && !isUuid(v.user_id)) { fieldError(form, "user_id", "Choose a user account."); return; }
+      const s = await academic.createStaff({ department_id: Number(v.department_id), full_name: v.full_name!, staff_rank: v.staff_rank || undefined, user_id: v.user_id || undefined }); await loadStaff(true); toast("success", "Staff member added", s.full_name); location.hash = `${R.deptDetail(s.department_id)}?tab=staff`; } });
+}
+async function editStaff({ root, params }: RouteContext): Promise<void> {
+  const s = await academic.staff(params.id!); const [depts, link] = await Promise.all([loadDepartments(), userLinkField(s.user_id ?? "")]);
+  formPage(root, { title: `Edit ${s.full_name}`, sub: "Changes are recorded in the audit log.", back: R.staffList, backText: "Back to staff", submit: "Save changes",
+    body: html`<div class="span-2">${deptSelect(depts, "department_id", s.department_id)}</div><div class="span-2">${field("full_name", "Full name", { required: true, value: s.full_name, attrs: 'minlength="2" maxlength="120"' })}</div><div class="span-2">${field("staff_rank", "Rank", { optional: true, value: s.staff_rank ?? "", placeholder: "e.g. Senior Lecturer", attrs: 'maxlength="60"' })}</div>
+      <div class="span-2">${link}</div><label class="check span-2"><input type="checkbox" name="is_active" value="1" ${s.is_active ? "checked" : ""}><span>Active staff member <span class="t-xs muted">(inactive staff are left out of pickers; their evaluations are kept)</span></span></label>`,
+    run: async (v, form) => { if (v.user_id && !isUuid(v.user_id)) { fieldError(form, "user_id", "Choose a user account."); return; }
+      const u = await academic.updateStaff(s.id, { department_id: Number(v.department_id), full_name: v.full_name, staff_rank: v.staff_rank || null, user_id: v.user_id || null, is_active: (form.elements.namedItem("is_active") as HTMLInputElement).checked }); await loadStaff(true); toast("success", "Staff member updated", u.full_name); location.hash = R.staffList; } });
 }
 async function addCourse({ root, query }: RouteContext): Promise<void> {
   const depts = await loadDepartments();
-  formPage(root, { title: "Add course", sub: "Record a course and its accreditation status.", back: R.depts, submit: "Add course",
+  formPage(root, { title: "Add course", sub: "Record a course and its accreditation status.", back: R.courseList, submit: "Add course",
     body: html`<div class="span-2">${deptSelect(depts, "department_id", query.get("dept") ?? "")}</div>${field("code", "Course code", { required: true, mono: true, placeholder: "CMP 411", attrs: 'minlength="2" maxlength="20"' })}${select("level", "Level", LEVELS.map((l) => ({ value: l, text: String(l) })), { required: true, value: 100 })}
-      <div class="span-2">${field("title", "Course title", { required: true, attrs: 'minlength="2" maxlength="150"' })}</div>
-      <fieldset class="field span-2" style="border:0;padding:0;margin:0"><legend class="label" style="margin-bottom:6px">Accreditation status</legend><div class="radio-cards">${(["FULL", "INTERIM", "DENIED"] as const).map((s) => html`<label class="radio-card ${s === "INTERIM" ? "is-on" : ""}"><input type="radio" name="accreditation_status" value="${s}" ${s === "INTERIM" ? "checked" : ""}>${badge("acc", s)}</label>`)}</div></fieldset>`,
-    after: (f) => $$("input[name=accreditation_status]", f).forEach((r) => r.addEventListener("change", () => $$(".radio-card", f).forEach((c) => c.classList.toggle("is-on", (c.querySelector("input") as HTMLInputElement).checked)))),
-    run: async (v) => { try { const c = await academic.createCourse({ department_id: Number(v.department_id), code: v.code, title: v.title, level: Number(v.level), accreditation_status: v.accreditation_status }) as Course; rememberCourse(c); toast("success", "Course added", `${c.code} ${c.title}`); location.hash = R.deptDetail(c.department_id); } catch (e) { if (e instanceof ApiError && e.status === 409) { fieldError($<HTMLFormElement>("#f", root)!, "code", e.message); return; } throw e; } } });
+      <div class="span-2">${field("title", "Course title", { required: true, attrs: 'minlength="2" maxlength="150"' })}</div>${accRadios()}`,
+    after: (f) => bindRadioCards(f, "accreditation_status"),
+    run: async (v) => { try { const c = await academic.createCourse({ department_id: Number(v.department_id), code: v.code, title: v.title, level: Number(v.level), accreditation_status: v.accreditation_status }); await loadCourses(true); toast("success", "Course added", `${c.code} ${c.title}`); location.hash = `${R.deptDetail(c.department_id)}?tab=courses`; } catch (e) { courseConflict(root)(e); } } });
+}
+async function editCourse({ root, params }: RouteContext): Promise<void> {
+  const [c, depts] = await Promise.all([academic.course(params.id!), loadDepartments()]);
+  formPage(root, { title: `Edit ${c.code}`, sub: c.title, back: R.courseList, backText: "Back to courses", submit: "Save changes",
+    body: html`<div class="span-2">${deptSelect(depts, "department_id", c.department_id)}</div>${field("code", "Course code", { required: true, mono: true, value: c.code, attrs: 'minlength="2" maxlength="20"' })}${select("level", "Level", LEVELS.map((l) => ({ value: l, text: String(l) })), { required: true, value: c.level })}
+      <div class="span-2">${field("title", "Course title", { required: true, value: c.title, attrs: 'minlength="2" maxlength="150"' })}</div>${accRadios(c.accreditation_status)}`,
+    after: (f) => bindRadioCards(f, "accreditation_status"),
+    run: async (v) => { try { const u = await academic.updateCourse(c.id, { department_id: Number(v.department_id), code: v.code, title: v.title, level: Number(v.level), accreditation_status: v.accreditation_status }); await loadCourses(true); toast("success", "Course updated", `${u.code} ${u.title}`); location.hash = R.courseList; } catch (e) { courseConflict(root)(e); } } });
+}
+async function courseAccreditation({ root, params }: RouteContext): Promise<void> {
+  const c = await academic.course(params.id!);
+  formPage(root, { title: "Change accreditation status", sub: `${c.code} ${c.title}${c.accreditation_updated_at ? ` · last changed ${fmtDate(c.accreditation_updated_at)}` : ""}`, back: R.courseList, backText: "Back to courses", submit: "Save status",
+    body: accRadios(c.accreditation_status), after: (f) => bindRadioCards(f, "accreditation_status"),
+    run: async (v) => { const u = await academic.updateCourse(c.id, { accreditation_status: v.accreditation_status }); await loadCourses(true); toast("success", "Accreditation updated", `${u.code}: ${label(u.accreditation_status)}`); location.hash = R.courseList; } });
 }
 async function stats({ root, query }: RouteContext): Promise<void> {
   const depts = await loadDepartments();
@@ -129,42 +161,90 @@ async function complianceDashboard({ root }: RouteContext): Promise<void> {
   const comps = (await Promise.all(depts.map((x) => academic.compliance(x.id, session).catch(() => null)))).filter((c): c is DepartmentCompliance => !!c);
   const green = comps.filter((c) => c.staffing_compliant === true && (c.departmental_quality_score ?? 100) >= 70), red = comps.filter((c) => c.staffing_compliant === false || (c.departmental_quality_score ?? 100) < 50), amber = comps.filter((c) => !green.includes(c) && !red.includes(c));
   const acc = (k: string) => d.accreditation_status.find((x) => x.label === k)?.value ?? 0;
+  const courses = await loadCourses(); const faculties = [...new Set(depts.map((x) => x.faculty))].sort();
+  const byFaculty = faculties.map((f) => { const ids = new Set(depts.filter((x) => x.faculty === f).map((x) => x.id)); const cs = courses.filter((c) => ids.has(c.department_id)); return { f, n: (s: AccreditationStatus) => cs.filter((c) => c.accreditation_status === s).length, total: cs.length }; }).filter((x) => x.total);
   const col = (t: string, c: string, fg: string, ic: string, rule: string, list: DepartmentCompliance[]) => html`<div class="card" style="border-top:4px solid ${c}"><div class="card-body stack-sm"><div class="row-between"><span class="row" style="gap:8px;color:${fg}">${icon(ic, 20)}<span class="strong">${t}</span></span><span class="t-3xl strong num">${list.length}</span></div><span class="t-xs muted">${rule}</span>
     <ul style="list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px" class="t-sm">${list.slice(0, 6).map((x) => html`<li class="row-between"><a href="${R.compliance}?dept=${x.department_id}&session=${encodeURIComponent(session)}">${x.department_name}</a><span class="num muted">${x.departmental_quality_score != null ? Math.round(x.departmental_quality_score) : "-"}</span></li>`)}</ul></div></div>`;
   mount(root, html`${pageHead("Compliance dashboard", `Session ${session} · ${depts.length} departments`, html`<a class="btn btn-secondary" href="${R.reportNew}">${icon("report", 16)}Build report</a>`)}
     <section class="grid-3" aria-label="Departments by rating">${col("On track", "#166534", "#15703c", "check-circle", "Meets NUC ratio and quality ≥ 70", green)}${col("Watch", "#d97706", "#93370d", "alert", "Missing data, or quality 50–69", amber)}${col("Action needed", "#b42318", "#b42318", "x-circle", "Below NUC ratio or quality < 50", red)}</section>
     <div class="grid-2"><section class="card" aria-labelledby="acc-h"><div class="card-head"><h2 class="h3" id="acc-h">Accreditation</h2><div class="legend"><span><i style="background:#166534"></i>Full</span><span><i style="background:#d97706"></i>Interim</span><span><i style="background:#b42318"></i>Denied</span></div></div>
       <div class="card-body stack"><div style="display:flex;height:22px;border-radius:4px;overflow:hidden;background:#f1f5f9" role="img" aria-label="Full ${acc("FULL")}, Interim ${acc("INTERIM")}, Denied ${acc("DENIED")}">${[["FULL", "#166534"], ["INTERIM", "#d97706"], ["DENIED", "#b42318"]].map(([k, c]) => html`<span style="width:${(acc(k!) / Math.max(1, acc("FULL") + acc("INTERIM") + acc("DENIED"))) * 100}%;background:${c}"></span>`)}</div>
-        <div class="row" style="gap:16px">${badge("acc", "FULL")}<span class="num strong">${acc("FULL")}</span>${badge("acc", "INTERIM")}<span class="num strong">${acc("INTERIM")}</span>${badge("acc", "DENIED")}<span class="num strong">${acc("DENIED")}</span></div>${needsApiBanner("A breakdown by faculty needs a courses endpoint.")}</div></section>
+        <div class="row" style="gap:16px">${badge("acc", "FULL")}<span class="num strong">${acc("FULL")}</span>${badge("acc", "INTERIM")}<span class="num strong">${acc("INTERIM")}</span>${badge("acc", "DENIED")}<span class="num strong">${acc("DENIED")}</span></div>
+        ${byFaculty.length ? html`<table class="table"><thead><tr><th>Faculty</th>${ACC.map((s) => html`<th class="num" style="text-align:right">${label(s)}</th>`)}</tr></thead><tbody>${byFaculty.map((x) => html`<tr><td>${x.f}</td>${ACC.map((s) => html`<td class="num" style="text-align:right">${x.n(s)}</td>`)}</tr>`)}</tbody></table>` : ""}</div></section>
       <section class="card" aria-labelledby="qs-h"><div class="card-head"><h2 class="h3" id="qs-h">Departmental Quality Scores</h2><span class="t-xs muted">0–100 · target 70</span></div><div class="card-body">${d.quality_scores.length ? hbar(d.quality_scores.map((q) => ({ label: q.department_name, value: Math.round(q.score) }))) : emptyState("No scores yet", "Quality scores recorded by inspectors appear here.")}</div></section></div>`);
 }
 
 // ============ DETAIL / PENDING SCREENS ============
-async function detailPage({ root, params }: RouteContext): Promise<void> {
+async function detailPage({ root, params, query }: RouteContext): Promise<void> {
   const depts = await loadDepartments(); const id = Number(params.id); const dept = depts.find((d) => d.id === id); if (!dept) throw new ApiError(404, "NOT_FOUND", "That department does not exist (or your role cannot list departments).");
   const session = sessions()[0]!; const c = await academic.compliance(id, session).catch(() => null);
-  const staff = knownStaff().filter((s) => s.department_id === id); const courses = knownCourses().filter((x) => x.department_id === id);
-  let tab = "overview";
+  const [staffPage, coursePage] = await Promise.all([academic.staffList({ department_id: id, is_active: true, limit: 100 }), academic.courses({ department_id: id, limit: 100 })]);
+  const staff = staffPage.items, courses = coursePage.items;
+  let tab = query.get("tab") ?? "overview";
   const tabs = [["overview", "Overview"], ["staff", "Staff"], ["ratio", "Ratio and benchmark"], ["courses", "Courses and accreditation"], ["quality", "Quality scores"]];
-  const panel = (): Safe => tab === "overview" ? html`<section class="card card-body stack-sm"><h2 class="h3">Courses by accreditation</h2><div class="row" style="gap:16px">${(["FULL", "INTERIM", "DENIED"] as AccreditationStatus[]).map((s) => html`${badge("acc", s)}<span class="num strong">${courses.filter((x) => x.accreditation_status === s).length}</span>`)}</div>${needsApiBanner("Counts cover courses added in this browser; a course list needs a backend endpoint.")}</section>`
-    : tab === "staff" ? html`<section class="card"><div class="card-head"><h2 class="h3">Staff (${staff.length} known)</h2>${canAcademic() ? html`<a class="btn btn-primary btn-sm" href="${R.staffNew}?dept=${id}">${icon("plus", 14)}Add staff</a>` : ""}</div>${needsApiBanner("A staff list needs a backend endpoint. Showing staff added in this browser.")}${dataTable<(typeof staff)[number]>([{ header: "Name", lead: true, cell: (s) => s.full_name }, { header: "Rank", cell: (s) => s.staff_rank ?? "-" }, { header: "Staff ID", cls: "mono", cell: (s) => s.id.slice(0, 8) }], staff, emptyState("No staff known yet", "Staff you add appear here."))}</section>`
+  const panel = (): Safe => tab === "overview" ? html`<section class="card card-body stack-sm"><h2 class="h3">Courses by accreditation</h2><div class="row" style="gap:16px">${(["FULL", "INTERIM", "DENIED"] as AccreditationStatus[]).map((s) => html`${badge("acc", s)}<span class="num strong">${courses.filter((x) => x.accreditation_status === s).length}</span>`)}</div><p class="t-sm muted">${coursePage.total} course${coursePage.total === 1 ? "" : "s"} · ${staffPage.total} active staff</p></section>`
+    : tab === "staff" ? html`<section class="card"><div class="card-head"><h2 class="h3">Staff (${staffPage.total})</h2>${canAcademic() ? html`<a class="btn btn-primary btn-sm" href="${R.staffNew}?dept=${id}">${icon("plus", 14)}Add staff</a>` : ""}</div>${staffTable(staff, depts, false)}</section>`
     : tab === "ratio" ? html`<section class="card card-body stack"><h2 class="h3">Ratio and benchmark</h2>${c?.data_complete ? html`<p>NUC maximum <strong>1 : ${c.nuc_max_students_per_staff}</strong>. Current ratio <strong>1 : ${c.students_per_staff?.toFixed(0)}</strong>: ${c.staffing_compliant ? "within the benchmark." : "above the benchmark."}</p>` : html`<p class="muted">Not enough data yet for ${session}.</p>`}<a class="btn btn-secondary" href="${R.compliance}?dept=${id}">Open compliance view</a></section>`
-    : tab === "courses" ? html`<section class="card"><div class="card-head"><h2 class="h3">Courses and accreditation (${courses.length} known)</h2>${canAcademic() ? html`<a class="btn btn-primary btn-sm" href="${R.courseNew}?dept=${id}">${icon("plus", 14)}Add course</a>` : ""}</div>${needsApiBanner("A course list needs a backend endpoint. Showing courses added in this browser.")}${dataTable<Course>([{ header: "Code", lead: true, cls: "mono", cell: (x) => x.code }, { header: "Course", cell: (x) => x.title }, { header: "Level", cell: (x) => x.level }, { header: "Accreditation", cell: (x) => badge("acc", x.accreditation_status) }], courses, emptyState("No courses known yet", "Courses you add appear here."))}</section>`
+    : tab === "courses" ? html`<section class="card"><div class="card-head"><h2 class="h3">Courses and accreditation (${coursePage.total})</h2>${canAcademic() ? html`<a class="btn btn-primary btn-sm" href="${R.courseNew}?dept=${id}">${icon("plus", 14)}Add course</a>` : ""}</div>${courseTable(courses, depts, false)}</section>`
     : html`<section class="card card-body stack"><h2 class="h3">Quality scores</h2><div class="row" style="gap:8px;align-items:baseline"><span class="t-3xl strong num">${c?.departmental_quality_score != null ? Math.round(c.departmental_quality_score) : "-"}</span><span class="muted">/ 100 · ${session}</span></div>${hasRole(...INSPECT) ? html`<a class="btn btn-secondary" href="${R.qualityScore}?dept=${id}">Record new score</a>` : ""}${needsApiBanner("A history of recorded scores needs a backend endpoint.")}</section>`;
   const draw = () => { mount(root, html`${backLink(R.depts, "Back to departments")}<div class="page-head"><div class="stack-sm" style="gap:6px"><div class="row">${c?.staffing_compliant === true ? html`<span class="badge" data-s="pass">Meets NUC ratio</span>` : c?.staffing_compliant === false ? html`<span class="badge" data-s="fail">Below NUC ratio</span>` : html`<span class="badge no-glyph">No ratio data</span>`}</div><h1 class="h1">${dept.name}</h1><p class="muted">${dept.faculty}</p></div>
       <div class="row">${canAcademic() ? html`<a class="btn btn-secondary" href="${R.deptEdit(id)}">${icon("edit", 16)}Edit</a><a class="btn btn-secondary" href="${R.deptStats}?dept=${id}">Update statistics</a>` : ""}</div></div>
       <div class="tabs" role="tablist" aria-label="Department sections">${tabs.map(([k, t]) => html`<button type="button" class="tab" role="tab" data-tab="${k}" aria-selected="${k === tab}">${t}</button>`)}</div><div class="stack-lg" role="tabpanel">${panel()}</div>`);
-    $$("[data-tab]", root).forEach((b) => b.addEventListener("click", () => { tab = (b as HTMLElement).dataset.tab!; draw(); })); };
+    $$("[data-tab]", root).forEach((b) => b.addEventListener("click", () => { tab = (b as HTMLElement).dataset.tab!; draw(); }));
+    bindRowActions(root, () => void detailPage({ root, params, query: new URLSearchParams({ tab }) } as RouteContext)); };
   draw();
 }
 const pending = (title: string, back: string, note: string) => ({ root }: RouteContext) => mount(root, html`<div class="page-narrow stack-lg" style="width:100%">${backLink(back, "Back")}${pageHead(title)}${needsApiBanner(note)}</div>`);
+function staffTable(rows: Staff[], depts: Department[], showDept = true): Safe {
+  return dataTable<Staff>([{ header: "Name", lead: true, cell: (s) => html`<a href="${R.evalHistory}?staff=${s.id}" class="strong">${s.full_name}</a>` }, { header: "Rank", cell: (s) => s.staff_rank ?? "-" },
+    ...(showDept ? [{ header: "Department", cell: (s: Staff) => deptName(s.department_id, depts) }] : []), { header: "Status", cell: (s) => s.is_active ? html`<span class="badge" data-s="acct-ACTIVE">Active</span>` : html`<span class="badge" data-s="acct-DISABLED">Inactive</span>` },
+    { header: "Actions", right: true, cls: "td-actions", cell: (s) => canAcademic() ? html`<a class="btn btn-ghost btn-sm" href="${R.staffEdit(s.id)}">${icon("edit", 14)}Edit</a>${s.is_active ? html`<button type="button" class="btn btn-ghost btn-sm" data-deactivate="${s.id}" data-name="${s.full_name}">Deactivate</button>` : ""}` : html`<a class="btn btn-ghost btn-sm" href="${R.evalHistory}?staff=${s.id}">Evaluations</a>` }],
+    rows, emptyState("No staff found", canAcademic() ? "Add staff to count them in the staff-to-student ratio." : "Staff added by the academic office appear here.", canAcademic() ? { href: R.staffNew, text: "Add staff" } : undefined));
+}
+function courseTable(rows: Course[], depts: Department[], showDept = true): Safe {
+  return dataTable<Course>([{ header: "Code", lead: true, cls: "mono", cell: (x) => x.code }, { header: "Course", cell: (x) => x.title }, ...(showDept ? [{ header: "Department", cell: (x: Course) => deptName(x.department_id, depts) }] : []), { header: "Level", cls: "num", cell: (x) => x.level },
+    { header: "Accreditation", cell: (x) => badge("acc", x.accreditation_status) },
+    ...(canAcademic() ? [{ header: "Actions", right: true, cls: "td-actions", cell: (x: Course) => html`<a class="btn btn-ghost btn-sm" href="${R.courseAccreditation(x.id)}">Accreditation</a><a class="btn btn-ghost btn-sm" href="${R.courseEdit(x.id)}">${icon("edit", 14)}Edit</a><button type="button" class="btn btn-ghost btn-sm" style="color:#b42318" data-delete-course="${x.id}" data-name="${x.code}">Delete</button>` }] : [])],
+    rows, emptyState("No courses found", canAcademic() ? "Add courses to record their accreditation." : "Courses added by the academic office appear here.", canAcademic() ? { href: R.courseNew, text: "Add course" } : undefined));
+}
+/** Deactivate-staff and delete-course buttons rendered by the tables above. */
+function bindRowActions(root: HTMLElement, refresh: () => void): void {
+  $$<HTMLButtonElement>("[data-deactivate]", root).forEach((b) => b.addEventListener("click", async () => {
+    if (!(await confirmDialog({ title: `Deactivate ${b.dataset.name}?`, text: "They are left out of staff pickers and counts. Their evaluations are kept, and you can reactivate them from Edit.", confirm: "Deactivate", danger: true, icon: "alert" }))) return;
+    try { await academic.deactivateStaff(b.dataset.deactivate!); await loadStaff(true); toast("success", "Staff member deactivated", b.dataset.name); refresh(); } catch (e) { toast("error", "Could not deactivate", e instanceof ApiError ? e.message : ""); }
+  }));
+  $$<HTMLButtonElement>("[data-delete-course]", root).forEach((b) => b.addEventListener("click", async () => {
+    if (!(await confirmDialog({ title: `Delete ${b.dataset.name}?`, text: "The course is removed permanently. Courses used by hall allocations cannot be deleted.", confirm: "Delete course", danger: true, icon: "trash" }))) return;
+    try { await academic.deleteCourse(b.dataset.deleteCourse!); await loadCourses(true); toast("success", "Course deleted", b.dataset.name); refresh(); } catch (e) { toast("error", "Could not delete the course", e instanceof ApiError ? e.message : ""); }
+  }));
+}
+/** Shared shell for the paginated staff and course lists: a filter form plus server-side paging. */
+function serverList<T>(root: HTMLElement, opts: { fetch: (f: FormData, offset: number, limit: number) => Promise<{ items: T[]; total: number }>; table: (rows: T[]) => Safe }): Promise<void> {
+  const form = $<HTMLFormElement>("#f", root)!; const el = $("#rows", root)!; let offset = 0; const limit = 20; let timer = 0;
+  const paint = async () => { let page; try { page = await opts.fetch(new FormData(form), offset, limit); } catch (e) { el.innerHTML = errorState(e).value; $("[data-retry]", el)?.addEventListener("click", () => void paint()); return; }
+    el.innerHTML = html`${opts.table(page.items)}${pagination(page.total, offset, limit)}`.value; onPage(el, (o) => { offset = Math.max(0, o); void paint(); }); bindRowActions(el, () => void paint()); };
+  form.addEventListener("input", (e) => { offset = 0; clearTimeout(timer); timer = window.setTimeout(() => void paint(), (e.target as HTMLElement).tagName === "INPUT" ? 300 : 0); });
+  form.addEventListener("submit", (e) => e.preventDefault()); return paint();
+}
+const deptFilter = (depts: Department[]) => depts.length ? html`<label class="field"><span class="label">Department</span><select class="select" name="dept"><option value="">All departments</option>${depts.map((d) => html`<option value="${d.id}">${d.name}</option>`)}</select></label>` : "";
+const searchBox = (ph: string) => html`<label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead">${icon("search", 18)}</span><input class="input" type="search" name="q" placeholder="${ph}"></span></label>`;
+const str = (f: FormData, k: string) => String(f.get(k) ?? "");
+
 async function staffList({ root }: RouteContext): Promise<void> {
-  const depts = await loadDepartments(); const staff = knownStaff();
-  mount(root, html`${pageHead("Staff", "", canAcademic() ? html`<a class="btn btn-primary" href="${R.staffNew}">${icon("plus", 16)}Add staff</a>` : "")}${needsApiBanner("A staff list needs a backend endpoint. Showing staff added in this browser.")}<section class="card">${dataTable<(typeof staff)[number]>([{ header: "Name", lead: true, cell: (s) => html`<a href="${R.evalHistory}?staff=${s.id}" class="strong">${s.full_name}</a>` }, { header: "Rank", cell: (s) => s.staff_rank ?? "-" }, { header: "Department", cell: (s) => deptName(s.department_id, depts) }, { header: "Staff ID", cls: "mono", cell: (s) => s.id }], staff, emptyState("No staff known yet", "Staff you add appear here."))}</section>`);
+  const depts = await loadDepartments();
+  mount(root, html`${pageHead("Staff", "Academic staff counted in each department's staff-to-student ratio.", canAcademic() ? html`<a class="btn btn-primary" href="${R.staffNew}">${icon("plus", 16)}Add staff</a>` : "")}
+    <section class="card"><form class="filter-bar" id="f">${searchBox("Staff name")}${deptFilter(depts)}<label class="field"><span class="label">Status</span><select class="select" name="active"><option value="true">Active</option><option value="false">Inactive</option><option value="">All</option></select></label></form><div id="rows">${skeletonRows()}</div></section>`);
+  await serverList<Staff>(root, { table: (rows) => staffTable(rows, depts),
+    fetch: (f, offset, limit) => academic.staffList({ search: str(f, "q").trim() || undefined, department_id: str(f, "dept") ? Number(str(f, "dept")) : undefined, is_active: str(f, "active") ? str(f, "active") === "true" : undefined, offset, limit }) });
 }
 async function courseList({ root }: RouteContext): Promise<void> {
-  const depts = await loadDepartments(); const courses = knownCourses();
-  mount(root, html`${pageHead("Courses", "", canAcademic() ? html`<a class="btn btn-primary" href="${R.courseNew}">${icon("plus", 16)}Add course</a>` : "")}${needsApiBanner("A course list needs a backend endpoint. Showing courses added in this browser. Changing accreditation after creation also needs an endpoint.")}<section class="card">${dataTable<Course>([{ header: "Code", lead: true, cls: "mono", cell: (x) => x.code }, { header: "Course", cell: (x) => x.title }, { header: "Department", cell: (x) => deptName(x.department_id, depts) }, { header: "Level", cell: (x) => x.level }, { header: "Accreditation", cell: (x) => badge("acc", x.accreditation_status) }], courses, emptyState("No courses known yet", "Courses you add appear here."))}</section>`);
+  const depts = await loadDepartments();
+  mount(root, html`${pageHead("Courses", "Courses and their accreditation status.", canAcademic() ? html`<a class="btn btn-primary" href="${R.courseNew}">${icon("plus", 16)}Add course</a>` : "")}
+    <section class="card"><form class="filter-bar" id="f">${searchBox("Course code or title")}${deptFilter(depts)}
+      <label class="field"><span class="label">Level</span><select class="select" name="level"><option value="">All levels</option>${LEVELS.map((l) => html`<option>${l}</option>`)}</select></label>
+      <label class="field"><span class="label">Accreditation</span><select class="select" name="acc"><option value="">All</option>${ACC.map((s) => html`<option value="${s}">${label(s)}</option>`)}</select></label></form><div id="rows">${skeletonRows()}</div></section>`);
+  await serverList<Course>(root, { table: (rows) => courseTable(rows, depts),
+    fetch: (f, offset, limit) => academic.courses({ search: str(f, "q").trim() || undefined, department_id: str(f, "dept") ? Number(str(f, "dept")) : undefined, level: str(f, "level") ? Number(str(f, "level")) : undefined, accreditation_status: str(f, "acc") || undefined, offset, limit }) });
 }
 
 export const departmentRoutes: Route[] = [
@@ -172,15 +252,16 @@ export const departmentRoutes: Route[] = [
   { path: "/departments/new", title: "Add department", roles: [...ACADEMIC], render: addDept },
   { path: "/departments/staff", title: "Staff", roles: [...VIEW], render: staffList },
   { path: "/departments/staff/new", title: "Add staff member", roles: [...ACADEMIC], render: addStaff },
+  { path: "/departments/staff/:id/edit", title: "Edit staff member", roles: [...ACADEMIC], render: editStaff },
   { path: "/departments/courses", title: "Courses", roles: [...VIEW], render: courseList },
   { path: "/departments/courses/new", title: "Add course", roles: [...ACADEMIC], render: addCourse },
-  { path: "/departments/courses/:id/accreditation", title: "Change accreditation", roles: [...ACADEMIC], render: pending("Change course accreditation status", R.courseList, "Changing a course's accreditation after it is created needs a backend endpoint.") },
+  { path: "/departments/courses/:id/accreditation", title: "Change accreditation", roles: [...ACADEMIC], render: courseAccreditation },
+  { path: "/departments/courses/:id/edit", title: "Edit course", roles: [...ACADEMIC], render: editCourse },
   { path: "/departments/stats", title: "Update statistics", roles: [...ACADEMIC], render: stats },
   { path: "/departments/benchmark", title: "NUC benchmark", roles: [...ACADEMIC], render: nuc },
   { path: "/departments/quality-score", title: "Record quality score", roles: [...INSPECT], render: qualityScore },
   { path: "/departments/compliance", title: "Department compliance", roles: [...VIEW], render: compliancePage },
   { path: "/departments/compliance-dashboard", title: "Compliance dashboard", roles: [...VIEW], render: complianceDashboard },
   { path: "/departments/:id", title: "Department detail", roles: [...VIEW], render: detailPage },
-  { path: "/departments/:id/edit", title: "Edit department", roles: [...ACADEMIC], render: pending("Edit or delete department", R.depts, "Editing and deleting departments, staff and courses needs backend endpoints.") },
+  { path: "/departments/:id/edit", title: "Edit department", roles: [...ACADEMIC], render: pending("Edit or delete department", R.depts, "Editing and deleting departments needs backend endpoints. Staff and courses can be edited from their own lists.") },
 ];
-void fmtDateTime;

@@ -1,13 +1,11 @@
 import { ApiError } from "../api/client";
-import { auditNumber, average, cachedAudits, findAudit, rememberAudit } from "../api/auditCache";
-import { loadClassrooms, loadDirectory, hallName } from "../api/directory";
-import { userName } from "../api/directory";
+import { loadClassrooms, loadDirectory, hallName, userName } from "../api/directory";
 import { facilities } from "../api/services";
 import type { AuditResultStatus, ExamHallAudit } from "../api/types";
 import { R } from "../routes";
 import type { Route, RouteContext } from "../router";
 import { hasRole } from "../session";
-import { alert, backLink, badge, bindCounters, confirmDialog, dataTable, emptyState, icon, needsApiBanner, pageHead, toast } from "../ui/components";
+import { alert, backLink, badge, bindCounters, confirmDialog, dataTable, emptyState, errorState, icon, onPage, pageHead, pagination, skeletonRows, toast } from "../ui/components";
 import { $, $$, fmtDateTime, html, label, mount, Safe } from "../ui/html";
 
 const INSPECT = ["ADMIN", "QUALITY-INSPECTOR"] as const;
@@ -20,6 +18,8 @@ const WORDS = ["Very poor", "Poor", "Fair", "Good", "Excellent"];
 const RESULTS: { v: AuditResultStatus; d: string }[] = [{ v: "SUITABLE", d: "Ready for examinations" }, { v: "NEEDS_ATTENTION", d: "Usable after listed fixes" }, { v: "NOT_SUITABLE", d: "Do not use for examinations" }];
 const starColor = (v: number) => v >= 4 ? "#166534" : v === 3 ? "#d97706" : "#dc2626";
 const stars = (v: number, size = 16) => html`<span class="stars-sm" aria-hidden="true">${[1, 2, 3, 4, 5].map((n) => html`<span style="color:${n <= v ? starColor(v) : "#cbd5e1"};display:flex">${icon("star", size)}</span>`)}</span>`;
+const auditNumber = (a: ExamHallAudit) => `AUD-${new Date(a.created_at).getFullYear()}-${a.id.slice(0, 4).toUpperCase()}`;
+const average = (a: ExamHallAudit) => Math.round(((a.ventilation + a.lighting + a.seating + a.audio_system + a.cleanliness) / 5) * 10) / 10;
 type Rec = Record<(typeof ITEMS)[number]["key"], number>;
 
 // ============ WIZARD ============
@@ -62,7 +62,7 @@ async function wizard({ root, query }: RouteContext): Promise<void> {
       st.saving = true; draw();
       try {
         const a = await facilities.createAudit({ classroom_id: st.hall, ...st.r, comments: st.comments.trim() || undefined, result_status: st.result });
-        rememberAudit(a); toast("success", "Audit saved as draft", "Review it, then finalise."); location.hash = R.auditFinalise(a.id);
+        toast("success", "Audit saved as draft", "Review it, then finalise."); location.hash = R.auditFinalise(a.id);
       } catch (err) { st.saving = false; draw(); $("#step-err", root)!.innerHTML = alert("danger", "We couldn't save this audit", err instanceof ApiError ? err.message : "Please try again.", "alert-circle").value; }
     });
     // Keyboard: allow 1-5 to rate quickly.
@@ -72,8 +72,7 @@ async function wizard({ root, query }: RouteContext): Promise<void> {
 
 // ============ FINALISE ============
 async function finalisePage({ root, params }: RouteContext): Promise<void> {
-  const [halls, dir] = await Promise.all([loadClassrooms(), loadDirectory()]);
-  const a = findAudit(params.id!); if (!a) throw new ApiError(404, "NOT_FOUND", "This audit is not stored in this browser. The server cannot fetch a single audit yet.");
+  const [halls, dir, a] = await Promise.all([loadClassrooms(), loadDirectory(), facilities.audit(params.id!)]);
   const locked = a.lifecycle_status === "FINALISED";
   mount(root, html`<div style="max-width:600px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:20px">
     ${locked ? html`<div class="banner-locked" role="status">${icon("lock", 18)}<span class="strong">Finalised, read-only</span><span class="muted">${fmtDateTime(a.finalised_at)}</span></div>` : alert("success", "Audit saved as draft", "Review it, then finalise to lock the result.", "check-circle")}
@@ -83,15 +82,14 @@ async function finalisePage({ root, params }: RouteContext): Promise<void> {
     <div class="action-bar">${locked ? html`<a class="btn btn-primary btn-lg" href="${R.auditSummary(a.id)}">View result summary</a>` : html`<a class="btn btn-secondary btn-lg" href="${R.audits}">Done for now</a><button type="button" class="btn btn-primary btn-lg" id="fin">${icon("lock", 18)}Finalise</button>`}</div></div>`);
   $("#fin", root)?.addEventListener("click", async () => {
     if (!(await confirmDialog({ title: "Finalise this audit?", text: `Finalised audits become read-only. The result is shared with the Director and the hall's department.`, confirm: "Finalise audit", icon: "lock" }))) return;
-    try { const f = await facilities.finaliseAudit(a.id); rememberAudit(f); toast("success", "Audit finalised"); location.hash = R.auditSummary(a.id); }
+    try { await facilities.finaliseAudit(a.id); toast("success", "Audit finalised"); location.hash = R.auditSummary(a.id); }
     catch (err) { toast("error", "Could not finalise", err instanceof ApiError ? err.message : ""); }
   });
 }
 
 // ============ SUMMARY ============
 async function summaryPage({ root, params }: RouteContext): Promise<void> {
-  const [halls, dir] = await Promise.all([loadClassrooms(), loadDirectory()]);
-  const a = findAudit(params.id!); if (!a) throw new ApiError(404, "NOT_FOUND", "This audit is not stored in this browser. The server cannot fetch a single audit yet.");
+  const [halls, dir, a] = await Promise.all([loadClassrooms(), loadDirectory(), facilities.audit(params.id!)]);
   const hall = halls.find((h) => h.id === a.classroom_id);
   const tone = { SUITABLE: { bg: "#ecfdf3", bd: "#abefc6", fg: "#15703c", ic: "check-circle", msg: "This hall is ready for examinations." }, NEEDS_ATTENTION: { bg: "#fffaeb", bd: "#fedf89", fg: "#93370d", ic: "alert", msg: "Usable after the listed fixes are made." }, NOT_SUITABLE: { bg: "#fef3f2", bd: "#fecdca", fg: "#b42318", ic: "x-circle", msg: "Do not use this hall for examinations until it is repaired." } }[a.result_status];
   mount(root, html`<div style="max-width:760px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:20px">
@@ -104,27 +102,27 @@ async function summaryPage({ root, params }: RouteContext): Promise<void> {
     <div class="action-bar"><a class="btn btn-secondary btn-lg" href="${R.hallAudits(a.classroom_id)}">${icon("history", 18)}Hall history</a><button type="button" class="btn btn-secondary btn-lg" onclick="window.print()">${icon("printer", 18)}Print</button><a class="btn btn-primary btn-lg" href="${R.audits}">Done</a></div></div>`);
 }
 
-// ============ LIST / DETAIL / HISTORY (local cache until endpoints exist) ============
-async function listPage({ root }: RouteContext): Promise<void> {
-  const [halls, dir] = await Promise.all([loadClassrooms(), loadDirectory()]);
+// ============ LIST / DETAIL / HISTORY ============
+async function listPage({ root, query }: RouteContext): Promise<void> {
+  const [halls, dir] = await Promise.all([loadClassrooms(), loadDirectory()]); let offset = 0; const limit = 20;
   mount(root, html`${pageHead("Exam hall audits", "", hasRole(...INSPECT) ? html`<a class="btn btn-primary" href="${R.auditNew}">${icon("plus", 16)}Start audit</a>` : "")}
-    ${needsApiBanner("The server cannot list audits yet. This list shows audits created in this browser; a shared list needs GET /facilities/audits.")}
-    <section class="card"><form class="filter-bar" id="f"><label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead">${icon("search", 18)}</span><input class="input" type="search" name="q" placeholder="Hall or audit number"></span></label>
+    <section class="card"><form class="filter-bar" id="f"><label class="field grow"><span class="label">Hall</span><select class="select" name="hall"><option value="">All halls</option>${halls.map((h) => html`<option value="${h.id}" ${String(h.id) === query.get("hall") ? "selected" : ""}>${h.name}</option>`)}</select></label>
       <label class="field"><span class="label">Result</span><select class="select" name="res"><option value="">All results</option>${RESULTS.map((r) => html`<option value="${r.v}">${label(r.v)}</option>`)}</select></label>
-      <label class="field"><span class="label">Status</span><select class="select" name="st"><option value="">Draft and finalised</option><option value="DRAFT">Draft</option><option value="FINALISED">Finalised</option></select></label></form><div id="rows"></div></section>`);
-  const form = $<HTMLFormElement>("#f", root)!;
-  const paint = () => { const d = new FormData(form); const q = String(d.get("q")).toLowerCase(); const res = String(d.get("res")); const st = String(d.get("st"));
-    const rows = cachedAudits().filter((a) => (!q || hallName(a.classroom_id, halls).toLowerCase().includes(q) || auditNumber(a).toLowerCase().includes(q)) && (!res || a.result_status === res) && (!st || a.lifecycle_status === st));
-    $("#rows", root)!.innerHTML = html`${dataTable<ExamHallAudit>([{ header: "Audit", cls: "mono t-sm", cell: (a) => auditNumber(a) }, { header: "Hall", lead: true, cell: (a) => html`<a class="strong" href="${R.auditDetail(a.id)}">${hallName(a.classroom_id, halls)}</a>` },
+      <label class="field"><span class="label">Status</span><select class="select" name="st"><option value="">Draft and finalised</option><option value="DRAFT">Draft</option><option value="FINALISED">Finalised</option></select></label></form><div id="rows">${skeletonRows()}</div></section>`);
+  const form = $<HTMLFormElement>("#f", root)!; const el = $("#rows", root)!;
+  const paint = async () => { const d = new FormData(form); const hall = String(d.get("hall") ?? ""), res = String(d.get("res") ?? ""), st = String(d.get("st") ?? "");
+    let page; try { page = await facilities.audits({ classroom_id: hall ? Number(hall) : undefined, result_status: res || undefined, lifecycle_status: st || undefined, offset, limit }); }
+    catch (e) { el.innerHTML = errorState(e).value; $("[data-retry]", el)?.addEventListener("click", () => void paint()); return; }
+    el.innerHTML = html`${dataTable<ExamHallAudit>([{ header: "Audit", cls: "mono t-sm", cell: (a) => auditNumber(a) }, { header: "Hall", lead: true, cell: (a) => html`<a class="strong" href="${R.auditDetail(a.id)}">${hallName(a.classroom_id, halls)}</a>` },
       { header: "Inspector", cell: (a) => userName(a.inspector_id, dir) }, { header: "Date", cls: "num", cell: (a) => fmtDateTime(a.created_at) }, { header: "Average", right: true, cls: "num strong", cell: (a) => average(a) },
-      { header: "Result", cell: (a) => badge("aud", a.result_status) }, { header: "Status", cell: (a) => badge("life", a.lifecycle_status) }, { header: "Open", right: true, cls: "td-actions", cell: (a) => html`<a class="btn btn-ghost btn-sm" href="${R.auditDetail(a.id)}">Open${icon("chev-right", 14)}</a>` }], rows,
-      emptyState("No audits yet", "Start an audit from your phone while walking the hall.", hasRole(...INSPECT) ? { href: R.auditNew, text: "Start audit" } : undefined))}`.value; };
-  form.addEventListener("input", paint); form.addEventListener("submit", (e) => e.preventDefault()); paint();
+      { header: "Result", cell: (a) => badge("aud", a.result_status) }, { header: "Status", cell: (a) => badge("life", a.lifecycle_status) }, { header: "Open", right: true, cls: "td-actions", cell: (a) => html`<a class="btn btn-ghost btn-sm" href="${R.auditDetail(a.id)}">Open${icon("chev-right", 14)}</a>` }], page.items,
+      emptyState(hall || res || st ? "No audits match these filters" : "No audits yet", "Start an audit from your phone while walking the hall.", hasRole(...INSPECT) ? { href: R.auditNew, text: "Start audit" } : undefined))}${pagination(page.total, offset, limit)}`.value;
+    onPage(el, (o) => { offset = Math.max(0, o); void paint(); }); };
+  form.addEventListener("change", () => { offset = 0; void paint(); }); form.addEventListener("submit", (e) => e.preventDefault()); await paint();
 }
 
 async function detailPage({ root, params }: RouteContext): Promise<void> {
-  const [halls, dir] = await Promise.all([loadClassrooms(), loadDirectory()]);
-  const a = findAudit(params.id!); if (!a) throw new ApiError(404, "NOT_FOUND", "This audit is not stored in this browser. The server cannot fetch a single audit yet.");
+  const [halls, dir, a] = await Promise.all([loadClassrooms(), loadDirectory(), facilities.audit(params.id!)]);
   const hall = halls.find((h) => h.id === a.classroom_id); const done = a.lifecycle_status === "FINALISED";
   mount(root, html`${backLink(R.audits, "Back to audits")}<div class="page-head"><div class="stack-sm" style="gap:6px"><div class="row"><span class="mono t-sm muted">${auditNumber(a)}</span>${badge("life", a.lifecycle_status)}${badge("aud", a.result_status)}</div><h1 class="h1">${hall?.name ?? `Hall #${a.classroom_id}`}</h1></div>
       <div class="row"><button type="button" class="btn btn-secondary" onclick="window.print()">${icon("printer", 16)}Print</button><a class="btn btn-secondary" href="${R.hallAudits(a.classroom_id)}">${icon("history", 16)}Hall history</a></div></div>
@@ -140,9 +138,8 @@ async function detailPage({ root, params }: RouteContext): Promise<void> {
 async function historyPage({ root, params }: RouteContext): Promise<void> {
   const [halls, dir] = await Promise.all([loadClassrooms(), loadDirectory()]);
   const id = Number(params.id); const hall = halls.find((h) => h.id === id);
-  const list = cachedAudits().filter((a) => a.classroom_id === id).sort((x, y) => y.created_at.localeCompare(x.created_at));
-  mount(root, html`${backLink(R.hallDetail(id), "Back to hall")}${pageHead("Audit history", `${hall?.name ?? `Hall #${id}`} · ${list.length} audit${list.length === 1 ? "" : "s"} in this browser`, hasRole(...INSPECT) ? html`<a class="btn btn-primary" href="${R.auditNew}?hall=${id}">${icon("plus", 16)}New audit</a>` : "")}
-    ${needsApiBanner("A per-hall history from the server needs a backend endpoint. Showing audits created in this browser.")}
+  const page = await facilities.audits({ classroom_id: id, limit: 100 }); const list = [...page.items].sort((x, y) => y.created_at.localeCompare(x.created_at));
+  mount(root, html`${backLink(R.hallDetail(id), "Back to hall")}${pageHead("Audit history", `${hall?.name ?? `Hall #${id}`} · ${page.total} audit${page.total === 1 ? "" : "s"}${page.total > list.length ? `, latest ${list.length} shown` : ""}`, hasRole(...INSPECT) ? html`<a class="btn btn-primary" href="${R.auditNew}?hall=${id}">${icon("plus", 16)}New audit</a>` : "")}
     <section class="card card-body">${list.length ? html`<ol class="timeline">${list.map((a) => html`<li class="tl-item"><span class="tl-dot ${a.result_status === "SUITABLE" ? "ok" : a.result_status === "NEEDS_ATTENTION" ? "warn" : "bad"}">${icon("clipboard", 16)}</span><div><div class="t-sm strong"><a href="${R.auditDetail(a.id)}">${fmtDateTime(a.created_at)}</a> · ${badge("aud", a.result_status)} · ${average(a)} / 5</div><div class="tl-meta">${userName(a.inspector_id, dir)}${a.comments ? ` · ${a.comments}` : ""}</div></div></li>`)}</ol>` : emptyState("No audits yet", "Audits of this hall will appear here.")}</section>`);
 }
 

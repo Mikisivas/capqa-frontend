@@ -42,18 +42,20 @@ The brand colour is a single ramp: edit `--brand-*` in `src/styles/capqa.css` an
 
 ## Screens that wait for the backend
 
-The design includes screens the API cannot serve yet. They are built and marked with a
-"backend endpoint pending" banner; where possible they use data remembered in this browser.
-Search the code for `TODO(backend)`. The missing endpoints, in the order that matters most:
+Invoices, receipts, audits, staff, courses, the user directory, mail attachments and audit-log
+entries now come from the API. The screens below are still built but marked with a
+"backend endpoint pending" banner. The missing endpoints, in the order that matters most:
 
-1. List invoices, get one invoice, get a receipt.
-2. List audits, get one audit.
-3. List staff, list courses (and edit or delete departments, staff and courses).
-4. List or download a mail attachment; mail comments, due date, description, archive and delete.
-5. Edit profile, change password, create user, get one user.
-6. Notification delete, mark-all-read and preferences; a tasks endpoint.
-7. Hall edit and delete, hall type and equipment, edit or cancel an allocation.
-8. In-page report preview.
+1. Mail comments, due date, description, archive and delete.
+2. Edit profile, change password, create user, get one user.
+3. Edit or delete a department; a departments list for roles other than Admin, Director and Academic Officer.
+4. Notification delete, mark-all-read and preferences; a tasks endpoint.
+5. Hall edit and delete, hall type and equipment, edit or cancel an allocation.
+6. In-page report preview; a receipt PDF.
+7. A payment-history view for managers (today `/payments/history` returns only the caller's own payments).
+
+Backend fix still open: `PATCH /dispatch/{id}` accepts `tracking_status: APPROVED/REJECTED`, which
+skips the Director's approval and digital stamp. The UI only approves through `POST /dispatch/{id}/approval`.
 
 ## Backend features the design did not show
 
@@ -65,8 +67,8 @@ sending a notification (`POST /notifications`), and linking a staff record to a 
 
 - The backend allows only `http://localhost:3000` in CORS by default. Add the deployed origin to
   `allowed_origins` in the backend `.env` before deploying.
-- Department names, staff and users are only listable by some roles, so other roles see short IDs
-  and ID fields instead of pickers.
+- Department names are only listable by Admin, Director and Academic Officer, so other roles see
+  department IDs. People are named for every role through `/users/directory`.
 - Registration has no department picker because the departments list needs a signed-in role.
 - Password rules in the UI follow the design (8+ characters, mixed case, number, symbol). The backend
   itself only requires 6 to 128 characters.

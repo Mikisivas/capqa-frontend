@@ -54,6 +54,7 @@ export interface ExamHallAudit {
   result_status: AuditResultStatus; lifecycle_status: LifecycleStatus; finalised_at: string | null; created_at: string;
 }
 
+export interface DirectoryEntry { id: string; username: string; full_name: string; role: RoleCode; department_name: string | null }
 export interface Department { id: number; name: string; faculty: string; created_at: string }
 export interface Staff { id: string; department_id: number; user_id: string | null; full_name: string; staff_rank: string | null; is_active: boolean }
 export interface Course { id: number; department_id: number; code: string; title: string; level: number; accreditation_status: AccreditationStatus; accreditation_updated_at: string | null }

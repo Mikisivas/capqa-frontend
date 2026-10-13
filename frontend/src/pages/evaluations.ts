@@ -1,10 +1,10 @@
 import { ApiError } from "../api/client";
-import { isUuid, knownStaff, staffName, userName, loadDirectory } from "../api/directory";
+import { ensureStaff, isUuid, knownStaff, loadDirectory, loadStaff, staffName, userName } from "../api/directory";
 import { evaluations } from "../api/services";
 import type { EvaluationSource, EvaluationTrend, StaffEvaluation } from "../api/types";
 import { R } from "../routes";
 import type { Route, RouteContext } from "../router";
-import { alert, badge, bindCounters, bindForm, dataTable, emptyState, fieldError, formAlert, icon, needsApiBanner, pageHead, skeletonRows, starRating, bindStars, textarea, toast, backLink } from "../ui/components";
+import { alert, badge, bindCounters, bindForm, dataTable, emptyState, fieldError, formAlert, icon, pageHead, skeletonRows, starRating, bindStars, textarea, toast, backLink } from "../ui/components";
 import { $, $$, fmtDate, fmtDateTime, html, label, mount, Safe } from "../ui/html";
 
 const ROLES = ["ADMIN", "DIRECTOR", "ACADEMIC-OFFICER", "QUALITY-INSPECTOR"] as const;
@@ -24,13 +24,13 @@ async function guard<T>(root: HTMLElement, fn: () => Promise<T>): Promise<T | nu
   try { return await fn(); } catch (e) { if (e instanceof ApiError && e.status === 403) { mount(root, restricted()); return null; } throw e; }
 }
 
-/** Searchable staff picker: names known to this browser plus pasted staff IDs. */
+/** Searchable staff picker over active staff (GET /academic/staff); a pasted staff ID also works. Call loadStaff() first. */
 function staffPicker(name: string, value = ""): Safe {
-  const staff = knownStaff();
+  const staff = knownStaff().filter((s) => s.is_active);
   return html`<div class="field"><label class="label" for="f-${name}">Staff member <span class="req" aria-hidden="true">*</span></label><div class="input-wrap"><span class="lead">${icon("search", 18)}</span>
     <input id="f-${name}" name="${name}" class="input" list="staff-list" value="${value}" placeholder="Search by name or paste a staff ID" required autocomplete="off"></div>
     <datalist id="staff-list">${staff.map((s) => html`<option value="${s.full_name}" label="${s.id}"></option>`)}</datalist>
-    <span class="help">${staff.length ? "Staff added in this browser are listed. " : "No staff are listed because the API has no staff list yet. "}You can also paste a staff ID.</span><div class="err" data-err="${name}" hidden></div></div>`;
+    <span class="help">${staff.length ? "Start typing a name. " : "No active staff yet. Add staff under Departments. "}You can also paste a staff ID.</span><div class="err" data-err="${name}" hidden></div></div>`;
 }
 function resolveStaff(input: string): string | null {
   const v = input.trim(); if (isUuid(v)) return v;
@@ -39,6 +39,7 @@ function resolveStaff(input: string): string | null {
 
 // ============ NEW ============
 async function newPage({ root, query }: RouteContext): Promise<void> {
+  await (query.get("staff") ? ensureStaff(query.get("staff")!) : loadStaff());
   mount(root, html`<div class="page-narrow stack-lg" style="width:100%"><div class="page-head"><div><div class="row">${conf()}</div><h1 class="h1" style="margin-top:8px">New staff evaluation</h1><p class="sub">Only authorised roles can see evaluations.</p></div></div>
     <form class="stack-lg" id="f" novalidate>${formAlert()}
       <section class="card"><div class="card-head"><h2 class="h3">Who and when</h2></div><div class="card-body grid-form"><div class="span-2">${staffPicker("staff", query.get("staff") ? staffName(query.get("staff")!) : "")}</div>
@@ -61,6 +62,7 @@ async function newPage({ root, query }: RouteContext): Promise<void> {
 // ============ HISTORY ============
 async function historyPage({ root, query }: RouteContext): Promise<void> {
   const staffId = query.get("staff") ?? "";
+  await (isUuid(staffId) ? ensureStaff(staffId) : loadStaff());
   if (!isUuid(staffId)) { mount(root, html`${pageHead("Staff evaluation history", "Pick a staff member to see their evaluations.")}<div class="card card-body">${staffPickForm(R.evalHistory)}</div>`); bindPick(root); return; }
   const [list, dir] = await Promise.all([guard(root, () => evaluations.forStaff(staffId)), loadDirectory()]); if (!list) return;
   const name = staffName(staffId);
@@ -91,6 +93,7 @@ function bindPick(root: HTMLElement): void {
 const SERIES = [{ k: "overall", n: "Overall", c: "#0f3d22", w: 4, dash: "" }, { k: "teaching_quality", n: "Teaching quality", c: "#2563eb", w: 2, dash: "6 4" }, { k: "student_engagement", n: "Student engagement", c: "#d97706", w: 2, dash: "2 4" }, { k: "assessment_quality", n: "Assessment quality", c: "#94a3b8", w: 2, dash: "" }] as const;
 async function trendsPage({ root, query }: RouteContext): Promise<void> {
   const staffId = query.get("staff") ?? "";
+  await (isUuid(staffId) ? ensureStaff(staffId) : loadStaff());
   if (!isUuid(staffId)) { mount(root, html`${pageHead("Semester trends", "Pick a staff member to see their trend.")}<div class="card card-body">${staffPickForm(R.evalTrends)}</div>`); bindPick(root); return; }
   const trends = await guard<EvaluationTrend[]>(root, () => evaluations.trends(staffId)); if (!trends) return;
   const name = staffName(staffId); const rows = trends.map((t) => ({ ...t, overall: Math.round(((t.teaching_quality + t.student_engagement + t.assessment_quality) / 3) * 100) / 100, p: `${t.session} · Sem ${t.semester}` }));
@@ -106,14 +109,13 @@ async function trendsPage({ root, query }: RouteContext): Promise<void> {
         <tbody>${rows.map((r) => html`<tr><td class="num">${r.p}</td><td class="r num strong">${r.overall.toFixed(2)}</td><td class="r num">${r.teaching_quality.toFixed(2)}</td><td class="r num">${r.student_engagement.toFixed(2)}</td><td class="r num">${r.assessment_quality.toFixed(2)}</td><td class="r num">${r.evaluation_count}</td></tr>`)}</tbody></table></div>` : ""}</section>`);
 }
 
-// ============ ALL EVALUATIONS (aggregated over staff known to this browser) ============
+// ============ ALL EVALUATIONS (combined over the staff list; there is no single "all evaluations" endpoint) ============
 async function listPage({ root }: RouteContext): Promise<void> {
-  const staff = knownStaff();
-  mount(root, html`${pageHead("Staff evaluations", "", html`<a class="btn btn-primary" href="${R.evalNew}">${icon("plus", 16)}New evaluation</a>`)}
-    ${needsApiBanner("The API has no \"all evaluations\" or staff list endpoint. This view combines the evaluations of staff known to this browser; open any staff member by name or ID to see their history.")}
+  const staff = await loadStaff();
+  mount(root, html`${pageHead("Staff evaluations", staff.length >= 100 ? "Latest evaluations of the first 100 staff members. Open a staff member for their full history." : "Latest evaluations across all staff", html`<a class="btn btn-primary" href="${R.evalNew}">${icon("plus", 16)}New evaluation</a>`)}
     <section class="card card-body">${staffPickForm(R.evalHistory)}</section><section class="card"><div id="rows">${skeletonRows(3)}</div></section>`);
   bindPick(root);
-  if (!staff.length) { $("#rows", root)!.innerHTML = emptyState("No staff known yet", "Add staff under Departments, or open a staff member above by ID.").value; return; }
+  if (!staff.length) { $("#rows", root)!.innerHTML = emptyState("No staff yet", "Add staff under Departments before recording evaluations.").value; return; }
   const results = await Promise.allSettled(staff.map((s) => evaluations.forStaff(s.id)));
   if (results.every((r) => r.status === "rejected" && r.reason instanceof ApiError && r.reason.status === 403)) { mount(root, restricted()); return; }
   const all = results.flatMap((r) => r.status === "fulfilled" ? r.value : []).sort((a, b) => b.created_at.localeCompare(a.created_at));
@@ -123,7 +125,7 @@ async function listPage({ root }: RouteContext): Promise<void> {
 
 async function detailPage({ root, params, query }: RouteContext): Promise<void> {
   const staffId = query.get("staff") ?? ""; if (!isUuid(staffId)) throw new ApiError(404, "NOT_FOUND", "Open this evaluation from a staff member's history.");
-  const [list, dir] = await Promise.all([guard(root, () => evaluations.forStaff(staffId)), loadDirectory()]); if (!list) return;
+  const [list, dir] = await Promise.all([guard(root, () => evaluations.forStaff(staffId)), loadDirectory(), ensureStaff(staffId)]); if (!list) return;
   const e = list.find((x) => x.id === params.id); if (!e) throw new ApiError(404, "NOT_FOUND", "That evaluation was not found.");
   const color = (v: number) => (v >= 4 ? "#166534" : v === 3 ? "#d97706" : "#dc2626"); const WORDS = ["Very poor", "Poor", "Fair", "Good", "Excellent"];
   mount(root, html`${backLink(`${R.evalHistory}?staff=${staffId}`, "Back to history")}<div style="max-width:960px;width:100%;display:flex;flex-direction:column;gap:20px"><div class="page-head"><div class="stack-sm" style="gap:6px"><div class="row"><span class="mono t-sm muted">EVL-${new Date(e.created_at).getFullYear()}-${e.id.slice(0, 4).toUpperCase()}</span>${conf()}${badge("src", e.source)}</div>
