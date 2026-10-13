@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Semester trends · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="eval" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="eval" crumbs="Staff Evaluation>Semester trends" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><div class="row"><span class="tag tag-conf"><dc-import name="Icon" i="lock" s="12" hint-size="12px,12px"></dc-import>Confidential</span></div><h1 class="h1" style="margin-top: 8px">Semester trends</h1><p class="sub">Average rating (1–5) by session and semester</p></div><a class="btn btn-secondary" href="EvalHistory.dc.html">Evaluation history</a></div>
+      <section class="card filter-bar" style="border-radius: 8px">
+        <label class="field grow"><span class="label">Staff member</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" value="Dr. Stephen Akuma"></span></label>
+        <label class="field"><span class="label">Source</span><select class="select"><option>All sources</option><option>Student</option><option>Peer</option><option>Management</option></select></label>
+        <label class="field"><span class="label">From session</span><select class="select"><option>2023/2024</option><option>2024/2025</option></select></label>
+      </section>
+      <section class="card" aria-labelledby="tr-h">
+        <div class="card-head"><h2 class="h3" id="tr-h">Dr. Stephen Akuma · 2023/2024 to 2025/2026</h2><div class="legend"><span><i style="background: #0f3d22; height: 4px; width: 18px; vertical-align: 3px"></i>Overall</span><span><i style="background: #2563eb"></i>Teaching quality</span><span><i style="background: #d97706"></i>Student engagement</span><span><i style="background: #94a3b8"></i>Assessment quality</span></div></div>
+        <div class="card-body">
+          <svg viewBox="0 0 640 290" width="100%" role="img" aria-label="Overall average rose from 3.7 in 2023/2024 semester 1 to 4.3 in 2025/2026 semester 2. Full values in the table below." style="display: block; max-height: 420px">
+            <g font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#475569">
+              <line x1="50" y1="220" x2="620" y2="220" stroke="#cbd5e1"></line><line x1="50" y1="180" x2="620" y2="180" stroke="#eef2f6"></line><line x1="50" y1="140" x2="620" y2="140" stroke="#eef2f6"></line><line x1="50" y1="100" x2="620" y2="100" stroke="#eef2f6"></line><line x1="50" y1="60" x2="620" y2="60" stroke="#eef2f6"></line>
+              <text x="40" y="224" text-anchor="end">3.0</text><text x="40" y="184" text-anchor="end">3.5</text><text x="40" y="144" text-anchor="end">4.0</text><text x="40" y="104" text-anchor="end">4.5</text><text x="40" y="64" text-anchor="end">5.0</text>
+              <polyline points="80,164 180,140 280,140 380,140 480,100 580,140" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 4"></polyline>
+              <polyline points="80,164 180,140 280,140 380,140 480,140 580,100" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="2 4"></polyline>
+              <polyline points="80,164 180,180 280,140 380,140 480,180 580,140" fill="none" stroke="#94a3b8" stroke-width="2"></polyline>
+              <polyline points="80,164 180,156 280,140 380,140 480,140 580,116" fill="none" stroke="#0f3d22" stroke-width="4" stroke-linejoin="round"></polyline>
+              <circle cx="80" cy="164" r="5" fill="#0f3d22"></circle><circle cx="180" cy="156" r="5" fill="#0f3d22"></circle><circle cx="280" cy="140" r="5" fill="#0f3d22"></circle><circle cx="380" cy="140" r="5" fill="#0f3d22"></circle><circle cx="480" cy="140" r="5" fill="#0f3d22"></circle><circle cx="580" cy="116" r="6" fill="#0f3d22"></circle>
+              <text x="580" y="102" text-anchor="middle" font-weight="600" fill="#0f172a">4.3</text>
+              <text x="80" y="242" text-anchor="middle">Sem 1</text><text x="180" y="242" text-anchor="middle">Sem 2</text><text x="280" y="242" text-anchor="middle">Sem 1</text><text x="380" y="242" text-anchor="middle">Sem 2</text><text x="480" y="242" text-anchor="middle">Sem 1</text><text x="580" y="242" text-anchor="middle">Sem 2</text>
+              <text x="130" y="264" text-anchor="middle" fill="#334155" font-weight="600">2023/2024</text><text x="330" y="264" text-anchor="middle" fill="#334155" font-weight="600">2024/2025</text><text x="530" y="264" text-anchor="middle" fill="#334155" font-weight="600">2025/2026</text>
+            </g>
+          </svg>
+        </div>
+        <div class="table-wrap" style="border-top: 1px solid #e2e8f0"><table class="table">
+          <caption class="sr-only">Average ratings by session and semester</caption>
+          <thead><tr><th scope="col">Session · semester</th><th scope="col" class="r">Overall</th><th scope="col" class="r">Teaching</th><th scope="col" class="r">Engagement</th><th scope="col" class="r">Assessment</th><th scope="col" class="r">Evaluations</th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="6"><tr><td class="num">{{r.p}}</td><td class="r num strong">{{r.o}}</td><td class="r num">{{r.t}}</td><td class="r num">{{r.e}}</td><td class="r num">{{r.a}}</td><td class="r num">{{r.n}}</td></tr></sc-for>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+  <sc-if value="{{toast}}" hint-placeholder-val="{{ true }}">
+    <div class="toasts"><div class="toast toast-success" role="status"><span class="t-icon"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">Evaluation saved</div><div class="t-text">Peer evaluation for Dr. Stephen Akuma, 2025/2026 semester 2.</div></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Dismiss" onClick="{{dismiss}}"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { toast: true }; }
+  renderVals() {
+    var self = this;
+    var R = [['2023/2024 · 1', '3.7', '3.7', '3.7', '3.7', 2], ['2023/2024 · 2', '3.8', '4.0', '4.0', '3.5', 2], ['2024/2025 · 1', '4.0', '4.0', '4.0', '4.0', 2], ['2024/2025 · 2', '4.0', '4.0', '4.0', '4.0', 3], ['2025/2026 · 1', '4.0', '4.5', '4.0', '3.5', 3], ['2025/2026 · 2', '4.3', '4.0', '4.5', '4.0', 2]];
+    return { toast: this.state.toast, dismiss: function () { self.setState({ toast: false }); }, rows: R.map(function (r) { return { p: r[0], o: r[1], t: r[2], e: r[3], a: r[4], n: r[5] }; }) };
+  }
+}
+</script>
+</body>
+</html>

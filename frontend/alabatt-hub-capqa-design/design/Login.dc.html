@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign in · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="capqa" style="min-height: 100vh; display: flex; background: #fff">
+  <aside class="only-lg" style="flex: 0 0 44%; background: #0f3d22; color: #d7f2df; flex-direction: column; justify-content: space-between; padding: 48px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <div class="logo-slot" style="width: 56px; height: 56px; font-size: 10px">RFMOAUM</div>
+      <div><div class="brand"><span class="brand-hub" style="color: #fcd34d">ALABATT-HUB</span><span class="brand-name" style="color: #fff; font-size: 22px">CAPQA</span><span style="font-size: 13px; color: #b0e4c0; margin-top: 4px">Rev. Fr. Moses Orshio Adasu University, Makurdi</span></div></div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 460px">
+      <h1 style="margin: 0; font-size: 32px; line-height: 40px; font-weight: 600; color: #fff">Centre for Academic Planning and Quality Assurance</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 26px">Digital mail, hall allocation, exam hall audits, staff evaluation and accreditation — in one place.</p>
+    </div>
+    <div style="font-size: 12px; color: #7dce98">ALABATT-HUB · the university digital hub</div>
+  </aside>
+  <main style="flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 32px 20px">
+    <div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px">
+      <div class="lt-lg" style="align-items: center; gap: 12px">
+        <div class="logo-slot on-light" style="width: 44px; height: 44px; font-size: 8px">RFMOAUM</div>
+        <div class="brand"><span class="brand-hub">ALABATT-HUB</span><span class="brand-name">CAPQA</span><span class="t-xs muted">Rev. Fr. Moses Orshio Adasu University</span></div>
+      </div>
+      <div><h2 class="h1">Sign in</h2><p class="muted" style="margin-top: 4px">Use your CAPQA username or university email.</p></div>
+      <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+        <div class="alert alert-danger" role="alert"><span class="a-icon"><dc-import name="Icon" i="alert-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Incorrect username or password</div>Check your details and try again. 2 attempts left before the account is temporarily locked.</div></div>
+      </sc-if>
+      <sc-if value="{{isLocked}}" hint-placeholder-val="{{ false }}">
+        <div class="alert alert-warning" role="alert"><span class="a-icon"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Account temporarily locked</div>Too many failed attempts. Try again later — in about 15 minutes — or reset your password.</div></div>
+      </sc-if>
+      <form class="stack" onSubmit="{{noop}}">
+        <div class="field">
+          <label class="label" for="lg-user">Username or email</label>
+          <input id="lg-user" class="input {{errCls}}" autocomplete="username" value="{{userVal}}" placeholder="e.g. n.okafor or n.okafor@moau.edu.ng" disabled="{{busy}}" aria-invalid="{{ariaInv}}">
+        </div>
+        <div class="field">
+          <div class="row-between"><label class="label" for="lg-pw">Password</label><a href="ForgotPassword.dc.html" class="t-sm strong">Forgot password?</a></div>
+          <div class="input-wrap has-trail">
+            <span class="lead"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import></span>
+            <input id="lg-pw" class="input {{errCls}}" type="{{pwType}}" autocomplete="current-password" value="Benue@2026" disabled="{{busy}}" aria-invalid="{{ariaInv}}">
+            <span class="trail"><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="{{pwLabel}}" aria-pressed="{{pwPressed}}" onClick="{{togglePw}}"><dc-import name="Icon" i="{{pwIcon}}" s="18" hint-size="18px,18px"></dc-import></button></span>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox">Keep me signed in on this device</label>
+        <sc-if value="{{busy}}" hint-placeholder-val="{{ false }}">
+          <button type="button" class="btn btn-primary btn-lg btn-block is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Signing in…</button>
+        </sc-if>
+        <sc-if value="{{canSubmit}}" hint-placeholder-val="{{ true }}">
+          <a class="btn btn-primary btn-lg btn-block" href="Dashboard.dc.html">Sign in</a>
+        </sc-if>
+        <sc-if value="{{isLocked}}" hint-placeholder-val="{{ false }}">
+          <button type="button" class="btn btn-primary btn-lg btn-block" disabled>Sign in</button>
+        </sc-if>
+      </form>
+      <p class="t-sm muted" style="text-align: center">New staff member? <a href="Register.dc.html" class="strong">Register</a> — an administrator approves new accounts.</p>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","error","locked","loading"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { show: false }; }
+  renderVals() {
+    var v = this.props.view ?? 'default', self = this, show = this.state.show;
+    return {
+      isError: v === 'error', isLocked: v === 'locked', busy: v === 'loading', canSubmit: v === 'default' || v === 'error',
+      errCls: v === 'error' ? 'is-invalid' : '', ariaInv: v === 'error' ? 'true' : 'false', userVal: 'n.okafor',
+      pwType: show ? 'text' : 'password', pwIcon: show ? 'eye-off' : 'eye', pwLabel: show ? 'Hide password' : 'Show password', pwPressed: show ? 'true' : 'false',
+      togglePw: function () { self.setState({ show: !show }); }, noop: function (e) { e.preventDefault(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

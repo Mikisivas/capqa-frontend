@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Record quality score · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="dept" crumbs="Departments>Physics>Quality score" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Record quality score</h1><p class="sub">Dept. of Physics · Session 2025/2026</p></div></div>
+      <form class="stack-lg">
+        <div class="card"><div class="card-body stack">
+          <div class="field"><label class="label" for="qs-dept">Department</label><select id="qs-dept" class="select"><option>Dept. of Physics</option></select></div>
+          <div class="field">
+            <div class="row-between"><label class="label" for="qs-score">Departmental quality score <span class="req" aria-hidden="true">*</span></label><output for="qs-score" class="t-3xl strong num" style="color: {{color}}">{{score}}</output></div>
+            <input id="qs-score" class="range" type="range" min="1" max="100" value="{{score}}" onChange="{{set}}" onInput="{{set}}" aria-valuetext="{{score}} out of 100, {{band}}">
+            <div style="display: grid; grid-template-columns: 49fr 20fr 31fr; gap: 4px; font-size: 12px; color: #475569"><span style="border-top: 4px solid #dc2626; padding-top: 4px">1–49 Action needed</span><span style="border-top: 4px solid #d97706; padding-top: 4px">50–69 Watch</span><span style="border-top: 4px solid #1a763f; padding-top: 4px; text-align: right">70–100 Meets target</span></div>
+            <span class="t-sm strong" style="color: {{color}}" aria-live="polite">{{band}}</span>
+          </div>
+          <div class="field"><label class="label" for="qs-notes">Notes <span class="opt">(optional)</span></label><textarea id="qs-notes" class="textarea">Laboratory equipment improved since last session; two technologists still needed. Course files complete for 100–300 levels.</textarea><span class="counter">132 / 2,000</span></div>
+        </div></div>
+        <div class="action-bar"><a class="btn btn-secondary" href="DeptDetail.dc.html">Cancel</a><a class="btn btn-primary" href="DeptCompliance.dc.html">Save score</a></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { s: 64 }; }
+  renderVals() {
+    var self = this, s = this.state.s;
+    return { score: s, band: s >= 70 ? 'Meets target' : s >= 50 ? 'Watch — below target of 70' : 'Action needed', color: s >= 70 ? '#15703c' : s >= 50 ? '#93370d' : '#b42318', set: function (e) { self.setState({ s: Number(e.target.value) }); } };
+  }
+}
+</script>
+</body>
+</html>

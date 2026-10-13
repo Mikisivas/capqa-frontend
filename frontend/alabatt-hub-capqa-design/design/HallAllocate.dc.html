@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Allocate hall · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Allocate hall" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Allocate hall</h1><p class="sub">We check capacity and clashes before saving.</p></div><a class="btn btn-ghost" href="HallAlternatives.dc.html"><dc-import name="Icon" i="search" s="16" hint-size="16px,16px"></dc-import>Find a free hall instead</a></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="al-hall">Hall <span class="req" aria-hidden="true">*</span></label><select id="al-hall" class="select"><option>Faculty of Science Lecture Theatre — 350 seats</option><option>1000-Seater Auditorium — 1,000 seats</option><option>Management Sciences Hall B — 250 seats</option><option>Education Block LR 3 — 120 seats</option></select></div>
+          <div class="field"><label class="label" for="al-course">Course <span class="opt">(optional)</span></label><input id="al-course" class="input" value="CSC 101 — Introduction to Computing" list="courses"></div>
+          <div class="field"><label class="label" for="al-level">Level <span class="req" aria-hidden="true">*</span></label><select id="al-level" class="select"><option>100</option><option>200</option><option>300</option><option>400</option><option>500</option><option>600</option></select></div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Purpose <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-cards"><sc-for list="{{purposes}}" as="p" hint-placeholder-count="3"><label class="radio-card {{p.cls}}"><input type="radio" name="al-pur" checked="{{p.on}}" onChange="{{p.pick}}"><span class="badge" data-s="pur-{{p.v}}">{{p.v}}</span></label></sc-for></div>
+          </fieldset>
+          <div class="field span-2">
+            <label class="label" for="al-n">Expected students <span class="req" aria-hidden="true">*</span></label>
+            <input id="al-n" class="input num {{warnCls}}" type="number" min="1" value="{{n}}" onChange="{{setN}}" aria-describedby="al-n-w" style="max-width: 240px">
+            <sc-if value="{{over}}" hint-placeholder-val="{{ true }}">
+              <div class="alert alert-warning" id="al-n-w" role="status" aria-live="polite"><span class="a-icon"><dc-import name="Icon" i="alert" s="18" hint-size="18px,18px"></dc-import></span><div style="flex: 1 1 auto"><div class="a-title">Overcrowding: {{n}} students for 350 seats</div>{{overBy}} more than capacity ({{pct}} of capacity). You can still save, but the hall will be flagged <span class="badge" data-s="hall-Overcrowded">Overcrowded</span><div class="row" style="margin-top: 8px"><a class="btn btn-secondary btn-sm" href="HallAlternatives.dc.html">Suggest bigger halls</a></div></div></div>
+            </sc-if>
+            <sc-if value="{{fits}}" hint-placeholder-val="{{ false }}"><span class="help" id="al-n-w" style="color: #15703c; display: flex; gap: 6px; align-items: center"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>Fits — {{pct}} of 350 seats</span></sc-if>
+          </div>
+          <div class="field"><label class="label" for="al-start">Start <span class="req" aria-hidden="true">*</span></label><input id="al-start" class="input" type="datetime-local" value="2026-10-15T12:00"></div>
+          <div class="field"><label class="label" for="al-end">End <span class="req" aria-hidden="true">*</span></label><input id="al-end" class="input" type="datetime-local" value="2026-10-15T15:00"><span class="help">3 hours</span></div>
+        </div></div>
+        <div class="action-bar"><a class="btn btn-secondary" href="HallsList.dc.html">Cancel</a><a class="btn btn-primary" href="HallClash.dc.html">Check and allocate</a></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { n: 380, pur: 'Exam' }; }
+  renderVals() {
+    var self = this, n = Number(this.state.n) || 0, cap = 350, pur = this.state.pur;
+    return {
+      n: n, over: n > cap, fits: n > 0 && n <= cap, overBy: (n - cap) + ' students', pct: Math.round(n / cap * 100) + '%', warnCls: n > cap ? 'is-invalid' : '',
+      setN: function (e) { self.setState({ n: e.target.value }); },
+      purposes: ['Class', 'Exam', 'Event'].map(function (x) { return { v: x, on: x === pur, cls: x === pur ? 'is-on' : '', pick: function () { self.setState({ pur: x }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

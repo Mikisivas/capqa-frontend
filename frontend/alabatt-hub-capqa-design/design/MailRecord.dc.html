@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Record incoming mail · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dispatch" crumbs="E-Dispatch>Record mail" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Record incoming mail</h1><p class="sub">Step 1 of 2 — mail details. You’ll attach the scanned documents next.</p></div></div>
+      <ol class="stepper" aria-label="Progress"><li class="step current" aria-current="step"><span class="bar"></span>1 · Mail details</li><li class="step"><span class="bar"></span>2 · Upload documents</li></ol>
+      <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}">
+        <div class="alert alert-danger" role="alert"><span class="a-icon"><dc-import name="Icon" i="alert-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">2 fields need attention</div><a href="#mr-ref">Reference number</a> · <a href="#mr-subj">Subject</a></div></div>
+      </sc-if>
+      <form class="stack-lg" aria-label="Mail details">
+        <div class="card">
+        <div class="card-body grid-form">
+          <div class="field">
+            <label class="label" for="mr-ref">Reference number <span class="req" aria-hidden="true">*</span></label>
+            <input id="mr-ref" class="input mono {{invCls}}" value="{{refVal}}" aria-invalid="{{invAria}}" disabled="{{saving}}" aria-describedby="mr-ref-h">
+            <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>CAPQA/DSP/2026/0142 is already used by another mail item.</span></sc-if>
+            <span class="help" id="mr-ref-h">Format: CAPQA/DSP/YYYY/NNNN</span>
+          </div>
+          <div class="field"><label class="label" for="mr-date">Date received <span class="req" aria-hidden="true">*</span></label><input id="mr-date" class="input" type="date" value="2026-10-12" disabled="{{saving}}"></div>
+          <div class="field span-2"><label class="label" for="mr-from">Sender <span class="req" aria-hidden="true">*</span></label><input id="mr-from" class="input" value="Office of the Registrar" list="senders" disabled="{{saving}}"><span class="help">Office, department or external body</span></div>
+          <div class="field span-2">
+            <label class="label" for="mr-subj">Subject <span class="req" aria-hidden="true">*</span></label>
+            <input id="mr-subj" class="input {{invCls}}" value="{{subjVal}}" aria-invalid="{{invAria}}" disabled="{{saving}}">
+            <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Enter a subject.</span></sc-if>
+          </div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0">
+            <legend class="label" style="margin-bottom: 6px">Priority</legend>
+            <div class="radio-cards">
+              <sc-for list="{{pris}}" as="p" hint-placeholder-count="3">
+                <label class="radio-card {{p.cls}}"><input type="radio" name="mr-pri" checked="{{p.on}}" onChange="{{p.pick}}" disabled="{{saving}}"><span class="badge" data-s="pri-{{p.v}}">{{p.v}}</span><span class="t-xs muted">{{p.note}}</span></label>
+              </sc-for>
+            </div>
+          </fieldset>
+          <div class="field"><label class="label" for="mr-to">Assign to staff <span class="opt">(optional)</span></label><select id="mr-to" class="select" disabled="{{saving}}"><option>Prof. Msughter Iorkyaa — Director</option><option>Mr. Emmanuel Ochoga — Quality Inspector</option><option>Mrs. Ngozi Okafor — Academic Officer</option><option>— Leave unassigned —</option></select></div>
+          <div class="field"><label class="label" for="mr-due">Due date <span class="opt">(optional)</span></label><input id="mr-due" class="input" type="date" value="2026-10-17" disabled="{{saving}}"></div>
+          <div class="field span-2"><label class="label" for="mr-desc">Description <span class="opt">(optional)</span></label><textarea id="mr-desc" class="textarea" disabled="{{saving}}">The Registry has moved the NUC accreditation visit for Computer Science to 3–5 November 2026. Departments must confirm resource verification lists by 24 October.</textarea><span class="counter">184 / 2,000</span></div>
+        </div>
+        </div>
+          <div class="action-bar">
+            <a class="btn btn-secondary" href="MailList.dc.html">Cancel</a>
+            <button type="button" class="btn btn-secondary only-md" disabled="{{saving}}">Save as draft</button>
+            <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+            <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="MailUpload.dc.html">Save and continue<dc-import name="Icon" i="arrow-right" s="16" hint-size="16px,16px"></dc-import></a></sc-if>
+          </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { pri: 'Medium' }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default', pri = this.state.pri;
+    var notes = { High: 'Act within 48 h', Medium: 'Default', Low: 'No deadline' };
+    return {
+      invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving',
+      invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false',
+      refVal: v === 'invalid' ? 'CAPQA/DSP/2026/0142' : 'CAPQA/DSP/2026/0145', subjVal: v === 'invalid' ? '' : 'NUC accreditation visit — confirmation of resource verification',
+      pris: ['High', 'Medium', 'Low'].map(function (x) { return { v: x, on: x === pri, cls: x === pri ? 'is-on' : '', note: notes[x], pick: function () { self.setState({ pri: x }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

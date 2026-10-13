@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Exam hall audits · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="audit" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="audit" crumbs="Exam Hall Audit>Audits" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Exam hall audits</h1><p class="sub">Session 2025/2026 · 46 audits</p></div><a class="btn btn-primary" href="AuditWizard.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Start audit</a></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Hall or audit number"></span></label>
+          <label class="field"><span class="label">Result</span><select class="select"><option>All results</option><option>Suitable</option><option>Needs Attention</option><option>Not Suitable</option></select></label>
+          <label class="field"><span class="label">Inspector</span><select class="select"><option>All inspectors</option><option>Mr. Emmanuel Ochoga</option><option>Dr. Aondohemba Tyokase</option></select></label>
+          <label class="field"><span class="label">Status</span><select class="select"><option>Draft and finalised</option><option>Draft</option><option>Finalised</option></select></label>
+          <label class="field"><span class="label">From</span><input class="input" type="date" value="2026-09-01"></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Audit</th><th scope="col">Hall</th><th scope="col">Inspector</th><th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Date<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col" class="r">Average</th><th scope="col">Result</th><th scope="col">Status</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+                <tr><td class="mono t-sm" data-label="Audit">{{r.id}}</td><td class="td-lead" data-label="Hall"><a class="strong" href="AuditDetail.dc.html">{{r.h}}</a></td><td data-label="Inspector">{{r.by}}</td><td data-label="Date" class="num">{{r.d}}</td><td data-label="Average" class="r num strong">{{r.avg}}</td><td data-label="Result"><span class="badge" data-s="aud-{{r.res}}">{{r.res}}</span></td><td data-label="Status"><span class="badge" data-s="life-{{r.st}}">{{r.st}}</span></td><td class="td-actions"><a class="btn btn-ghost btn-sm" href="{{r.href}}">{{r.cta}}</a></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of 46</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No audits yet this session" text="Start an audit from your phone while walking the hall." cta="Start audit" href="AuditWizard.dc.html" icon="clipboard" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var R = [['0089', 'Education Block LR 3', 'Mr. Emmanuel Ochoga', '12 Oct 2026', '—', 'Needs Attention', 'Draft'], ['0087', 'Faculty of Science Lecture Theatre', 'Mr. Emmanuel Ochoga', '12 Oct 2026', '3.4', 'Needs Attention', 'Finalised'], ['0085', 'Arts Theatre', 'Dr. Aondohemba Tyokase', '9 Oct 2026', '4.6', 'Suitable', 'Finalised'], ['0084', '1000-Seater Auditorium', 'Mr. Emmanuel Ochoga', '8 Oct 2026', '2.4', 'Not Suitable', 'Finalised'], ['0082', 'Management Sciences Hall B', 'Dr. Aondohemba Tyokase', '6 Oct 2026', '4.2', 'Suitable', 'Finalised'], ['0080', 'ICT Centre Lab 2', 'Mr. Emmanuel Ochoga', '3 Oct 2026', '4.8', 'Suitable', 'Finalised'], ['0079', 'Law Moot Court', 'Dr. Aondohemba Tyokase', '2 Oct 2026', '3.8', 'Suitable', 'Finalised'], ['0077', 'Physics Lab Hall', 'Mr. Emmanuel Ochoga', '29 Sep 2026', '3.0', 'Needs Attention', 'Finalised']];
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      rows: R.map(function (r) { var d = r[6] === 'Draft'; return { id: 'AUD-2026-' + r[0], h: r[1], by: r[2], d: r[3], avg: r[4], res: r[5], st: r[6], href: d ? 'AuditWizard.dc.html' : 'AuditDetail.dc.html', cta: d ? 'Continue' : 'View' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

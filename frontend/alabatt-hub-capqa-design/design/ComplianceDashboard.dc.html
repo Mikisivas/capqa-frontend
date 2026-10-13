@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compliance dashboard · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="dept" crumbs="Departments>Compliance dashboard" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Compliance dashboard</h1><p class="sub">Session 2025/2026 · 24 departments · 55 accredited programmes and courses</p></div><div class="row"><label class="row t-sm" style="gap: 8px">Session <select class="select" style="width: 140px"><option>2025/2026</option></select></label><a class="btn btn-secondary" href="ReportBuilder.dc.html"><dc-import name="Icon" i="report" s="16" hint-size="16px,16px"></dc-import>Build report</a></div></div>
+      <section class="grid-3" aria-label="Departments by rating">
+        <sc-for list="{{rag}}" as="g" hint-placeholder-count="3">
+          <div class="card" style="border-top: 4px solid {{g.c}}">
+            <div class="card-body stack-sm">
+              <div class="row-between"><span class="row" style="gap: 8px; color: {{g.fg}}"><dc-import name="Icon" i="{{g.i}}" s="20" hint-size="20px,20px"></dc-import><span class="strong">{{g.t}}</span></span><span class="t-3xl strong num">{{g.n}}</span></div>
+              <span class="t-xs muted">{{g.rule}}</span>
+              <ul style="list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px" class="t-sm"><sc-for list="{{g.list}}" as="d" hint-placeholder-count="3"><li class="row-between"><a href="DeptCompliance.dc.html">{{d.n}}</a><span class="num muted">{{d.v}}</span></li></sc-for></ul>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+      <div class="grid-2">
+        <section class="card" aria-labelledby="acc-h">
+          <div class="card-head"><h2 class="h3" id="acc-h">Accreditation by faculty</h2><div class="legend"><span><i style="background: #166534"></i>Full</span><span><i style="background: #d97706"></i>Interim</span><span><i style="background: #b42318"></i>Denied</span></div></div>
+          <div class="card-body stack">
+            <sc-for list="{{fac}}" as="f" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: minmax(110px, 170px) 1fr 70px; gap: 12px; align-items: center" class="t-sm">
+                <span>{{f.n}}</span>
+                <div style="display: flex; height: 18px; border-radius: 4px; overflow: hidden; background: #f1f5f9" role="img" aria-label="{{f.n}}: Full {{f.a}}, Interim {{f.b}}, Denied {{f.c}}"><span style="width: {{f.aw}}; background: #166534"></span><span style="width: {{f.bw}}; background: #d97706"></span><span style="width: {{f.cw}}; background: #b42318"></span></div>
+                <span class="num t-xs muted" style="text-align: right">{{f.a}} · {{f.b}} · {{f.c}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="qs-h">
+          <div class="card-head"><h2 class="h3" id="qs-h">Departmental Quality Scores</h2><span class="t-xs muted">0–100 · target 70</span></div>
+          <div class="card-body stack-sm">
+            <sc-for list="{{qs}}" as="d" hint-placeholder-count="8"><div class="hbar"><span>{{d.n}}</span><span class="track" style="position: relative"><span class="fill {{d.c}}" style="width: {{d.w}}"></span></span><span class="num strong" style="text-align: right">{{d.v}}</span></div></sc-for>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var F = [['Science', 16, 3, 0], ['Management Sciences', 9, 2, 0], ['Social Sciences', 8, 3, 1], ['Arts', 5, 2, 1], ['Education', 4, 1, 0]];
+    var Q = [['Mathematics and Computer Science', 82], ['Accounting', 78], ['Economics', 74], ['Biological Sciences', 71], ['Physics', 64], ['English', 58], ['History', 52], ['Theatre Arts', 41]];
+    return {
+      rag: [
+        { t: 'Green', n: 9, c: '#1a763f', fg: '#15703c', i: 'check-circle', rule: 'Meets NUC ratio and quality score 70+', list: [{ n: 'Mathematics and Computer Science', v: '82' }, { n: 'Biological Sciences', v: '71' }, { n: 'Microbiology', v: '76' }] },
+        { t: 'Amber', n: 10, c: '#d97706', fg: '#93370d', i: 'alert', rule: 'Fails one: NUC ratio or quality score below 70', list: [{ n: 'Accounting', v: '1 : 36' }, { n: 'Physics', v: '64' }, { n: 'Economics', v: '1 : 35' }] },
+        { t: 'Red', n: 5, c: '#dc2626', fg: '#b42318', i: 'x-circle', rule: 'Fails both, or a course with Denied accreditation', list: [{ n: 'Theatre Arts', v: '41' }, { n: 'History', v: '52' }, { n: 'Sociology', v: 'Denied' }] }
+      ],
+      fac: F.map(function (f) { var t = f[1] + f[2] + f[3]; return { n: f[0], a: f[1], b: f[2], c: f[3], aw: (f[1] / t * 100) + '%', bw: (f[2] / t * 100) + '%', cw: (f[3] / t * 100) + '%' }; }),
+      qs: Q.map(function (d) { return { n: d[0], v: d[1], w: d[1] + '%', c: d[1] >= 70 ? '' : d[1] >= 50 ? 'warn' : 'bad' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

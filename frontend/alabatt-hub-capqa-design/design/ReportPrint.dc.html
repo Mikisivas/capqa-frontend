@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Report print layout · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="print-page" style="width: 794px; min-height: 1123px; box-sizing: border-box; padding: 56px 60px; display: flex; flex-direction: column; gap: 22px; font-size: 16px; line-height: 24px; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #0f172a">
+  <header style="display: flex; gap: 16px; align-items: center; border-bottom: 3px solid #166534; padding-bottom: 16px">
+    <div class="logo-slot on-light" style="width: 64px; height: 64px; font-size: 10px">RFMOAUM</div>
+    <div style="flex: 1 1 auto">
+      <div style="font-size: 13px; font-weight: 700; letter-spacing: .04em">REV. FR. MOSES ORSHIO ADASU UNIVERSITY, MAKURDI</div>
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: .14em; color: #b45309">ALABATT-HUB CAPQA</div>
+      <div style="font-size: 18px; font-weight: 700; color: #166534">Centre for Academic Planning and Quality Assurance</div>
+    </div>
+    <div style="flex: none; white-space: nowrap; text-align: right; font-size: 13px; line-height: 18px; color: #334155">Printed 12 Oct 2026<br>Ref. CAPQA/RPT/2026/031</div>
+  </header>
+  <div>
+    <h1 style="margin: 0; font-size: 26px; line-height: 32px">Classroom Usage Report</h1>
+    <p style="margin: 4px 0 0; color: #334155">Session 2025/2026 · Second semester · All departments · 1 March – 12 October 2026</p>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px">
+    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px"><div style="font-size: 12px; color: #334155">Allocations</div><div style="font-size: 24px; font-weight: 700">214</div></div>
+    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px"><div style="font-size: 12px; color: #334155">Overcrowded</div><div style="font-size: 24px; font-weight: 700">17 <span style="font-size: 14px; font-weight: 500">(8%)</span></div></div>
+    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px"><div style="font-size: 12px; color: #334155">Avg. utilisation</div><div style="font-size: 24px; font-weight: 700">74%</div></div>
+    <div style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px"><div style="font-size: 12px; color: #334155">Halls</div><div style="font-size: 24px; font-weight: 700">30</div></div>
+  </div>
+  <section>
+    <h2 style="margin: 0 0 10px; font-size: 18px">Utilisation by hall (top 6)</h2>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="6">
+        <div style="display: grid; grid-template-columns: 250px 1fr 52px; gap: 12px; align-items: center; font-size: 14px"><span>{{b.n}}</span><span style="height: 14px; background: #f1f5f9; border-radius: 3px; overflow: hidden; display: block"><span style="display: block; height: 100%; width: {{b.w}}; background: {{b.c}}"></span></span><span style="text-align: right; font-weight: 600">{{b.v}}</span></div>
+      </sc-for>
+    </div>
+  </section>
+  <section>
+    <h2 style="margin: 0 0 10px; font-size: 18px">Overcrowded allocations</h2>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px; line-height: 20px">
+      <thead><tr style="background: #f1f5f9"><th style="text-align: left; padding: 8px; border-bottom: 2px solid #94a3b8">Course</th><th style="text-align: left; padding: 8px; border-bottom: 2px solid #94a3b8">Hall</th><th style="text-align: right; padding: 8px; border-bottom: 2px solid #94a3b8">Students</th><th style="text-align: right; padding: 8px; border-bottom: 2px solid #94a3b8">Capacity</th><th style="text-align: right; padding: 8px; border-bottom: 2px solid #94a3b8">Use</th></tr></thead>
+      <tbody>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="4"><tr><td style="padding: 8px; border-bottom: 1px solid #e2e8f0">{{r.c}}</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0">{{r.h}}</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right">{{r.n}}</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right">{{r.cap}}</td><td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 700">{{r.p}}</td></tr></sc-for>
+      </tbody>
+    </table>
+  </section>
+  <footer style="margin-top: auto; display: flex; justify-content: space-between; font-size: 12px; color: #334155; border-top: 1px solid #cbd5e1; padding-top: 10px"><span>CAPQA · Finalised by Prof. Msughter Iorkyaa, Director · 12 Oct 2026, 16:02</span><span>Page 1 of 18</span></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":794,"height":1123}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var B = [['Education Block LR 3', 118], ['Management Sciences Hall B', 110], ['Faculty of Science Lecture Theatre', 92], ['1000-Seater Auditorium', 88], ['Arts Theatre', 61], ['ICT Centre Lab 2', 58]];
+    var R = [['EDU 212 Curriculum Studies', 'Education Block LR 3', 142, 120], ['ACC 301 Financial Reporting', 'Management Sciences Hall B', 276, 250], ['CSC 101 Introduction to Computing', 'Faculty of Science Lecture Theatre', 380, 350], ['ACC 205 Cost Accounting', 'Management Sciences Hall B', 262, 250]];
+    return {
+      bars: B.map(function (b) { return { n: b[0], v: b[1] + '%', w: Math.min(b[1], 100) + '%', c: b[1] > 100 ? '#b42318' : '#166534' }; }),
+      rows: R.map(function (r) { return { c: r[0], h: r[1], n: r[2], cap: r[3], p: Math.round(r[2] / r[3] * 100) + '%' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

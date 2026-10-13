@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notification preferences · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="notif" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="notif" crumbs="Notifications>Preferences" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Notification preferences</h1><p class="sub">Choose how CAPQA tells you about each type of event.</p></div></div>
+      <sc-if value="{{saved}}" hint-placeholder-val="{{ false }}"><div class="alert alert-success" role="status"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div>Preferences saved.</div></div></sc-if>
+      <section class="card">
+        <div class="table-wrap"><table class="table">
+          <caption class="sr-only">Notification channels per type</caption>
+          <thead><tr><th scope="col">Type</th><th scope="col" style="text-align: center">In-app</th><th scope="col" style="text-align: center">Email</th><th scope="col" style="text-align: center">Live toast</th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+              <tr><td><div class="stack-sm" style="gap: 4px"><span class="badge" data-s="ntf-{{r.t}}">{{r.t}}</span><span class="t-xs muted">{{r.d}}</span></div></td>
+                <sc-for list="{{r.ch}}" as="c" hint-placeholder-count="3"><td style="text-align: center"><span class="switch"><input type="checkbox" checked="{{c.on}}" onChange="{{c.flip}}" aria-label="{{c.label}}" disabled="{{c.locked}}"></span></td></sc-for>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table></div>
+      </section>
+      <section class="card card-body stack">
+        <h2 class="h3">Deadline reminders</h2>
+        <div class="grid-form">
+          <div class="field"><label class="label" for="np-first">First reminder</label><select id="np-first" class="select"><option>3 days before</option><option>1 week before</option><option>1 day before</option></select></div>
+          <div class="field"><label class="label" for="np-second">Second reminder</label><select id="np-second" class="select"><option>On the due date, 08:00</option><option>None</option></select></div>
+        </div>
+        <label class="check"><input type="checkbox" checked>Send a daily digest email at 07:30 instead of one email per event</label>
+      </section>
+      <div class="action-bar"><a class="btn btn-secondary" href="NotificationCentre.dc.html">Cancel</a><button type="button" class="btn btn-primary" onClick="{{save}}">Save preferences</button></div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { m: { 'Pending approval': [1, 1, 1], 'Assigned task': [1, 1, 1], 'Deadline': [1, 1, 0], 'System update': [1, 0, 0] }, saved: false }; }
+  renderVals() {
+    var self = this, m = this.state.m;
+    var D = { 'Pending approval': 'Mail waiting for your approval', 'Assigned task': 'Mail, audits or evaluations assigned to you', 'Deadline': 'Due dates for tasks, reports and NUC submissions', 'System update': 'Maintenance and new features' };
+    var CH = ['In-app', 'Email', 'Live toast'];
+    return {
+      saved: this.state.saved, save: function () { self.setState({ saved: true }); },
+      rows: Object.keys(m).map(function (t) { return { t: t, d: D[t], ch: CH.map(function (c, i) {
+        var locked = t === 'Pending approval' && i === 0;
+        return { on: !!m[t][i], locked: locked, label: c + ' for ' + t + (locked ? ' (always on)' : ''), flip: function () { var n = JSON.parse(JSON.stringify(self.state.m)); n[t][i] = n[t][i] ? 0 : 1; self.setState({ m: n, saved: false }); } };
+      }) }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

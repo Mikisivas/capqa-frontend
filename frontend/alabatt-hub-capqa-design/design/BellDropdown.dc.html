@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notifications dropdown · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="dashboard" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="dashboard" crumbs="Dashboard" bell="{{ true }}" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Good morning, Prof. Iorkyaa</h1><p class="sub">Session 2025/2026 · Second semester</p></div></div>
+      <section class="grid-stats">
+        <div class="card stat"><span class="s-label">Pending tasks</span><span class="s-value">12</span></div>
+        <div class="card stat"><span class="s-label">Unread notifications</span><span class="s-value">3</span></div>
+      </section>
+      <div class="card"><dc-import name="ListState" kind="loading" hint-size="100%,300px"></dc-import></div>    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

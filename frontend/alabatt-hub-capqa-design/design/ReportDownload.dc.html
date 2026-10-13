@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Download report · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="reports" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="reports" crumbs="Reports>Download" hint-size="100%,64px"></dc-import>
+    <main class="page" style="flex: 1 1 auto; align-items: center; justify-content: center">
+      <section class="card" style="width: 100%; max-width: 520px" aria-live="polite">
+        <sc-if value="{{ready}}" hint-placeholder-val="{{ true }}">
+          <div class="card-body stack" style="padding: 32px; align-items: center; text-align: center">
+            <span class="e-icon" style="display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: #ecfdf3; color: #15703c"><dc-import name="Icon" i="check-circle" s="30" hint-size="30px,30px"></dc-import></span>
+            <h1 class="h2">Report ready</h1>
+            <div class="file-row" style="width: 100%; text-align: left"><span class="f-ico">PDF</span><div class="f-main"><span class="f-name">CAPQA_Classroom_Usage_2025-2026_S2.pdf</span><span class="t-xs muted">2.4 MB · 18 pages · <span class="badge" data-s="life-Finalised">Finalised</span></span></div></div>
+            <a class="btn btn-primary btn-lg btn-block" href="ReportPrint.dc.html"><dc-import name="Icon" i="download" s="18" hint-size="18px,18px"></dc-import>Download PDF</a>
+            <div class="row" style="justify-content: center"><a class="btn btn-ghost btn-sm" href="ReportPrint.dc.html"><dc-import name="Icon" i="printer" s="16" hint-size="16px,16px"></dc-import>Print layout</a><a class="btn btn-ghost btn-sm" href="ReportsList.dc.html">Back to reports</a></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{gen}}" hint-placeholder-val="{{ false }}">
+          <div class="card-body stack" style="padding: 32px; align-items: center; text-align: center" role="status" aria-busy="true">
+            <span class="spin" style="width: 40px; height: 40px; border-width: 4px; color: #166534" aria-hidden="true"></span>
+            <h1 class="h2">Generating your report…</h1>
+            <p class="muted">Usually under a minute. You can leave this page — we’ll notify you when it’s ready.</p>
+            <div class="progress" style="width: 100%"><span style="width: 62%"></span></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{err}}" hint-placeholder-val="{{ false }}">
+          <div class="card-body stack" style="padding: 32px; align-items: center; text-align: center" role="alert">
+            <span class="e-icon bad" style="display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: #fef3f2; color: #b42318"><dc-import name="Icon" i="alert-circle" s="30" hint-size="30px,30px"></dc-import></span>
+            <h1 class="h2">We couldn’t generate the file</h1>
+            <p class="muted">The export timed out. Try again, or narrow the date range.</p>
+            <button type="button" class="btn btn-primary"><dc-import name="Icon" i="refresh" s="16" hint-size="16px,16px"></dc-import>Try again</button>
+          </div>
+        </sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"ready","options":["generating","ready","error"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { var v = this.props.view ?? 'ready'; return { ready: v === 'ready', gen: v === 'generating', err: v === 'error' }; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit department, staff or course · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="dept" crumbs="Departments>Mathematics and Computer Science>Edit" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">{{title}}</h1><p class="sub">{{sub}}</p></div><button type="button" class="btn btn-secondary" style="color: #b42318" onClick="{{openDel}}"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import>Delete {{noun}}</button></div>
+      <div class="tabs" role="tablist" aria-label="What to edit"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" class="tab" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div>
+      <form class="stack-lg">
+        <sc-if value="{{isDept}}" hint-placeholder-val="{{ true }}">
+          <div class="card"><div class="card-body grid-form">
+            <div class="field span-2"><label class="label" for="de-n">Department name <span class="req" aria-hidden="true">*</span></label><input id="de-n" class="input" value="Dept. of Mathematics and Computer Science"></div>
+            <div class="field"><label class="label" for="de-c">Short code</label><input id="de-c" class="input mono" value="MCS"></div>
+            <div class="field"><label class="label" for="de-f">Faculty</label><select id="de-f" class="select"><option>Faculty of Science</option></select></div>
+            <div class="field span-2"><label class="label" for="de-h">Head of department</label><select id="de-h" class="select"><option>Prof. Terfa Iorliam</option><option>Dr. Stephen Akuma</option></select></div>
+          </div></div>
+        </sc-if>
+        <sc-if value="{{isStaff}}" hint-placeholder-val="{{ false }}">
+          <div class="card"><div class="card-body grid-form">
+            <div class="field span-2"><label class="label" for="se-n">Full name <span class="req" aria-hidden="true">*</span></label><input id="se-n" class="input" value="Dr. Stephen Akuma"></div>
+            <div class="field"><label class="label" for="se-no">Staff number</label><input id="se-no" class="input mono" value="MOAU/SS/0412" readonly></div>
+            <div class="field"><label class="label" for="se-r">Rank</label><select id="se-r" class="select"><option>Senior Lecturer</option><option>Reader / Associate Professor</option></select></div>
+            <div class="field"><label class="label" for="se-e">Employment</label><select id="se-e" class="select"><option>Full-time</option><option>Sabbatical</option></select></div>
+            <div class="field"><label class="label" for="se-d">Department</label><select id="se-d" class="select"><option>Mathematics and Computer Science</option></select></div>
+          </div></div>
+        </sc-if>
+        <sc-if value="{{isCourse}}" hint-placeholder-val="{{ false }}">
+          <div class="card"><div class="card-body grid-form">
+            <div class="field"><label class="label" for="ce-c">Course code</label><input id="ce-c" class="input mono" value="CMP 312"></div>
+            <div class="field"><label class="label" for="ce-l">Level</label><select id="ce-l" class="select"><option>300</option></select></div>
+            <div class="field span-2"><label class="label" for="ce-n">Course name</label><input id="ce-n" class="input" value="Database Systems"></div>
+            <div class="field span-2"><span class="label">Accreditation</span><div class="row"><span class="badge" data-s="acc-Interim">Interim</span><a class="t-sm strong" href="CourseAccreditation.dc.html">Change accreditation status</a></div><span class="help">Status changes are recorded separately with a reason.</span></div>
+          </div></div>
+        </sc-if>
+        <div class="action-bar"><a class="btn btn-secondary" href="DeptDetail.dc.html">Cancel</a><a class="btn btn-primary" href="DeptDetail.dc.html"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save changes</a></div>
+      </form>
+    </main>
+  </div>
+  <sc-if value="{{delOpen}}" hint-placeholder-val="{{ false }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="dd-h">
+        <div class="modal-head"><div class="row" style="flex-wrap: nowrap; gap: 12px; align-items: flex-start"><span class="modal-icon danger"><dc-import name="Icon" i="trash" s="20" hint-size="20px,20px"></dc-import></span><div><h2 class="h3" id="dd-h">Delete {{delName}}?</h2><p class="t-sm muted" style="margin-top: 4px">{{delText}}</p></div></div></div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{close}}">Cancel</button><a class="btn btn-danger" href="DeptList.dc.html">Delete {{noun}}</a></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"entity":{"editor":"enum","default":"Department","options":["Department","Staff member","Course"]},"dialog":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { e: null, del: null }; }
+  renderVals() {
+    var self = this, e = this.state.e || (this.props.entity ?? 'Department'), del = this.state.del === null ? (this.props.dialog ?? false) : this.state.del;
+    var M = {
+      'Department': ['Edit department', 'Changes apply to all sessions.', 'department', 'Dept. of Mathematics and Computer Science', 'You can only delete a department with no staff, courses or allocations. This one has 38 staff and 13 courses — move or delete them first.'],
+      'Staff member': ['Edit staff member', 'Dr. Stephen Akuma · MOAU/SS/0412', 'staff member', 'Dr. Stephen Akuma', 'Their 14 evaluations are kept in the archive. The department’s staff count and NUC ratio will be recalculated.'],
+      'Course': ['Edit course', 'CMP 312 · Database Systems', 'course', 'CMP 312 Database Systems', 'Allocations using this course keep their booking but lose the course link.']
+    }[e];
+    return {
+      title: M[0], sub: M[1], noun: M[2], delName: M[3], delText: M[4], isDept: e === 'Department', isStaff: e === 'Staff member', isCourse: e === 'Course', delOpen: del,
+      tabs: ['Department', 'Staff member', 'Course'].map(function (l) { return { label: l, sel: l === e ? 'true' : 'false', pick: function () { self.setState({ e: l }); } }; }),
+      openDel: function () { self.setState({ del: true }); }, close: function () { self.setState({ del: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

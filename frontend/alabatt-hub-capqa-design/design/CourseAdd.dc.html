@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add course · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dept" crumbs="Departments>Courses>Add course" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Add course</h1><p class="sub">Courses carry their own NUC accreditation status.</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field"><label class="label" for="ca-code">Course code <span class="req" aria-hidden="true">*</span></label><input id="ca-code" class="input mono {{invCls}}" value="{{code}}" aria-invalid="{{invAria}}" disabled="{{saving}}"><sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>CMP 411 already exists in this department.</span></sc-if><span class="help">e.g. CMP 411</span></div>
+          <div class="field"><label class="label" for="ca-level">Level <span class="req" aria-hidden="true">*</span></label><select id="ca-level" class="select" disabled="{{saving}}"><option>100</option><option>200</option><option>300</option><option selected>400</option><option>500</option><option>600</option></select></div>
+          <div class="field span-2"><label class="label" for="ca-name">Course name <span class="req" aria-hidden="true">*</span></label><input id="ca-name" class="input" value="Software Project Management" disabled="{{saving}}"></div>
+          <div class="field span-2"><label class="label" for="ca-dept">Department <span class="req" aria-hidden="true">*</span></label><select id="ca-dept" class="select" disabled="{{saving}}"><option>Dept. of Mathematics and Computer Science</option><option>Dept. of Physics</option></select></div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Accreditation status <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-cards"><sc-for list="{{acc}}" as="a" hint-placeholder-count="3"><label class="radio-card {{a.cls}}"><input type="radio" name="ca-acc" checked="{{a.on}}" onChange="{{a.pick}}" disabled="{{saving}}"><span class="badge" data-s="acc-{{a.v}}">{{a.v}}</span></label></sc-for></div>
+          </fieldset>
+        </div></div>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="CourseList.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="CourseList.dc.html">Add course</a></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { acc: 'Full' }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default';
+    return { invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', code: v === 'invalid' ? 'CMP 411' : 'CMP 415',
+      acc: ['Full', 'Interim', 'Denied'].map(function (x) { var on = x === self.state.acc; return { v: x, on: on, cls: on ? 'is-on' : '', pick: function () { self.setState({ acc: x }); } }; }) };
+  }
+}
+</script>
+</body>
+</html>

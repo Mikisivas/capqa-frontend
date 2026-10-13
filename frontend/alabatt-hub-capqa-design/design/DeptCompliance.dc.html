@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Department compliance · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="dept" crumbs="Departments>Compliance view" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Department compliance</h1><p class="sub">Staff-to-student ratio against the NUC benchmark, and the Departmental Quality Score.</p></div></div>
+      <section class="card filter-bar" style="border-radius: 8px">
+        <label class="field grow"><span class="label">Department</span><select class="select" onChange="{{pickDept}}"><sc-for list="{{depts}}" as="d" hint-placeholder-count="3"><option value="{{d.i}}" selected="{{d.sel}}">{{d.n}}</option></sc-for></select></label>
+        <label class="field"><span class="label">Session</span><select class="select"><option>2025/2026</option><option>2024/2025</option></select></label>
+      </section>
+      <section role="status" aria-live="polite" style="border-radius: 12px; padding: 20px 24px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; background: {{bg}}; border: 1px solid {{bd}}; color: {{fg}}">
+        <span style="display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: {{fg}}; color: #fff"><dc-import name="Icon" i="{{icon}}" s="24" hint-size="24px,24px"></dc-import></span>
+        <div style="flex: 1 1 280px"><div class="eyebrow" style="color: inherit">NUC staff-to-student ratio</div><h2 class="h2" style="color: inherit">{{verdict}}</h2><p class="t-sm">{{msg}}</p></div>
+      </section>
+      <div class="grid-3">
+        <section class="card card-body stack">
+          <h3 class="h3">Staff-to-student ratio</h3>
+          <div class="row" style="gap: 24px; align-items: flex-end">
+            <div><div class="t-xs muted">Actual</div><div class="t-3xl strong num">1 : {{ratio}}</div></div>
+            <div><div class="t-xs muted">NUC maximum</div><div class="t-3xl strong num muted">1 : {{max}}</div></div>
+          </div>
+          <div style="position: relative; height: 16px; border-radius: 9999px; background: #f1f5f9" role="img" aria-label="Actual ratio 1 to {{ratio}} against maximum 1 to {{max}}">
+            <span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{ratioW}}; border-radius: 9999px; background: {{barC}}"></span>
+            <span style="position: absolute; top: -6px; bottom: -6px; left: {{maxW}}; width: 3px; background: #0f172a" title="NUC maximum"></span>
+          </div>
+          <div class="row-between t-xs muted"><span>0</span><span>Black line = NUC maximum ({{max}})</span></div>
+        </section>
+        <section class="card card-body stack">
+          <h3 class="h3">Inputs · 2025/2026</h3>
+          <dl class="dl" style="grid-template-columns: 1fr 1fr; margin: 0"><div><dt>Professors</dt><dd class="num">{{prof}}</dd></div><div><dt>Academic staff</dt><dd class="num">{{staff}}</dd></div><div><dt>Students</dt><dd class="num">{{stu}}</dd></div><div><dt>Discipline benchmark</dt><dd>{{disc}}</dd></div></dl>
+          <a class="t-sm strong" href="DeptStats.dc.html">Update statistics</a>
+        </section>
+        <section class="card card-body stack">
+          <h3 class="h3">Departmental Quality Score</h3>
+          <div class="row" style="gap: 8px; align-items: baseline"><span class="t-3xl strong num">{{qs}}</span><span class="muted">/ 100</span></div>
+          <div class="progress" role="img" aria-label="Quality score {{qs}} of 100"><span style="width: {{qsW}}; background: {{qsC}}"></span></div>
+          <span class="t-sm strong" style="color: {{qsC}}">{{qsBand}}</span>
+          <a class="t-sm strong" href="QualityScore.dc.html">Record new score</a>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { d: 0 }; }
+  renderVals() {
+    var self = this;
+    var D = [['Mathematics and Computer Science', 6, 38, 1062, 30, 'Computer Science', 82], ['Physics', 3, 18, 420, 20, 'Physics', 64], ['Theatre Arts', 1, 8, 280, 25, 'Theatre Arts', 41]];
+    var d = D[this.state.d], ratio = Math.round(d[3] / d[2]), pass = ratio <= d[4], scale = Math.max(ratio, d[4]) * 1.25;
+    var qc = d[6] >= 70 ? '#15703c' : d[6] >= 50 ? '#93370d' : '#b42318';
+    return {
+      depts: D.map(function (x, i) { return { n: 'Dept. of ' + x[0], i: i, sel: i === self.state.d }; }),
+      pickDept: function (e) { self.setState({ d: Number(e.target.value) }); },
+      ratio: ratio, max: d[4], prof: d[1], staff: d[2], stu: d[3].toLocaleString('en-NG'), disc: d[5] + ' · 1 : ' + d[4], qs: d[6], qsW: d[6] + '%', qsC: qc,
+      qsBand: d[6] >= 70 ? 'Meets target (70+)' : d[6] >= 50 ? 'Watch — below target of 70' : 'Action needed — below 50',
+      ratioW: Math.round(ratio / scale * 100) + '%', maxW: Math.round(d[4] / scale * 100) + '%', barC: pass ? '#1a763f' : '#dc2626',
+      verdict: pass ? 'Pass — within the NUC benchmark' : 'Fail — above the NUC benchmark',
+      msg: pass ? 'Each academic staff member serves ' + ratio + ' students; NUC allows up to ' + d[4] + '.' : 'Each academic staff member serves ' + ratio + ' students; NUC allows up to ' + d[4] + '. About ' + Math.ceil(d[3] / d[4] - d[2]) + ' more full-time staff are needed.',
+      bg: pass ? '#ecfdf3' : '#fef3f2', bd: pass ? '#abefc6' : '#fecdca', fg: pass ? '#15703c' : '#b42318', icon: pass ? 'check-circle' : 'x-circle'
+    };
+  }
+}
+</script>
+</body>
+</html>

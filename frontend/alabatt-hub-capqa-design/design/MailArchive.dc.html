@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mail archive · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="dispatch" crumbs="E-Dispatch>Archive" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Mail archive</h1><p class="sub">Archived mail is hidden from the mail list but kept for records. Only Admins can delete permanently.</p></div><a class="btn btn-secondary" href="MailList.dc.html"><dc-import name="Icon" i="arrow-left" s="16" hint-size="16px,16px"></dc-import>Back to mail list</a></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search archive</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Reference, sender or subject"></span></label>
+          <label class="field"><span class="label">Archived in</span><select class="select"><option>Session 2025/2026</option><option>Session 2024/2025</option></select></label>
+        </div>
+        <div class="table-wrap"><table class="table table-stack">
+          <thead><tr><th scope="col">Reference no.</th><th scope="col">Subject</th><th scope="col">Final status</th><th scope="col">Archived by</th><th scope="col">Archived on</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+              <tr><td class="td-lead mono" data-label="Reference">{{r.ref}}</td><td data-label="Subject">{{r.subj}}</td><td data-label="Final status"><span class="badge" data-s="mail-{{r.st}}">{{r.st}}</span></td><td data-label="Archived by">{{r.by}}</td><td data-label="Archived on" class="num">{{r.on}}</td>
+                <td class="td-actions"><div class="row" style="flex-wrap: nowrap; justify-content: flex-end"><button type="button" class="btn btn-ghost btn-sm"><dc-import name="Icon" i="refresh" s="16" hint-size="16px,16px"></dc-import>Restore</button><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Delete {{r.ref}} permanently" onClick="{{openDel}}" style="color: #b42318"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></button></div></td></tr>
+            </sc-for>
+          </tbody>
+        </table></div>
+        <div class="pagination"><span>Showing 1–6 of 31</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+      </section>
+    </main>
+  </div>
+  <sc-if value="{{archiveOpen}}" hint-placeholder-val="{{ true }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="ar-h" aria-describedby="ar-d">
+        <div class="modal-head"><div class="row" style="flex-wrap: nowrap; gap: 12px; align-items: flex-start"><span class="modal-icon warn"><dc-import name="Icon" i="archive" s="20" hint-size="20px,20px"></dc-import></span><div><h2 class="h3" id="ar-h">Archive 2 mail items?</h2><p class="t-sm muted" id="ar-d" style="margin-top: 4px"><span class="mono">CAPQA/DSP/2026/0139</span> and <span class="mono">CAPQA/DSP/2026/0136</span> will move to the archive. You can restore them at any time.</p></div></div></div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{close}}">Cancel</button><button type="button" class="btn btn-primary" onClick="{{close}}">Archive 2 items</button></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{delOpen}}" hint-placeholder-val="{{ false }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="dl-h">
+        <div class="modal-head"><div class="row" style="flex-wrap: nowrap; gap: 12px; align-items: flex-start"><span class="modal-icon danger"><dc-import name="Icon" i="trash" s="20" hint-size="20px,20px"></dc-import></span><div><h2 class="h3" id="dl-h">Delete permanently?</h2><p class="t-sm muted" style="margin-top: 4px">The mail record, its attachments and comments will be removed. The audit log keeps a record of the deletion. This can’t be undone.</p></div></div></div>
+        <div class="modal-body" style="padding-top: 0"><div class="field"><label class="label" for="dl-confirm">Type <span class="mono">DELETE</span> to confirm</label><input id="dl-confirm" class="input" autocomplete="off"></div></div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{close}}">Cancel</button><button type="button" class="btn btn-danger" disabled>Delete permanently</button></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dialog":{"editor":"enum","default":"archive","options":["none","archive","delete"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { dlg: null }; }
+  renderVals() {
+    var self = this, d = this.state.dlg || (this.props.dialog ?? 'archive');
+    var R = [['0129', 'Hall request for convocation rehearsal', 'Approved', 'Mr. Tersoo Ahule', '30 Sep 2026'], ['0124', '1st semester exam timetable draft', 'Approved', 'Mr. Tersoo Ahule', '30 Sep 2026'], ['0118', 'Duplicate: staff list update', 'Rejected', 'Mrs. Ngozi Okafor', '22 Sep 2026'], ['0112', 'Library opening hours notice', 'Reviewed', 'Mrs. Ngozi Okafor', '15 Sep 2026'], ['0104', 'Invitation to TETFund workshop', 'Approved', 'Mr. Tersoo Ahule', '8 Sep 2026'], ['0097', 'Request for lecture room keys', 'Rejected', 'Mrs. Ngozi Okafor', '1 Sep 2026']];
+    return {
+      archiveOpen: d === 'archive', delOpen: d === 'delete',
+      openDel: function () { self.setState({ dlg: 'delete' }); }, close: function () { self.setState({ dlg: 'none' }); },
+      rows: R.map(function (r) { return { ref: 'CAPQA/DSP/2026/' + r[0], subj: r[1], st: r[2], by: r[3], on: r[4] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

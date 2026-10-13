@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My tasks · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="tasks" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="tasks" crumbs="Dashboard>My tasks" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">My tasks</h1><p class="sub">Everything assigned to you across modules, soonest first.</p></div></div>
+      <div class="card">
+        <div class="filter-bar">
+          <div class="tabs" role="tablist" style="border: 0; flex: 1 1 100%">
+            <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button type="button" class="tab" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for>
+          </div>
+          <label class="field"><span class="label">Type</span><select class="select"><option>All types</option><option>Audit</option><option>Evaluation</option><option>Mail</option><option>Quality score</option></select></label>
+          <label class="field"><span class="label">Priority</span><select class="select"><option>All priorities</option><option>High</option><option>Medium</option><option>Low</option></select></label>
+          <label class="field"><span class="label">Sort by</span><select class="select"><option>Due date · soonest</option><option>Priority · highest</option></select></label>
+        </div>
+        <sc-if value="{{hasRows}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Task</th><th scope="col">Module</th><th scope="col">Assigned by</th><th scope="col"><button type="button" class="th-sort is-active">Due date<dc-import name="Icon" i="arrow-up" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Priority</th><th scope="col" class="r">Action</th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+                <tr class="{{r.rowCls}}"><td class="td-lead" data-label="Task"><span class="strong">{{r.t}}</span><br><span class="t-xs muted">{{r.sub}}</span></td><td data-label="Module">{{r.mod}}</td><td data-label="Assigned by">{{r.by}}</td><td data-label="Due date"><span class="row" style="flex-wrap: nowrap; gap: 6px; color: {{r.dueColor}}"><dc-import name="Icon" i="{{r.dueIcon}}" s="16" hint-size="16px,16px"></dc-import><span class="strong">{{r.due}}</span></span></td><td data-label="Priority"><span class="badge" data-s="pri-{{r.pri}}">{{r.pri}}</span></td><td class="td-actions"><a class="btn btn-secondary btn-sm" href="{{r.href}}">Open</a></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+        </sc-if>
+        <sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+          <dc-import name="ListState" kind="empty" title="You’re all caught up" text="No completed tasks to show for this session yet." icon="check-circle" hint-size="100%,300px"></dc-import>
+        </sc-if>
+        <div class="pagination"><span>Showing 6 of 12 open tasks</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'Open (12)' }; }
+  renderVals() {
+    var self = this, tab = this.state.tab;
+    var R = [
+      ['Re-audit 1000-Seater Auditorium', 'Previous result: Needs Attention', 'Exam Hall Audit', 'Prof. Msughter Iorkyaa', 'Overdue · Fri, 10 Oct', 'High', 'AuditWizard', true],
+      ['Exam hall audit — Faculty of Science Lecture Theatre', 'Before MTH 201 examination', 'Exam Hall Audit', 'Prof. Msughter Iorkyaa', 'Thu, 16 Oct', 'High', 'AuditWizard', false],
+      ['Exam hall audit — Education Block LR 3', 'Routine pre-exam audit', 'Exam Hall Audit', 'Mrs. Ngozi Okafor', 'Fri, 17 Oct', 'Medium', 'AuditWizard', false],
+      ['Peer evaluation — Dr. Stephen Akuma', 'CMP 411 Software Engineering · 2025/2026 S2', 'Staff Evaluation', 'Prof. Msughter Iorkyaa', 'Mon, 20 Oct', 'Medium', 'EvalNew', false],
+      ['Review CAPQA/DSP/2026/0141', 'Course file audit request', 'E-Dispatch', 'Mrs. Ngozi Okafor', 'Tue, 21 Oct', 'Medium', 'MailDetail', false],
+      ['Quality score — Dept. of Physics', 'Session 2025/2026', 'Departments', 'Prof. Msughter Iorkyaa', 'Wed, 22 Oct', 'Low', 'QualityScore', false]
+    ];
+    return {
+      tabs: ['Open (12)', 'Due this week (4)', 'Completed'].map(function (t) { return { label: t, sel: t === tab ? 'true' : 'false', pick: function () { self.setState({ tab: t }); } }; }),
+      hasRows: tab !== 'Completed', isDone: tab === 'Completed',
+      rows: R.map(function (r) { return { t: r[0], sub: r[1], mod: r[2], by: r[3], due: r[4], pri: r[5], href: r[6] + '.dc.html', rowCls: r[7] ? 'is-warn' : '', dueColor: r[7] ? '#b42318' : '#1e293b', dueIcon: r[7] ? 'alert' : 'calendar' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

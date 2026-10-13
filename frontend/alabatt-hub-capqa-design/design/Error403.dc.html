@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Access denied · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Viewer" active="none" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Viewer" active="none" crumbs="Administration>Access denied" hint-size="100%,64px"></dc-import>
+    <main class="page" style="flex: 1 1 auto; justify-content: center; align-items: center">
+      <div class="empty" style="max-width: 520px">
+        <span class="mono t-xs strong" style="color: #b42318; letter-spacing: .1em">ERROR 403</span>
+        <span class="e-icon bad" style="width: 72px; height: 72px"><dc-import name="Icon" i="lock" s="32" hint-size="32px,32px"></dc-import></span>
+        <h1 class="h1">You don’t have access to this page</h1>
+        <p>User management is available to Administrators only. You’re signed in as <strong>Ms. Blessing Adoga (Viewer)</strong>. If you need access, ask the CAPQA administrator to change your role.</p>
+        <div class="row" style="justify-content: center">
+          <a class="btn btn-primary" href="Dashboard.dc.html"><dc-import name="Icon" i="dashboard" s="16" hint-size="16px,16px"></dc-import>Go to dashboard</a>
+          <a class="btn btn-secondary" href="mailto:capqa.admin@moau.edu.ng">Contact administrator</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

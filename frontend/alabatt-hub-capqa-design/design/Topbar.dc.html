@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Top bar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<header class="topbar capqa" style="font-family: 'IBM Plex Sans', system-ui, sans-serif">
+  <button type="button" class="tb-icon lt-lg" aria-label="Open menu" aria-expanded="{{drawerExp}}" onClick="{{openDrawer}}"><dc-import name="Icon" i="menu" s="22" hint-size="22px,22px"></dc-import></button>
+  <div class="lt-md" style="align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto">
+    <div class="logo-slot on-light" style="width: 32px; height: 32px; font-size: 6px">RFMOAUM</div>
+    <span style="display: flex; flex-direction: column; min-width: 0; line-height: 1.15"><span class="brand-hub" style="font-size: 10px">ALABATT-HUB CAPQA</span><span style="font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{current}}</span></span>
+  </div>
+  <nav class="crumbs only-md" aria-label="Breadcrumb" style="flex: 1 1 auto">
+    <a href="Dashboard.dc.html">ALABATT-HUB CAPQA</a>
+    <sc-for list="{{trail}}" as="c" hint-placeholder-count="1">
+      <dc-import name="Icon" i="chev-right" s="14" hint-size="14px,14px"></dc-import>
+      <a href="{{c.href}}">{{c.label}}</a>
+    </sc-for>
+    <dc-import name="Icon" i="chev-right" s="14" hint-size="14px,14px"></dc-import>
+    <span aria-current="page">{{current}}</span>
+  </nav>
+  <div class="only-md tb-search">
+    <label class="input-wrap" style="width: 100%">
+      <span class="sr-only">Search CAPQA</span>
+      <span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span>
+      <input class="input" type="search" placeholder="Search mail, halls, staff…" style="background: #f8fafc">
+    </label>
+  </div>
+  <button type="button" class="tb-icon lt-md" aria-label="Search"><dc-import name="Icon" i="search" s="20" hint-size="20px,20px"></dc-import></button>
+  <div style="position: relative">
+    <button type="button" class="tb-icon" aria-label="Notifications, 3 unread" aria-expanded="{{bellExp}}" aria-haspopup="true" onClick="{{toggleBell}}">
+      <dc-import name="Icon" i="bell" s="22" hint-size="22px,22px"></dc-import>
+      <span class="badge-count" aria-hidden="true">3</span>
+    </button>
+    <sc-if value="{{bellOpen}}" hint-placeholder-val="{{ false }}">
+      <div class="menu" role="dialog" aria-label="Latest notifications" style="width: min(380px, calc(100vw - 24px)); right: -52px; padding: 0">
+        <div class="row-between" style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0">
+          <span class="strong">Notifications</span>
+          <span class="t-xs muted">3 unread</span>
+        </div>
+        <div style="display: flex; flex-direction: column; padding: 6px; gap: 2px">
+          <sc-for list="{{notes}}" as="n" hint-placeholder-count="4">
+            <a href="{{n.href}}" class="notif-item {{n.cls}}">
+              <span class="notif-ico" style="background: {{n.bg}}; color: {{n.fg}}"><dc-import name="Icon" i="{{n.icon}}" s="18" hint-size="18px,18px"></dc-import></span>
+              <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto">
+                <span class="t-xs strong" style="color: {{n.fg}}">{{n.type}}</span>
+                <span class="t-sm" style="color: #1e293b">{{n.text}}</span>
+                <span class="t-xs muted">{{n.when}}{{n.readTxt}}</span>
+              </span>
+              <sc-if value="{{n.unread}}" hint-placeholder-val="{{ true }}"><span class="dot-unread" aria-hidden="true"></span></sc-if>
+            </a>
+          </sc-for>
+        </div>
+        <div style="padding: 10px 14px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center">
+          <button type="button" class="link-btn t-sm">Mark all as read</button>
+          <a href="NotificationCentre.dc.html" class="t-sm strong">View all</a>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  <div style="position: relative">
+    <button type="button" class="tb-user" aria-haspopup="true" aria-expanded="{{userExp}}" onClick="{{toggleUser}}" aria-label="Account menu for {{user}}">
+      <span class="avatar">{{initials}}</span>
+      <span class="only-md" style="flex-direction: column; line-height: 16px">
+        <span class="t-sm strong" style="color: #0f172a; white-space: nowrap">{{user}}</span>
+        <span class="t-xs muted">{{role}}</span>
+      </span>
+      <span class="only-md" style="color: #475569"><dc-import name="Icon" i="chev-down" s="16" hint-size="16px,16px"></dc-import></span>
+    </button>
+    <sc-if value="{{userOpen}}" hint-placeholder-val="{{ false }}">
+      <div class="menu" role="menu">
+        <div style="padding: 8px 10px 10px; border-bottom: 1px solid #e2e8f0; margin-bottom: 6px">
+          <div class="strong">{{user}}</div>
+          <div class="t-xs muted">{{role}} · Dept. of Mathematics and Computer Science</div>
+        </div>
+        <a class="menu-item" role="menuitem" href="Profile.dc.html"><dc-import name="Icon" i="user" s="18" hint-size="18px,18px"></dc-import>My profile</a>
+        <a class="menu-item" role="menuitem" href="EditProfile.dc.html"><dc-import name="Icon" i="key" s="18" hint-size="18px,18px"></dc-import>Edit profile and password</a>
+        <a class="menu-item" role="menuitem" href="NotificationPrefs.dc.html"><dc-import name="Icon" i="settings" s="18" hint-size="18px,18px"></dc-import>Notification preferences</a>
+        <hr class="divider" style="margin: 6px 0">
+        <a class="menu-item" role="menuitem" href="Login.dc.html" style="color: #b42318"><dc-import name="Icon" i="logout" s="18" hint-size="18px,18px"></dc-import>Log out</a>
+      </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{drawerOpen}}" hint-placeholder-val="{{ false }}">
+    <div class="overlay" style="position: fixed; inset: 0; z-index: 80; background: rgba(15,23,42,.5); display: flex">
+      <dc-import name="Sidebar" mode="drawer" role="{{role}}" active="{{active}}" on-close="{{closeDrawer}}" hint-size="288px,100%"></dc-import>
+      <button type="button" aria-label="Close menu" onClick="{{closeDrawer}}" style="flex: 1 1 auto; border: 0; background: transparent; cursor: pointer"></button>
+    </div>
+  </sc-if>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","default":"Admin","options":["Admin","Director","Academic Officer","Quality Inspector","Viewer"]},"crumbs":{"editor":"text","default":"Dashboard"},"active":{"editor":"text","default":"dashboard"},"bell":{"editor":"boolean","default":false},"drawer":{"editor":"boolean","default":false},"$preview":{"width":1184,"height":64}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { bell: null, user: false, drawer: null }; }
+  renderVals() {
+    var self = this;
+    var role = this.props.role ?? 'Admin';
+    var people = { 'Admin': ['Mr. Tersoo Ahule', 'TA'], 'Director': ['Prof. Msughter Iorkyaa', 'MI'], 'Academic Officer': ['Mrs. Ngozi Okafor', 'NO'], 'Quality Inspector': ['Mr. Emmanuel Ochoga', 'EO'], 'Viewer': ['Ms. Blessing Adoga', 'BA'] };
+    var p = people[role] || people.Admin;
+    var mods = { 'E-Dispatch': 'MailList', 'Classrooms and Halls': 'HallsList', 'Exam Hall Audit': 'AuditsList', 'Staff Evaluation': 'EvalList', 'Departments': 'DeptList', 'Reports': 'ReportsList', 'Payments': 'PaymentHistory', 'Notifications': 'NotificationCentre', 'Administration': 'Users', 'Dashboard': 'Dashboard', 'Account': 'Profile' };
+    var parts = String(this.props.crumbs ?? 'Dashboard').split('>').map(function (s) { return s.trim(); });
+    var current = parts.pop();
+    var trail = parts.map(function (l) { return { label: l, href: (mods[l] || 'Dashboard') + '.dc.html' }; });
+    var bell = this.state.bell === null ? (this.props.bell ?? false) : this.state.bell;
+    var drawer = this.state.drawer === null ? (this.props.drawer ?? false) : this.state.drawer;
+    var T = {
+      'Pending approval': ['clock', '#93370d', '#fffaeb'], 'Assigned task': ['tasks', '#1d4ed8', '#eff6ff'],
+      'Deadline': ['alert', '#b42318', '#fef3f2'], 'System update': ['info', '#334155', '#f1f5f9']
+    };
+    var notes = [
+      ['Pending approval', 'CAPQA/DSP/2026/0142 from the Registry awaits your approval', '5 min ago', true, 'MailApproval'],
+      ['Assigned task', 'Audit Faculty of Science Lecture Theatre before Thu, 16 Oct', '1 h ago', true, 'AuditWizard'],
+      ['Deadline', 'NUC self-study report for Mathematics and Computer Science is due Fri, 17 Oct', 'Yesterday', true, 'DeadlineReminder'],
+      ['System update', 'Scheduled maintenance on Sun, 19 Oct, 02:00–03:00 WAT', '2 days ago', false, 'NotificationCentre']
+    ].map(function (n) { var t = T[n[0]]; return { type: n[0], text: n[1], when: n[2], unread: n[3], readTxt: n[3] ? ' · Unread' : '', cls: n[3] ? 'unread' : '', href: n[4] + '.dc.html', icon: t[0], fg: t[1], bg: t[2] }; });
+    return {
+      role: role, user: p[0], initials: p[1], current: current, trail: trail, active: this.props.active ?? 'dashboard', notes: notes,
+      bellOpen: bell, bellExp: bell ? 'true' : 'false', userOpen: this.state.user, userExp: this.state.user ? 'true' : 'false',
+      drawerOpen: drawer, drawerExp: drawer ? 'true' : 'false',
+      toggleBell: function () { self.setState({ bell: !bell, user: false }); },
+      toggleUser: function () { self.setState({ user: !self.state.user, bell: false }); },
+      openDrawer: function () { self.setState({ drawer: true }); },
+      closeDrawer: function () { self.setState({ drawer: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit hall · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="halls" crumbs="Classrooms and Halls>Education Block LR 3>Edit" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Edit hall</h1><p class="sub">Education Block LR 3 · <span class="badge" data-s="hall-Overcrowded">Overcrowded</span></p></div><button type="button" class="btn btn-secondary" style="color: #b42318" onClick="{{openDel}}"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import>Delete hall</button></div>
+      <form class="stack-lg">
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="he-name">Hall name <span class="req" aria-hidden="true">*</span></label><input id="he-name" class="input" value="Education Block LR 3"></div>
+          <div class="field"><label class="label" for="he-bld">Building <span class="opt">(optional)</span></label><input id="he-bld" class="input" value="Education Block"></div>
+          <div class="field"><label class="label" for="he-dept">Department <span class="opt">(optional)</span></label><select id="he-dept" class="select"><option>Educational Foundations</option></select></div>
+          <div class="field"><label class="label" for="he-cap">Capacity <span class="req" aria-hidden="true">*</span></label><input id="he-cap" class="input num" type="number" min="1" max="10000" value="150"><span class="help">Was 120. Raising capacity re-checks 4 upcoming allocations.</span></div>
+          <div class="field"><label class="label" for="he-type">Hall type</label><select id="he-type" class="select"><option>Lecture room</option></select></div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Equipment</legend><div class="row" style="gap: 16px"><label class="check"><input type="checkbox">Audio system</label><label class="check"><input type="checkbox" checked>Projector</label><label class="check"><input type="checkbox">Air conditioning</label></div></fieldset>
+        </div></div>
+        <div class="action-bar"><a class="btn btn-secondary" href="HallDetail.dc.html">Cancel</a><a class="btn btn-primary" href="HallDetail.dc.html"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save changes</a></div>
+      </form>
+    </main>
+  </div>
+  <sc-if value="{{delOpen}}" hint-placeholder-val="{{ true }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="hd-h" aria-describedby="hd-d">
+        <div class="modal-head"><div class="row" style="flex-wrap: nowrap; gap: 12px; align-items: flex-start"><span class="modal-icon danger"><dc-import name="Icon" i="trash" s="20" hint-size="20px,20px"></dc-import></span><div><h2 class="h3" id="hd-h">Delete Education Block LR 3?</h2><p class="t-sm muted" id="hd-d" style="margin-top: 4px">The hall and its <strong>4 upcoming allocations</strong> will be removed, and their organisers notified. Past audits are kept in the audit log. This can’t be undone.</p></div></div></div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{close}}">Cancel</button><a class="btn btn-danger" href="HallsList.dc.html">Delete hall</a></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dialog":{"editor":"enum","default":"delete","options":["none","delete"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { d: null }; }
+  renderVals() {
+    var self = this, d = this.state.d || (this.props.dialog ?? 'delete');
+    return { delOpen: d === 'delete', openDel: function () { self.setState({ d: 'delete' }); }, close: function () { self.setState({ d: 'none' }); } };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Finalise report · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="reports" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="reports" crumbs="Reports>Classroom usage — 2025/2026 S2" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <sc-if value="{{locked}}" hint-placeholder-val="{{ false }}"><div class="banner-locked" role="status"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import><span class="strong">Finalised — locked</span><span class="muted">12 Oct 2026, 16:02 · Prof. Msughter Iorkyaa. Build a new report to change figures.</span></div></sc-if>
+      <div class="page-head"><div class="stack-sm" style="gap: 6px"><div class="row"><span class="badge" data-s="life-{{life}}">{{life}}</span><span class="tag">PDF</span></div><h1 class="h1">Classroom usage — 2025/2026 S2</h1><p class="muted">All departments · 1 Mar – 12 Oct 2026 · built by Prof. Msughter Iorkyaa</p></div></div>
+      <section class="card {{ro}}">
+        <dl class="dl card-body" style="margin: 0"><div><dt>Allocations</dt><dd class="num">214</dd></div><div><dt>Overcrowded</dt><dd class="num">17 (8%)</dd></div><div><dt>Average utilisation</dt><dd class="num">74%</dd></div><div><dt>Halls covered</dt><dd class="num">30</dd></div></dl>
+      </section>
+      <div class="action-bar">
+        <a class="btn btn-secondary" href="ReportPreview.dc.html"><dc-import name="Icon" i="eye" s="16" hint-size="16px,16px"></dc-import>Preview</a>
+        <sc-if value="{{draft}}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-primary" onClick="{{ask}}"><dc-import name="Icon" i="lock" s="16" hint-size="16px,16px"></dc-import>Finalise report</button></sc-if>
+        <sc-if value="{{locked}}" hint-placeholder-val="{{ false }}"><a class="btn btn-primary" href="ReportDownload.dc.html"><dc-import name="Icon" i="download" s="16" hint-size="16px,16px"></dc-import>Download</a></sc-if>
+      </div>
+    </main>
+  </div>
+  <sc-if value="{{confirm}}" hint-placeholder-val="{{ true }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="rf-h" aria-describedby="rf-d">
+        <div class="modal-head"><div class="row" style="flex-wrap: nowrap; gap: 12px; align-items: flex-start"><span class="modal-icon brand"><dc-import name="Icon" i="lock" s="20" hint-size="20px,20px"></dc-import></span><div><h2 class="h3" id="rf-h">Finalise this report?</h2><p class="t-sm muted" id="rf-d" style="margin-top: 4px">The report becomes locked: its figures, filters and file can’t be changed or regenerated. Finalised reports can be downloaded and printed by anyone with Reports access, including Viewers.</p></div></div></div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{cancel}}">Keep as draft</button><button type="button" class="btn btn-primary" onClick="{{fin}}">Finalise and lock</button></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"confirm","options":["draft","confirm","locked"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { v: null }; }
+  renderVals() {
+    var self = this, v = this.state.v || (this.props.view ?? 'confirm');
+    return { locked: v === 'locked', draft: v !== 'locked', confirm: v === 'confirm', life: v === 'locked' ? 'Finalised' : 'Draft', ro: v === 'locked' ? 'readonly' : '',
+      ask: function () { self.setState({ v: 'confirm' }); }, cancel: function () { self.setState({ v: 'draft' }); }, fin: function () { self.setState({ v: 'locked' }); } };
+  }
+}
+</script>
+</body>
+</html>

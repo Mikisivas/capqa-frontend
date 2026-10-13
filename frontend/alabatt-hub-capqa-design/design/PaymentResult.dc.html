@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Payment result · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="pay" crumbs="Payments>Payment result" hint-size="100%,64px"></dc-import>
+    <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — no real money moved</div>
+    <main class="page" style="flex: 1 1 auto; align-items: center; justify-content: center">
+      <section class="card" style="width: 100%; max-width: 480px">
+        <sc-if value="{{ok}}" hint-placeholder-val="{{ true }}">
+          <div class="card-body stack" role="status" style="padding: 32px; align-items: center; text-align: center">
+            <span style="display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: #ecfdf3; color: #15703c"><dc-import name="Icon" i="check-circle" s="32" hint-size="32px,32px"></dc-import></span>
+            <span class="badge" data-s="pay-Successful">Successful</span>
+            <h1 class="h2">Payment successful</h1>
+            <p class="t-3xl strong num">NGN 25,000.00</p>
+            <dl style="margin: 0; width: 100%; display: grid; gap: 8px; text-align: left" class="t-sm">
+              <div class="row-between"><dt class="muted">Invoice</dt><dd class="mono" style="margin: 0">INV-2026-0318 · <span class="badge" data-s="inv-Paid">Paid</span></dd></div>
+              <div class="row-between"><dt class="muted">Reference</dt><dd class="mono" style="margin: 0">TXN-T-7F21C9</dd></div>
+              <div class="row-between"><dt class="muted">Date</dt><dd style="margin: 0">12 Oct 2026, 16:21</dd></div>
+            </dl>
+            <div class="row" style="width: 100%"><a class="btn btn-secondary" style="flex: 1 1 0" href="Receipt.dc.html"><dc-import name="Icon" i="receipt" s="16" hint-size="16px,16px"></dc-import>View receipt</a><a class="btn btn-primary" style="flex: 1 1 0" href="PaymentHistory.dc.html">Payment history</a></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{bad}}" hint-placeholder-val="{{ false }}">
+          <div class="card-body stack" role="alert" style="padding: 32px; align-items: center; text-align: center">
+            <span style="display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: #fef3f2; color: #b42318"><dc-import name="Icon" i="x-circle" s="32" hint-size="32px,32px"></dc-import></span>
+            <span class="badge" data-s="pay-Failed">Failed</span>
+            <h1 class="h2">Payment failed</h1>
+            <p class="muted">The gateway declined the test transaction (code 51 — insufficient funds). You were not charged. Invoice <span class="mono">INV-2026-0318</span> is still <span class="badge" data-s="inv-Unpaid">Unpaid</span></p>
+            <div class="row" style="width: 100%"><a class="btn btn-secondary" style="flex: 1 1 0" href="InvoiceDetail.dc.html">Back to invoice</a><a class="btn btn-primary" style="flex: 1 1 0" href="PaymentStart.dc.html"><dc-import name="Icon" i="refresh" s="16" hint-size="16px,16px"></dc-import>Retry payment</a></div>
+            <span class="t-xs muted mono">Reference TXN-T-7F21D0</span>
+          </div>
+        </sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"outcome":{"editor":"enum","default":"success","options":["success","failed"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic { renderVals() { var o = this.props.outcome ?? 'success'; return { ok: o === 'success', bad: o === 'failed' }; } }
+</script>
+</body>
+</html>

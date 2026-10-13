@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Classrooms and halls · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Halls" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div><h1 class="h1">Classrooms and halls</h1><p class="sub">30 halls · 9,840 seats in total</p></div>
+        <div class="row">
+          <a class="btn btn-secondary" href="Timetable.dc.html"><dc-import name="Icon" i="calendar" s="16" hint-size="16px,16px"></dc-import>Timetable</a>
+          <a class="btn btn-secondary" href="HallAllocate.dc.html"><dc-import name="Icon" i="calendar" s="16" hint-size="16px,16px"></dc-import>Allocate hall</a>
+          <a class="btn btn-primary" href="HallAdd.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Add hall</a>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Halls views">
+        <a class="tab" role="tab" aria-selected="true" href="HallsList.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Halls</a>
+        <a class="tab" role="tab" aria-selected="false" href="Allocations.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Allocations</a>
+        <a class="tab" role="tab" aria-selected="false" href="Timetable.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Timetable</a>
+        <a class="tab" role="tab" aria-selected="false" href="CapacityAnalysis.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Capacity analysis</a>
+      </div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Hall name or building"></span></label>
+          <label class="field"><span class="label">Department</span><select class="select"><option>All departments</option><option>Mathematics and Computer Science</option><option>Physics</option><option>Accounting</option></select></label>
+          <label class="field"><span class="label">Status</span><select class="select"><option>All statuses</option><option>Suitable</option><option>Full</option><option>Overcrowded</option></select></label>
+          <label class="field"><span class="label">Hall type</span><select class="select"><option>All types</option><option>Lecture theatre</option><option>Lecture room</option><option>Auditorium</option><option>Laboratory</option></select></label>
+          <fieldset class="field" style="border: 0; padding: 0; margin: 0; flex: 1 1 260px"><legend class="label" style="margin-bottom: 6px">Equipment</legend><div class="row"><label class="check" style="align-items: center"><input type="checkbox" checked>Audio</label><label class="check" style="align-items: center"><input type="checkbox">Projector</label><label class="check" style="align-items: center"><input type="checkbox">AC</label></div></fieldset>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col" aria-sort="ascending"><button type="button" class="th-sort is-active">Name<dc-import name="Icon" i="arrow-up" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Building</th><th scope="col">Department</th><th scope="col">Type</th><th scope="col">Equipment</th><th scope="col" class="r"><button type="button" class="th-sort">Capacity<dc-import name="Icon" i="sort" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Status</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{halls}}" as="h" hint-placeholder-count="8">
+                <tr><td class="td-lead" data-label="Name"><a href="HallDetail.dc.html" class="strong">{{h.n}}</a></td><td data-label="Building">{{h.b}}</td><td data-label="Department">{{h.d}}</td><td data-label="Type">{{h.t}}</td><td data-label="Equipment"><div class="row" style="gap: 4px"><sc-for list="{{h.eq}}" as="e" hint-placeholder-count="2"><span class="tag"><dc-import name="Icon" i="{{e.i}}" s="12" hint-size="12px,12px"></dc-import>{{e.t}}</span></sc-for></div></td><td data-label="Capacity" class="r num strong">{{h.c}}</td><td data-label="Status"><span class="badge" data-s="hall-{{h.s}}">{{h.s}}</span></td><td class="td-actions"><div class="row" style="flex-wrap: nowrap; justify-content: flex-end; gap: 4px"><a class="btn btn-ghost btn-sm" href="HallAllocate.dc.html">Allocate</a><a class="btn btn-ghost btn-icon btn-sm" href="HallEdit.dc.html" aria-label="Edit {{h.n}}"><dc-import name="Icon" i="edit" s="16" hint-size="16px,16px"></dc-import></a></div></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of 30</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No halls added yet" text="Add lecture theatres, rooms and labs so CAPQA can allocate them and check for overcrowding." cta="Add hall" href="HallAdd.dc.html" icon="building" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var E = { A: { i: 'volume', t: 'Audio' }, P: { i: 'monitor', t: 'Projector' }, C: { i: 'snow', t: 'AC' } };
+    var H = [
+      ['1000-Seater Auditorium', 'Main Campus', '—', 'Auditorium', 'AP', 1000, 'Full'],
+      ['Arts Theatre', 'Faculty of Arts', 'Theatre Arts', 'Theatre', 'A', 400, 'Suitable'],
+      ['Education Block LR 3', 'Education Block', 'Educational Foundations', 'Lecture room', 'P', 120, 'Overcrowded'],
+      ['Faculty of Science Lecture Theatre', 'Faculty of Science Complex', 'Mathematics and Computer Science', 'Lecture theatre', 'APC', 350, 'Suitable'],
+      ['ICT Centre Lab 2', 'ICT Centre', 'Mathematics and Computer Science', 'Computer lab', 'PC', 80, 'Suitable'],
+      ['Law Moot Court', 'Faculty of Law', 'Public Law', 'Moot court', 'AC', 150, 'Suitable'],
+      ['Management Sciences Hall B', 'Management Sciences Complex', 'Accounting', 'Lecture hall', 'AC', 250, 'Overcrowded'],
+      ['Physics Lab Hall', 'Faculty of Science Complex', 'Physics', 'Laboratory', '', 60, 'Full']
+    ];
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      halls: H.map(function (h) { return { n: h[0], b: h[1], d: h[2], t: h[3], eq: h[4].split('').map(function (k) { return E[k]; }), c: h[5].toLocaleString('en-NG'), s: h[6] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Start payment · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="pay" crumbs="Payments>INV-2026-0318>Pay" hint-size="100%,64px"></dc-import>
+    <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — no real money moves</div>
+    <main class="page" style="max-width: 560px; margin: 0 auto">
+      <div><h1 class="h1">Pay invoice</h1><p class="muted" style="margin-top: 4px">You’ll confirm the payment on the next screen.</p></div>
+      <section class="card">
+        <div class="card-body stack-sm">
+          <div class="row-between"><span class="mono strong">INV-2026-0318</span><span class="badge" data-s="inv-Unpaid">Unpaid</span></div>
+          <span>Hall booking fee — 1000-Seater Auditorium, departmental seminar</span>
+        </div>
+        <div class="card-foot" style="justify-content: space-between; background: #fff"><span class="strong">Amount</span><span class="t-2xl strong num">NGN 25,000.00</span></div>
+      </section>
+      <fieldset class="card card-body" style="margin: 0"><legend class="sr-only">Payment method</legend>
+        <span class="label" style="display: block; margin-bottom: 8px" aria-hidden="true">Payment method</span>
+        <div class="stack-sm">
+          <label class="radio-card is-on" style="min-height: 56px"><input type="radio" name="pm" checked><dc-import name="Icon" i="card" s="20" hint-size="20px,20px"></dc-import><span><span class="strong">Debit card</span><br><span class="t-xs muted">Verve, Mastercard or Visa</span></span></label>
+          <label class="radio-card" style="min-height: 56px"><input type="radio" name="pm"><dc-import name="Icon" i="landmark" s="20" hint-size="20px,20px"></dc-import><span><span class="strong">Bank transfer</span><br><span class="t-xs muted">Pay into a one-time account number</span></span></label>
+        </div>
+      </fieldset>
+      <div class="action-bar">
+        <a class="btn btn-secondary btn-lg" href="InvoiceDetail.dc.html">Cancel</a>
+        <sc-if value="{{busy}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary btn-lg is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Starting payment…</button></sc-if>
+        <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary btn-lg" href="TestCheckout.dc.html">Continue · NGN 25,000.00</a></sc-if>
+      </div>
+      <p class="t-xs muted row" style="justify-content: center; gap: 6px"><dc-import name="Icon" i="lock" s="14" hint-size="14px,14px"></dc-import>Payments are processed by the university’s payment gateway. CAPQA never stores card details.</p>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","starting"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic { renderVals() { var v = this.props.view ?? 'default'; return { busy: v === 'starting', idle: v !== 'starting' }; } }
+</script>
+</body>
+</html>

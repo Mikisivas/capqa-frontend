@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit detail · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="audit" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="audit" crumbs="Exam Hall Audit>AUD-2026-0084" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div class="stack-sm" style="gap: 6px"><div class="row"><span class="mono t-sm muted">AUD-2026-0084</span><span class="badge" data-s="life-Finalised">Finalised</span><span class="badge" data-s="aud-Not Suitable">Not Suitable</span></div><h1 class="h1">1000-Seater Auditorium</h1></div>
+        <div class="row"><button type="button" class="btn btn-secondary"><dc-import name="Icon" i="printer" s="16" hint-size="16px,16px"></dc-import>Print</button><a class="btn btn-secondary" href="HallAuditHistory.dc.html"><dc-import name="Icon" i="history" s="16" hint-size="16px,16px"></dc-import>Hall history</a></div>
+      </div>
+      <div class="banner-locked"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import><span class="strong">Read-only.</span><span class="muted">Finalised by Mr. Emmanuel Ochoga on 8 Oct 2026, 16:05. Start a new audit to record changes.</span></div>
+      <div class="split">
+        <div class="stack-lg" style="min-width: 0">
+          <section class="card readonly">
+            <div class="card-head"><h2 class="h3">Ratings</h2><span class="t-sm"><span class="strong num">2.4</span> average</span></div>
+            <div class="table-wrap"><table class="table">
+              <thead><tr><th scope="col">Item</th><th scope="col">Rating</th><th scope="col">Photo</th></tr></thead>
+              <tbody>
+                <sc-for list="{{items}}" as="r" hint-placeholder-count="5">
+                  <tr><td><span class="row" style="gap: 8px; flex-wrap: nowrap"><dc-import name="Icon" i="{{r.i}}" s="18" hint-size="18px,18px"></dc-import><span class="strong">{{r.n}}</span></span></td><td><span class="row" style="gap: 8px; flex-wrap: nowrap"><span class="stars-sm" aria-hidden="true"><sc-for list="{{r.st}}" as="s" hint-placeholder-count="5"><span style="color: {{s.c}}; display: flex"><dc-import name="Icon" i="star" s="14" f="{{ true }}" hint-size="14px,14px"></dc-import></span></sc-for></span><span class="num strong">{{r.v}}/5</span><span class="t-xs muted">{{r.w}}</span></span></td><td>{{r.p}}</td></tr>
+                </sc-for>
+              </tbody>
+            </table></div>
+          </section>
+          <section class="card card-body stack-sm readonly"><h2 class="h3">Comments</h2><p>Ventilation is poor with 1,000 candidates: 6 of 10 fans not working and windows on the west side do not open. Public address system failed during the test. Recommend relocating GST 111 examination until repairs are done.</p></section>
+        </div>
+        <aside class="card card-body stack" style="align-self: start">
+          <h2 class="h3">Audit information</h2>
+          <dl class="dl" style="grid-template-columns: 1fr; margin: 0">
+            <div><dt>Hall</dt><dd><a href="HallDetail.dc.html">1000-Seater Auditorium</a> · 1,000 seats</dd></div>
+            <div><dt>Inspector</dt><dd>Mr. Emmanuel Ochoga</dd></div>
+            <div><dt>Audited</dt><dd>Wed, 8 Oct 2026 · 14:10</dd></div>
+            <div><dt>Finalised</dt><dd>Wed, 8 Oct 2026 · 16:05</dd></div>
+            <div><dt>Result</dt><dd><span class="badge" data-s="aud-Not Suitable">Not Suitable</span></dd></div>
+          </dl>
+          <a class="btn btn-primary" href="AuditWizard.dc.html">Schedule re-audit</a>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var words = ['Very poor', 'Poor', 'Fair', 'Good', 'Excellent'];
+    var I = [['Ventilation', 'wind', 1, '1 photo'], ['Lighting', 'sun', 3, '—'], ['Seating', 'seat', 3, '—'], ['Audio system', 'volume', 1, '2 photos'], ['Cleanliness', 'sparkles', 4, '—']];
+    return { items: I.map(function (i) { return { n: i[0], i: i[1], v: i[2], w: words[i[2] - 1], p: i[3], st: [1, 2, 3, 4, 5].map(function (n) { return { c: n <= i[2] ? '#d97706' : '#cbd5e1' }; }) }; }) };
+  }
+}
+</script>
+</body>
+</html>

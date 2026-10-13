@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add department · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="dept" crumbs="Departments>Add department" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Add department</h1><p class="sub">You can add staff, courses and statistics after saving.</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="da-name">Department name <span class="req" aria-hidden="true">*</span></label><input id="da-name" class="input {{invCls}}" value="Dept. of Mathematics and Computer Science" aria-invalid="{{invAria}}" disabled="{{saving}}">
+            <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>A department with this name already exists.</span></sc-if></div>
+          <div class="field"><label class="label" for="da-code">Short code <span class="opt">(optional)</span></label><input id="da-code" class="input mono" value="MCS" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="da-fac">Faculty <span class="opt">(optional)</span></label><select id="da-fac" class="select" disabled="{{saving}}"><option>Faculty of Science</option><option>Faculty of Management Sciences</option><option>Faculty of Social Sciences</option><option>Faculty of Arts</option><option>Faculty of Education</option></select></div>
+        </div></div>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="DeptList.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="DeptDetail.dc.html">Add department</a></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { var v = this.props.view ?? 'default'; return { invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false' }; }
+}
+</script>
+</body>
+</html>

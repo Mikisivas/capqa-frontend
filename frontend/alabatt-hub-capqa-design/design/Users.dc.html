@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>User management · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="users" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="users" crumbs="Administration>Users" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Users</h1><p class="sub">Approve new accounts and set each user’s role and department.</p></div><div class="row"><a class="btn btn-secondary" href="RolePermissions.dc.html"><dc-import name="Icon" i="shield" s="16" hint-size="16px,16px"></dc-import>Role permissions</a><a class="btn btn-primary" href="UserCreate.dc.html"><dc-import name="Icon" i="user-plus" s="16" hint-size="16px,16px"></dc-import>Create user</a></div></div>
+      <div class="tabs" role="tablist" aria-label="Account status"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button type="button" class="tab" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}} <span class="tag" style="height: 20px; margin-left: 4px">{{t.n}}</span></button></sc-for></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Name, username or email"></span></label>
+          <label class="field"><span class="label">Role</span><select class="select"><option>All roles</option><option>Admin</option><option>Director</option><option>Academic Officer</option><option>Quality Inspector</option><option>Viewer</option></select></label>
+          <label class="field"><span class="label">Department</span><select class="select"><option>All departments</option></select></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">User</th><th scope="col">Username</th><th scope="col">Role</th><th scope="col">Department</th><th scope="col">Status</th><th scope="col">Registered</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+                <tr class="{{r.cls}}"><td class="td-lead" data-label="User"><span class="row" style="flex-wrap: nowrap; gap: 10px"><span class="avatar avatar-sm">{{r.ini}}</span><span><span class="strong">{{r.n}}</span><br><span class="t-xs muted">{{r.e}}</span></span></span></td><td data-label="Username" class="mono">{{r.u}}</td><td data-label="Role">{{r.r}}</td><td data-label="Department">{{r.d}}</td><td data-label="Status"><span class="badge" data-s="acct-{{r.s}}">{{r.s}}</span></td><td data-label="Registered" class="num">{{r.dt}}</td>
+                  <td class="td-actions"><a class="btn {{r.btn}} btn-sm" href="UserReview.dc.html">{{r.cta}}</a></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of {{total}}</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No accounts waiting for approval" text="New registrations appear here for you to approve, reject or assign a role." icon="user-check" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'All' }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default', tab = this.state.tab;
+    var U = [['Dr. Stephen Akuma', 'SA', 's.akuma', 's.akuma@moau.edu.ng', '— (not set)', 'Mathematics and Computer Science', 'Pending', '12 Oct 2026'], ['Mr. Iorhen Agbo', 'IA', 'i.agbo', 'i.agbo@moau.edu.ng', '— (not set)', 'Physics', 'Pending', '11 Oct 2026'], ['Prof. Msughter Iorkyaa', 'MI', 'm.iorkyaa', 'm.iorkyaa@moau.edu.ng', 'Director', 'CAPQA', 'Active', '14 Jan 2025'], ['Mrs. Ngozi Okafor', 'NO', 'n.okafor', 'n.okafor@moau.edu.ng', 'Academic Officer', 'Mathematics and Computer Science', 'Active', '20 Jan 2025'], ['Mr. Emmanuel Ochoga', 'EO', 'e.ochoga', 'e.ochoga@moau.edu.ng', 'Quality Inspector', 'CAPQA', 'Active', '3 Feb 2025'], ['Ms. Blessing Adoga', 'BA', 'b.adoga', 'b.adoga@moau.edu.ng', 'Viewer', 'Registry', 'Active', '9 Mar 2025'], ['Dr. Aondohemba Tyokase', 'AT', 'a.tyokase', 'a.tyokase@moau.edu.ng', 'Quality Inspector', 'CAPQA', 'Active', '2 Apr 2025'], ['Mr. Joseph Tavershima', 'JT', 'j.tavershima', 'j.tavershima@moau.edu.ng', 'Academic Officer', 'Economics', 'Disabled', '11 Feb 2025']];
+    var count = function (s) { return U.filter(function (u) { return s === 'All' || u[6] === s; }).length; };
+    var rows = U.filter(function (u) { return tab === 'All' || u[6] === tab; });
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error', total: tab === 'All' ? 46 : rows.length,
+      tabs: ['All', 'Pending', 'Active', 'Disabled'].map(function (t) { return { label: t, n: t === 'All' ? 46 : t === 'Active' ? 42 : count(t), sel: t === tab ? 'true' : 'false', pick: function () { self.setState({ tab: t }); } }; }),
+      rows: rows.map(function (u) { var p = u[6] === 'Pending'; return { n: u[0], ini: u[1], u: u[2], e: u[3], r: u[4], d: u[5], s: u[6], dt: u[7], cls: p ? 'is-selected' : '', btn: p ? 'btn-primary' : 'btn-ghost', cta: p ? 'Review' : 'Manage' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

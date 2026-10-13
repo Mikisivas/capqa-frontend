@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit profile · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="none" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="none" crumbs="Account>Edit profile" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Edit profile</h1><p class="sub">Update your name and department, or change your password.</p></div></div>
+      <sc-if value="{{saved}}" hint-placeholder-val="{{ false }}">
+        <div class="alert alert-success" role="status"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Profile saved</div>Your changes are now visible to administrators.</div></div>
+      </sc-if>
+      <form class="card" aria-labelledby="ep-h">
+        <div class="card-head"><h2 class="h3" id="ep-h">Profile details</h2></div>
+        <div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="ep-name">Full name <span class="req" aria-hidden="true">*</span></label><input id="ep-name" class="input" value="Mrs. Ngozi Okafor" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="ep-user">Username</label><input id="ep-user" class="input" value="n.okafor" readonly><span class="help">Can’t be changed</span></div>
+          <div class="field"><label class="label" for="ep-email">Email</label><input id="ep-email" class="input" value="n.okafor@moau.edu.ng" readonly><span class="help">Ask an admin to change your email</span></div>
+          <div class="field span-2"><label class="label" for="ep-dept">Department</label><select id="ep-dept" class="select" disabled="{{saving}}"><option>Dept. of Mathematics and Computer Science</option><option>Dept. of Physics</option><option>Dept. of Economics</option></select></div>
+        </div>
+        <div class="card-foot">
+          <a class="btn btn-secondary" href="Profile.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-primary" onClick="{{save}}">Save changes</button></sc-if>
+        </div>
+      </form>
+      <form class="card" aria-labelledby="cp-h">
+        <div class="card-head"><h2 class="h3" id="cp-h">Change password</h2></div>
+        <div class="card-body stack">
+          <div class="field"><label class="label" for="cp-cur">Current password <span class="req" aria-hidden="true">*</span></label><input id="cp-cur" class="input {{errCls}}" type="password" value="Benue@2026" aria-invalid="{{errAria}}" autocomplete="current-password">
+            <sc-if value="{{pwErr}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Current password is incorrect.</span></sc-if></div>
+          <div class="grid-form">
+            <div class="field"><label class="label" for="cp-new">New password <span class="req" aria-hidden="true">*</span></label><input id="cp-new" class="input" type="password" value="Makurdi#2026" autocomplete="new-password"><div class="meter lv4" aria-hidden="true"><span></span><span></span><span></span><span></span></div></div>
+            <div class="field"><label class="label" for="cp-conf">Confirm new password <span class="req" aria-hidden="true">*</span></label><input id="cp-conf" class="input" type="password" value="Makurdi#2026" autocomplete="new-password"></div>
+          </div>
+          <ul class="pw-checklist">
+            <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>At least 8 characters</li>
+            <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>An uppercase and a lowercase letter</li>
+            <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>A number and a symbol</li>
+            <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>Different from your current password</li>
+          </ul>
+        </div>
+        <div class="card-foot"><button type="button" class="btn btn-primary">Update password</button></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","saving","saved","password-error"]},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { saved: false }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default';
+    return {
+      saving: v === 'saving', idle: v !== 'saving', saved: this.state.saved || v === 'saved',
+      pwErr: v === 'password-error', errCls: v === 'password-error' ? 'is-invalid' : '', errAria: v === 'password-error' ? 'true' : 'false',
+      save: function () { self.setState({ saved: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

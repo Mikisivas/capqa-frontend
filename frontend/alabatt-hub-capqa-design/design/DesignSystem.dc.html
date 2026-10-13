@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ALABATT-HUB CAPQA design system</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="capqa" style="min-height: 100vh; background: #f8fafc">
+  <header style="background: #fff; border-bottom: 1px solid #e2e8f0">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <div class="logo-slot on-light" style="width: 48px; height: 48px; font-size: 8px">RFMOAUM</div>
+        <div><div class="eyebrow">ALABATT-HUB CAPQA</div><h1 class="h1">Design system</h1></div>
+      </div>
+      <nav class="row" aria-label="Sections">
+        <a class="btn btn-ghost btn-sm" href="#tokens">Tokens</a><a class="btn btn-ghost btn-sm" href="#buttons">Buttons</a><a class="btn btn-ghost btn-sm" href="#forms">Forms</a><a class="btn btn-ghost btn-sm" href="#badges">Badges</a><a class="btn btn-ghost btn-sm" href="#data">Data</a><a class="btn btn-ghost btn-sm" href="#feedback">Feedback</a><a class="btn btn-ghost btn-sm" href="#overlays">Overlays</a>
+      </nav>
+    </div>
+  </header>
+  <main style="max-width: 1240px; margin: 0 auto; padding: 32px 24px 80px; display: flex; flex-direction: column; gap: 48px">
+
+    <!-- TOKENS -->
+    <section id="tokens" class="stack-lg" aria-labelledby="tok-h">
+      <div><h2 class="h2" id="tok-h">Colour</h2><p class="muted">CSS variables in <span class="mono">capqa.css</span> → <span class="mono">theme.extend.colors</span>. The brand ramp is the only thing to edit to rebrand.</p></div>
+      <sc-for list="{{ramps}}" as="rp" hint-placeholder-count="4">
+        <div class="stack-sm">
+          <div class="row-between"><h3 class="h3">{{rp.name}}</h3><span class="t-sm muted">{{rp.note}}</span></div>
+          <div style="display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr))">
+            <sc-for list="{{rp.sw}}" as="s" hint-placeholder-count="10">
+              <div class="card" style="overflow: hidden">
+                <div style="height: 56px; background: {{s.hex}}; border-bottom: 1px solid #e2e8f0"></div>
+                <div style="padding: 8px 10px"><div class="t-xs strong">{{s.k}}</div><div class="mono t-xs muted">{{s.hex}}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div class="stack-sm">
+        <h3 class="h3">Status</h3>
+        <div class="grid-3" style="grid-template-columns: repeat(auto-fit, minmax(min(200px,100%), 1fr))">
+          <sc-for list="{{status}}" as="s" hint-placeholder-count="6">
+            <div class="card card-body stack-sm" style="padding: 14px">
+              <span class="badge {{s.cls}}">{{s.name}}</span>
+              <div class="mono t-xs muted">fg {{s.fg}} · bg {{s.bg}}</div>
+              <div class="t-xs muted">{{s.use}}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h3 class="h3">Type scale · IBM Plex Sans</h3><span class="t-xs muted">Mono: IBM Plex Mono</span></div>
+          <div class="card-body stack">
+            <div class="row-between"><span class="t-3xl strong">Dashboard</span><span class="mono t-xs muted">3xl 30/36 · 600</span></div>
+            <div class="row-between"><span class="t-2xl strong">Mail detail</span><span class="mono t-xs muted">2xl 24/32 · 600</span></div>
+            <div class="row-between"><span class="t-xl strong">Approval queue</span><span class="mono t-xs muted">xl 20/28 · 600</span></div>
+            <div class="row-between"><span class="t-base">Body for forms and reading</span><span class="mono t-xs muted">base 16/24</span></div>
+            <div class="row-between"><span class="t-sm">Body and tables — Dept. of Mathematics and Computer Science</span><span class="mono t-xs muted">sm 14/20</span></div>
+            <div class="row-between"><span class="t-xs">Captions, meta, table headers</span><span class="mono t-xs muted">xs 12/16</span></div>
+            <div class="row-between"><span class="mono">CAPQA/DSP/2026/0142</span><span class="mono t-xs muted">mono 13 · references</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 class="h3">Spacing · radius · shadow · breakpoints</h3></div>
+          <div class="card-body stack">
+            <div class="stack-sm">
+              <span class="eyebrow">Spacing (4px base, Tailwind default)</span>
+              <sc-for list="{{space}}" as="s" hint-placeholder-count="9">
+                <div style="display: grid; grid-template-columns: 56px 1fr 60px; gap: 12px; align-items: center"><span class="mono t-xs">{{s.k}}</span><span style="height: 10px; width: {{s.px}}; background: #48b06d; border-radius: 2px"></span><span class="mono t-xs muted">{{s.px}}</span></div>
+              </sc-for>
+            </div>
+            <div class="row" style="gap: 16px">
+              <div style="width: 64px; height: 48px; border: 1px solid #cbd5e1; border-radius: 6px; display: grid; place-items: center" class="t-xs">md 6</div>
+              <div style="width: 64px; height: 48px; border: 1px solid #cbd5e1; border-radius: 8px; display: grid; place-items: center" class="t-xs strong">lg 8 ★</div>
+              <div style="width: 64px; height: 48px; border: 1px solid #cbd5e1; border-radius: 12px; display: grid; place-items: center" class="t-xs">xl 12</div>
+              <div style="width: 64px; height: 48px; background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(15,23,42,.06); border: 1px solid #e2e8f0; display: grid; place-items: center" class="t-xs">sm</div>
+              <div style="width: 64px; height: 48px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px -2px rgba(15,23,42,.10),0 2px 4px -2px rgba(15,23,42,.06); display: grid; place-items: center" class="t-xs">md</div>
+              <div style="width: 64px; height: 48px; background: #fff; border-radius: 8px; box-shadow: 0 24px 48px -12px rgba(15,23,42,.28); display: grid; place-items: center" class="t-xs">lg</div>
+            </div>
+            <div class="mono t-xs muted">sm 640 · md 768 · lg 1024 (sidebar appears) · xl 1280</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 class="h3">tailwind.config.js</h3><span class="t-xs muted">Copy into theme.extend</span></div>
+        <pre class="mono" style="margin: 0; padding: 20px; background: #0f172a; color: #e2e8f0; border-radius: 0 0 8px 8px; overflow-x: auto; font-size: 12px; line-height: 20px">{{config}}</pre>
+      </div>
+    </section>
+
+    <!-- BUTTONS -->
+    <section id="buttons" class="stack" aria-labelledby="btn-h">
+      <h2 class="h2" id="btn-h">Buttons</h2>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th scope="col">Variant</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Disabled</th><th scope="col">Loading</th></tr></thead>
+            <tbody>
+              <sc-for list="{{btns}}" as="b" hint-placeholder-count="5">
+                <tr>
+                  <td class="strong">{{b.name}}</td>
+                  <td><button type="button" class="btn {{b.cls}}">{{b.label}}</button></td>
+                  <td><button type="button" class="btn {{b.cls}} is-hover">{{b.label}}</button></td>
+                  <td><button type="button" class="btn {{b.cls}} is-focus">{{b.label}}</button></td>
+                  <td><button type="button" class="btn {{b.cls}}" disabled>{{b.label}}</button></td>
+                  <td><button type="button" class="btn {{b.cls}} is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-foot" style="justify-content: flex-start; align-items: center">
+          <button type="button" class="btn btn-primary btn-sm">Small 32</button><button type="button" class="btn btn-primary">Default 40</button><button type="button" class="btn btn-primary btn-lg">Large 48 (touch)</button>
+          <button type="button" class="btn btn-secondary btn-icon" aria-label="Edit"><dc-import name="Icon" i="edit" s="18" hint-size="18px,18px"></dc-import></button>
+          <button type="button" class="btn btn-ghost btn-icon" aria-label="More actions"><dc-import name="Icon" i="more" s="18" hint-size="18px,18px"></dc-import></button>
+          <button type="button" class="link-btn">Text link button</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMS -->
+    <section id="forms" class="stack" aria-labelledby="form-h">
+      <h2 class="h2" id="form-h">Form fields</h2>
+      <div class="grid-2">
+        <div class="card card-body stack">
+          <div class="field"><label class="label" for="ds1">Sender <span class="req" aria-hidden="true">*</span></label><input id="ds1" class="input" placeholder="e.g. Office of the Registrar"><span class="help">Default</span></div>
+          <div class="field"><label class="label" for="ds2">Sender</label><input id="ds2" class="input is-hover" value="Office of the Registrar"><span class="help">Hover</span></div>
+          <div class="field"><label class="label" for="ds3">Sender</label><input id="ds3" class="input is-focus" value="Office of the Bursar"><span class="help">Focus — 3px brand-100 ring</span></div>
+          <div class="field"><label class="label" for="ds4">Reference number</label><input id="ds4" class="input" value="CAPQA/DSP/2026/0142" disabled><span class="help">Disabled</span></div>
+          <div class="field"><label class="label" for="ds5">Reference number <span class="req" aria-hidden="true">*</span></label><input id="ds5" class="input is-invalid" value="CAPQA/DSP/2026/0098" aria-invalid="true" aria-describedby="ds5e"><span class="err" id="ds5e"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>This reference number is already in use.</span></div>
+        </div>
+        <div class="card card-body stack">
+          <div class="field"><label class="label" for="ds6">Priority</label><select id="ds6" class="select"><option>Medium</option><option>High</option><option>Low</option></select></div>
+          <div class="field"><label class="label" for="ds7">Comments <span class="opt">(optional)</span></label><textarea id="ds7" class="textarea">Ventilation fans on the east wing are not working.</textarea><span class="counter">52 / 2,000</span></div>
+          <div class="field">
+            <label class="label" for="ds8">Password</label>
+            <div class="input-wrap has-trail"><span class="lead"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import></span><input id="ds8" class="input" type="password" value="Makurdi2026"><span class="trail"><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Show password"><dc-import name="Icon" i="eye" s="18" hint-size="18px,18px"></dc-import></button></span></div>
+            <div class="meter lv3" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <ul class="pw-checklist" aria-label="Password requirements">
+              <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>At least 8 characters</li>
+              <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>An uppercase and a lowercase letter</li>
+              <li class="ok"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>A number</li>
+              <li><dc-import name="Icon" i="x-circle" s="16" hint-size="16px,16px"></dc-import>A symbol (e.g. ! @ # $)</li>
+            </ul>
+          </div>
+          <label class="input-wrap"><span class="sr-only">Search</span><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Search by reference, sender or subject"></label>
+        </div>
+        <div class="card card-body stack">
+          <fieldset style="border: 0; padding: 0; margin: 0" class="stack-sm">
+            <legend class="label" style="margin-bottom: 6px">Star rating · Ventilation</legend>
+            <div class="stars" role="radiogroup" aria-label="Ventilation rating">
+              <sc-for list="{{stars}}" as="s" hint-placeholder-count="5">
+                <button type="button" class="star {{s.cls}}" role="radio" aria-checked="{{s.checked}}" aria-label="{{s.label}}" onClick="{{s.pick}}"><dc-import name="Icon" i="star" s="28" f="{{s.on}}" hint-size="28px,28px"></dc-import></button>
+              </sc-for>
+            </div>
+            <span class="help">{{starText}}</span>
+          </fieldset>
+          <div class="field">
+            <div class="row-between"><label class="label" for="ds9">Quality score</label><output for="ds9" class="t-xl strong num" style="color: #166534">{{score}} / 100</output></div>
+            <input id="ds9" class="range" type="range" min="1" max="100" value="{{score}}" onChange="{{setScore}}" onInput="{{setScore}}">
+            <div class="row-between t-xs muted"><span>1</span><span>100</span></div>
+          </div>
+          <div class="radio-cards" role="radiogroup" aria-label="Purpose">
+            <label class="radio-card is-on"><input type="radio" name="dsp" checked>Class</label>
+            <label class="radio-card"><input type="radio" name="dsp">Exam</label>
+            <label class="radio-card"><input type="radio" name="dsp">Event</label>
+          </div>
+          <label class="check"><input type="checkbox" checked>Email me when mail is assigned to me</label>
+          <label class="row" style="gap: 12px"><span class="switch"><input type="checkbox" checked aria-label="Deadline reminders"></span><span>Deadline reminders</span></label>
+        </div>
+        <div class="card card-body stack">
+          <span class="label">File uploader</span>
+          <div class="uploader">
+            <span class="ico-box"><dc-import name="Icon" i="upload" s="20" hint-size="20px,20px"></dc-import></span>
+            <div><span class="strong">Drag and drop files here</span> or <button type="button" class="link-btn">browse</button></div>
+            <span class="help">PDF, DOCX, JPG or PNG · up to 10 MB each</span>
+          </div>
+          <div class="file-row">
+            <span class="f-ico">PDF</span>
+            <div class="f-main"><span class="f-name">Registry_memo_NUC_visit.pdf</span><div class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Upload progress"><span style="width: 64%"></span></div><span class="t-xs muted">1.2 MB of 1.9 MB · 64%</span></div>
+            <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Cancel upload"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button>
+          </div>
+          <div class="file-row">
+            <span class="f-ico" style="background: #eff6ff; color: #1d4ed8">DOC</span>
+            <div class="f-main"><span class="f-name">Hall_allocation_schedule.docx</span><span class="t-xs" style="color: #15703c; display: flex; gap: 4px; align-items: center"><dc-import name="Icon" i="check-circle" s="14" hint-size="14px,14px"></dc-import>Uploaded · 284 KB</span></div>
+            <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Remove file"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></button>
+          </div>
+          <div class="file-row" style="border-color: #fecdca">
+            <span class="f-ico">JPG</span>
+            <div class="f-main"><span class="f-name">scan_0031.jpg</span><span class="err"><dc-import name="Icon" i="alert-circle" s="14" hint-size="14px,14px"></dc-import>File is larger than 10 MB</span></div>
+            <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Remove file"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BADGES -->
+    <section id="badges" class="stack" aria-labelledby="bdg-h">
+      <div><h2 class="h2" id="bdg-h">Status badges</h2><p class="muted">Each badge carries a glyph and its text label, so status never depends on colour. Markup: <span class="mono">&lt;span class="badge" data-s="mail-Approved"&gt;Approved&lt;/span&gt;</span></p></div>
+      <div class="card">
+        <div class="table-wrap"><table class="table">
+          <thead><tr><th scope="col">Group</th><th scope="col">Values</th><th scope="col">data-s prefix</th></tr></thead>
+          <tbody>
+            <sc-for list="{{badgeGroups}}" as="g" hint-placeholder-count="12">
+              <tr><td class="strong">{{g.name}}</td><td><div class="row"><sc-for list="{{g.vals}}" as="v" hint-placeholder-count="4"><span class="badge" data-s="{{v.s}}">{{v.t}}</span></sc-for></div></td><td class="mono t-xs">{{g.p}}</td></tr>
+            </sc-for>
+          </tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section id="data" class="stack" aria-labelledby="data-h">
+      <h2 class="h2" id="data-h">Data display</h2>
+      <div class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Reference, sender or subject"></span></label>
+          <label class="field"><span class="label">Status</span><select class="select"><option>All statuses</option></select></label>
+          <label class="field"><span class="label">Sort by</span><select class="select"><option>Date received · newest</option></select></label>
+          <button type="button" class="btn btn-ghost">Clear filters</button>
+        </div>
+        <div class="bulk-bar"><span>2 selected</span><button type="button" class="btn btn-secondary btn-sm"><dc-import name="Icon" i="forward" s="16" hint-size="16px,16px"></dc-import>Assign</button><button type="button" class="btn btn-secondary btn-sm"><dc-import name="Icon" i="archive" s="16" hint-size="16px,16px"></dc-import>Archive</button></div>
+        <div class="table-wrap"><table class="table table-stack">
+          <thead><tr><th class="td-check" scope="col"><input type="checkbox" aria-label="Select all"></th><th scope="col"><button type="button" class="th-sort is-active">Reference<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col"><button type="button" class="th-sort">Sender<dc-import name="Icon" i="sort" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Status</th><th scope="col" class="r">Actions</th></tr></thead>
+          <tbody>
+            <tr class="is-selected"><td class="td-check"><input type="checkbox" checked aria-label="Select CAPQA/DSP/2026/0142"></td><td class="td-lead mono" data-label="Reference">CAPQA/DSP/2026/0142</td><td data-label="Sender">Office of the Registrar</td><td data-label="Status"><span class="badge" data-s="mail-Pending">Pending</span></td><td class="td-actions"><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Row actions"><dc-import name="Icon" i="more" s="18" hint-size="18px,18px"></dc-import></button></td></tr>
+            <tr class="is-selected"><td class="td-check"><input type="checkbox" checked aria-label="Select CAPQA/DSP/2026/0141"></td><td class="td-lead mono" data-label="Reference">CAPQA/DSP/2026/0141</td><td data-label="Sender">Dept. of Mathematics and Computer Science</td><td data-label="Status"><span class="badge" data-s="mail-Forwarded">Forwarded</span></td><td class="td-actions"><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Row actions"><dc-import name="Icon" i="more" s="18" hint-size="18px,18px"></dc-import></button></td></tr>
+            <tr><td class="td-check"><input type="checkbox" aria-label="Select CAPQA/DSP/2026/0139"></td><td class="td-lead mono" data-label="Reference">CAPQA/DSP/2026/0139</td><td data-label="Sender">National Universities Commission</td><td data-label="Status"><span class="badge" data-s="mail-Approved">Approved</span></td><td class="td-actions"><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Row actions"><dc-import name="Icon" i="more" s="18" hint-size="18px,18px"></dc-import></button></td></tr>
+          </tbody>
+        </table></div>
+        <div class="pagination"><span>Showing 1–20 of 148</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+      </div>
+      <div class="grid-3">
+        <div class="card"><div class="card-head"><span class="eyebrow">List state · loading</span></div><dc-import name="ListState" kind="loading" hint-size="100%,300px"></dc-import></div>
+        <div class="card"><div class="card-head"><span class="eyebrow">List state · empty</span></div><dc-import name="ListState" kind="empty" title="No mail matches these filters" text="Try another status or clear the search." icon="search" hint-size="100%,300px"></dc-import></div>
+        <div class="card"><div class="card-head"><span class="eyebrow">List state · error</span></div><dc-import name="ListState" kind="error" hint-size="100%,300px"></dc-import></div>
+      </div>
+      <div class="grid-3">
+        <div class="card stat"><span class="s-label"><span class="ico-box"><dc-import name="Icon" i="tasks" s="18" hint-size="18px,18px"></dc-import></span>Pending tasks</span><span class="s-value">12</span><span class="s-foot">4 due this week</span></div>
+        <div class="card">
+          <div class="card-head"><h3 class="h3">Chart card</h3><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Chart options"><dc-import name="Icon" i="more" s="18" hint-size="18px,18px"></dc-import></button></div>
+          <div class="card-body stack-sm">
+            <div class="hbar"><span>Mathematics and Computer Science</span><span class="track"><span class="fill" style="width: 82%"></span></span><span class="num strong">82</span></div>
+            <div class="hbar"><span>Physics</span><span class="track"><span class="fill warn" style="width: 64%"></span></span><span class="num strong">64</span></div>
+            <div class="hbar"><span>Theatre Arts</span><span class="track"><span class="fill bad" style="width: 41%"></span></span><span class="num strong">41</span></div>
+          </div>
+        </div>
+        <div class="card card-body stack">
+          <div class="row"><span class="avatar avatar-sm">SA</span><span class="avatar">NO</span><span class="avatar avatar-lg">MI</span></div>
+          <div class="tabs" role="tablist"><button type="button" class="tab" role="tab" aria-selected="true">Overview</button><button type="button" class="tab" role="tab" aria-selected="false">Staff</button><button type="button" class="tab" role="tab" aria-selected="false">Courses</button></div>
+          <nav class="crumbs" aria-label="Breadcrumb example"><a href="#">ALABATT-HUB CAPQA</a><dc-import name="Icon" i="chev-right" s="14" hint-size="14px,14px"></dc-import><a href="#">E-Dispatch</a><dc-import name="Icon" i="chev-right" s="14" hint-size="14px,14px"></dc-import><span aria-current="page">Mail detail</span></nav>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card card-body stack">
+          <span class="eyebrow">Wizard stepper</span>
+          <ol class="stepper" aria-label="Audit progress"><li class="step done"><span class="bar"></span>Hall</li><li class="step done"><span class="bar"></span>Ventilation</li><li class="step current" aria-current="step"><span class="bar"></span>Lighting</li><li class="step"><span class="bar"></span>Seating</li><li class="step"><span class="bar"></span>Result</li></ol>
+          <span class="eyebrow" style="margin-top: 8px">Calendar slot</span>
+          <div class="row"><button type="button" class="slot slot-class" style="width: 180px"><b>CMP 411 · Class</b><span>08:00–10:00 · 120 students</span></button><button type="button" class="slot slot-exam" style="width: 180px"><b>MTH 201 · Exam</b><span>12:00–15:00 · 340 students</span></button><button type="button" class="slot slot-event" style="width: 180px"><b>Matriculation · Event</b><span>10:00–14:00</span></button></div>
+        </div>
+        <div class="card card-body">
+          <span class="eyebrow" style="display: block; margin-bottom: 12px">Timeline</span>
+          <ol class="timeline">
+            <li class="tl-item"><span class="tl-dot info"><dc-import name="Icon" i="inbox" s="16" hint-size="16px,16px"></dc-import></span><div><div class="strong">Recorded by Mrs. Ngozi Okafor</div><div class="tl-meta">Mon, 6 Oct 2026 · 09:14</div></div></li>
+            <li class="tl-item"><span class="tl-dot info"><dc-import name="Icon" i="forward" s="16" hint-size="16px,16px"></dc-import></span><div><div class="strong">Forwarded to Prof. Msughter Iorkyaa</div><div class="tl-meta">Mon, 6 Oct 2026 · 11:02</div></div></li>
+            <li class="tl-item"><span class="tl-dot ok"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div><div class="strong">Approved and stamped</div><div class="tl-meta">Tue, 7 Oct 2026 · 15:40</div></div></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEEDBACK -->
+    <section id="feedback" class="stack" aria-labelledby="fb-h">
+      <h2 class="h2" id="fb-h">Banners and alerts</h2>
+      <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — no real money is charged</div>
+      <div class="banner-locked" role="note"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import><span class="strong">Finalised — read-only.</span><span class="muted">Finalised by Mr. Emmanuel Ochoga on 9 Oct 2026, 14:22. Finalised records can’t be edited.</span></div>
+      <div class="alert alert-info"><span class="a-icon"><dc-import name="Icon" i="info" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Information</div>Your account is waiting for admin approval.</div></div>
+      <div class="alert alert-success"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Saved</div>Hall “Faculty of Science Lecture Theatre” was added.</div></div>
+      <div class="alert alert-warning"><span class="a-icon"><dc-import name="Icon" i="alert" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Overcrowding risk</div>380 expected students exceed the hall capacity of 350 by 30 (109%).</div></div>
+      <div class="alert alert-danger"><span class="a-icon"><dc-import name="Icon" i="alert-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Couldn’t save</div>Fix the 2 highlighted fields and try again.</div></div>
+    </section>
+
+    <!-- OVERLAYS -->
+    <section id="overlays" class="stack" aria-labelledby="ov-h">
+      <h2 class="h2" id="ov-h">Toasts, modals and drawer</h2>
+      <div class="grid-3">
+        <div class="toast toast-success" role="status"><span class="t-icon"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">Mail recorded</div><div class="t-text">CAPQA/DSP/2026/0143 was saved.</div></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Dismiss"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button></div>
+        <div class="toast toast-error" role="alert"><span class="t-icon"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">Upload failed</div><div class="t-text">scan_0031.jpg is larger than 10 MB.</div></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Dismiss"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button></div>
+        <div class="toast toast-live" role="status" aria-live="polite"><span class="t-icon"><dc-import name="Icon" i="bell" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">New approval request</div><div class="t-text">CAPQA/DSP/2026/0144 from the Bursary.</div><div class="row" style="margin-top: 8px"><a class="btn btn-primary btn-sm" href="MailApproval.dc.html">Review</a><button type="button" class="btn btn-ghost btn-sm">Later</button></div></div></div>
+      </div>
+      <div class="grid-3">
+        <div style="background: rgba(15,23,42,.55); border-radius: 12px; padding: 24px; display: grid; place-items: center">
+          <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cm-h">
+            <div class="modal-head"><div class="row" style="gap: 12px; flex-wrap: nowrap; align-items: flex-start"><span class="modal-icon danger"><dc-import name="Icon" i="trash" s="20" hint-size="20px,20px"></dc-import></span><div><h3 class="h3" id="cm-h">Delete this hall?</h3><p class="muted t-sm" style="margin-top: 4px">Education Block LR 3 and its 4 upcoming allocations will be removed. This can’t be undone.</p></div></div></div>
+            <div class="modal-foot"><button type="button" class="btn btn-secondary">Cancel</button><button type="button" class="btn btn-danger">Delete hall</button></div>
+          </div>
+        </div>
+        <div style="background: rgba(15,23,42,.55); border-radius: 12px; padding: 24px; display: grid; place-items: center">
+          <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="to-h">
+            <div class="modal-body" style="align-items: center; text-align: center; padding-top: 24px">
+              <span class="modal-icon warn"><dc-import name="Icon" i="clock" s="22" hint-size="22px,22px"></dc-import></span>
+              <h3 class="h3" id="to-h">You will be logged out in 60 seconds</h3>
+              <p class="muted t-sm">Stay signed in?</p>
+              <div class="progress" style="width: 100%" role="progressbar" aria-label="Time remaining" aria-valuenow="60" aria-valuemin="0" aria-valuemax="60"><span style="width: 100%; background: #d97706"></span></div>
+            </div>
+            <div class="modal-foot"><button type="button" class="btn btn-secondary">Log out now</button><button type="button" class="btn btn-primary">Stay signed in</button></div>
+          </div>
+        </div>
+        <div style="background: rgba(15,23,42,.45); border-radius: 12px; display: flex; justify-content: flex-end; min-height: 300px; overflow: hidden">
+          <div class="drawer" style="width: 82%" role="dialog" aria-labelledby="dr-h">
+            <div class="drawer-head"><h3 class="h3" id="dr-h">Side drawer</h3><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Close"><dc-import name="Icon" i="x" s="18" hint-size="18px,18px"></dc-import></button></div>
+            <div class="drawer-body"><dl class="dl" style="grid-template-columns: 1fr"><div><dt>Hall</dt><dd>Faculty of Science Lecture Theatre</dd></div><div><dt>Time</dt><dd>Wed, 15 Oct · 08:00–10:00</dd></div></dl></div>
+            <div class="drawer-foot"><button type="button" class="btn btn-secondary btn-sm">Close</button><button type="button" class="btn btn-primary btn-sm">Edit</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":5600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { stars: 4, score: 78 }; }
+  renderVals() {
+    var self = this;
+    function ramp(prefix, o) { return Object.keys(o).map(function (k) { return { k: prefix + '-' + k, hex: o[k] }; }); }
+    var words = ['Very poor', 'Poor', 'Fair', 'Good', 'Excellent'];
+    var bg = [
+      ['Mail status', 'mail-', ['Draft', 'Pending', 'Forwarded', 'Reviewed', 'Approved', 'Rejected']],
+      ['Priority', 'pri-', ['High', 'Medium', 'Low']],
+      ['Hall status', 'hall-', ['Suitable', 'Full', 'Overcrowded']],
+      ['Allocation purpose', 'pur-', ['Class', 'Exam', 'Event']],
+      ['Audit result', 'aud-', ['Suitable', 'Needs Attention', 'Not Suitable']],
+      ['Accreditation', 'acc-', ['Full', 'Interim', 'Denied']],
+      ['Invoice', 'inv-', ['Unpaid', 'Paid', 'Cancelled']],
+      ['Payment', 'pay-', ['Pending', 'Successful', 'Failed']],
+      ['Lifecycle', 'life-', ['Draft', 'Active', 'Finalised']],
+      ['Account', 'acct-', ['Pending', 'Active', 'Disabled']],
+      ['Evaluation source', 'src-', ['Student', 'Peer', 'Management']],
+      ['Notification type', 'ntf-', ['Pending approval', 'Assigned task', 'Deadline', 'System update']]
+    ];
+    return {
+      ramps: [
+        { name: 'Brand (green)', note: 'brand-700 #166534 = primary', sw: ramp('brand', { 50: '#effaf2', 100: '#d7f2df', 200: '#b0e4c0', 300: '#7dce98', 400: '#48b06d', 500: '#25904f', 600: '#1a763f', 700: '#166534', 800: '#134f2b', 900: '#0f3d22' }) },
+        { name: 'Accent (gold)', note: 'Sparing: stamp, highlights, active marker', sw: ramp('gold', { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 600: '#d97706', 700: '#b45309', 800: '#92400e' }) },
+        { name: 'Neutral (slate)', note: 'Surfaces, borders, text', sw: ramp('slate', { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' }) }
+      ],
+      status: [
+        { name: 'Success', cls: 'tone-success', fg: '#15703c', bg: '#ecfdf3', use: 'Approved, Paid, Suitable, Active' },
+        { name: 'Warning', cls: 'tone-warning', fg: '#93370d', bg: '#fffaeb', use: 'Pending, Interim, Full, Needs Attention' },
+        { name: 'Danger', cls: 'tone-danger', fg: '#b42318', bg: '#fef3f2', use: 'Rejected, Failed, Overcrowded, Denied' },
+        { name: 'Info', cls: 'tone-info', fg: '#1d4ed8', bg: '#eff6ff', use: 'Forwarded, Reviewed, Class, Student' },
+        { name: 'Neutral', cls: '', fg: '#334155', bg: '#f1f5f9', use: 'Draft, Cancelled, Disabled, System update' },
+        { name: 'Gold / Purple', cls: 'tone-gold', fg: '#92400e', bg: '#fffbeb', use: 'Exam & Management (gold); Event & Peer (purple)' }
+      ],
+      space: [['1', '4px'], ['2', '8px'], ['3', '12px'], ['4', '16px'], ['5', '20px'], ['6', '24px'], ['8', '32px'], ['12', '48px'], ['16', '64px']].map(function (s) { return { k: 'p-' + s[0], px: s[1] }; }),
+      btns: [
+        { name: 'Primary', cls: 'btn-primary', label: 'Record mail' }, { name: 'Secondary', cls: 'btn-secondary', label: 'Cancel' },
+        { name: 'Ghost', cls: 'btn-ghost', label: 'Clear filters' }, { name: 'Danger', cls: 'btn-danger', label: 'Reject' }, { name: 'Gold', cls: 'btn-gold', label: 'Approve & stamp' }
+      ],
+      stars: [1, 2, 3, 4, 5].map(function (n) { var on = n <= self.state.stars; return { on: on, cls: on ? 'on' : '', checked: n === self.state.stars ? 'true' : 'false', label: n + ' star' + (n > 1 ? 's' : '') + ' — ' + words[n - 1], pick: function () { self.setState({ stars: n }); } }; }),
+      starText: self.state.stars + ' of 5 — ' + words[self.state.stars - 1],
+      score: self.state.score,
+      setScore: function (e) { self.setState({ score: Number(e.target.value) }); },
+      badgeGroups: bg.map(function (g) { return { name: g[0], p: g[1] + '*', vals: g[2].map(function (v) { return { t: v, s: g[1] + v }; }) }; }),
+      config: "// tailwind.config.js\nmodule.exports = {\n  content: ['./src/**/*.{html,ts}'],\n  theme: {\n    extend: {\n      colors: {\n        brand: { 50:'#effaf2',100:'#d7f2df',200:'#b0e4c0',300:'#7dce98',400:'#48b06d',\n                 500:'#25904f',600:'#1a763f',700:'#166534',800:'#134f2b',900:'#0f3d22' },\n        gold:  { 50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',600:'#d97706',700:'#b45309',800:'#92400e' },\n        success: { 50:'#ecfdf3',200:'#abefc6',600:'#16a34a',700:'#15703c' },\n        warning: { 50:'#fffaeb',200:'#fedf89',600:'#d97706',800:'#93370d' },\n        danger:  { 50:'#fef3f2',200:'#fecdca',600:'#dc2626',700:'#b42318' },\n        info:    { 50:'#eff6ff',200:'#bfdbfe',600:'#2563eb',700:'#1d4ed8' },\n      },\n      fontFamily: {\n        sans: ['\"IBM Plex Sans\"', 'ui-sans-serif', 'system-ui', 'sans-serif'],\n        mono: ['\"IBM Plex Mono\"', 'ui-monospace', 'monospace'],\n      },\n      borderRadius: { DEFAULT: '8px', md: '6px', lg: '8px', xl: '12px' },\n      boxShadow: {\n        sm: '0 1px 2px rgba(15,23,42,.06)',\n        md: '0 4px 12px -2px rgba(15,23,42,.10), 0 2px 4px -2px rgba(15,23,42,.06)',\n        lg: '0 24px 48px -12px rgba(15,23,42,.28)',\n      },\n    },\n    // screens: Tailwind defaults — sm 640, md 768, lg 1024, xl 1280\n  },\n  plugins: [require('@tailwindcss/forms')],\n};"
+    };
+  }
+}
+</script>
+</body>
+</html>

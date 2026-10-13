@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Review account · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="users" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="users" crumbs="Administration>Users>Review account" hint-size="100%,64px"></dc-import>
+    <main class="page" aria-hidden="true"><div class="page-head"><h1 class="h1">Users</h1></div><div class="card"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></div></main>
+  </div>
+  <div class="drawer-layer">
+    <form class="drawer" role="dialog" aria-modal="true" aria-labelledby="ur-h">
+      <div class="drawer-head"><h2 class="h3" id="ur-h">Review account</h2><a class="btn btn-ghost btn-icon btn-sm" href="Users.dc.html" aria-label="Close"><dc-import name="Icon" i="x" s="18" hint-size="18px,18px"></dc-import></a></div>
+      <div class="drawer-body">
+        <div class="row" style="flex-wrap: nowrap; gap: 12px"><span class="avatar avatar-lg">SA</span><div><div class="strong t-lg">Dr. Stephen Akuma</div><div class="t-sm muted">s.akuma · s.akuma@moau.edu.ng</div><div class="row" style="margin-top: 6px"><span class="badge" data-s="acct-Pending">Pending</span><span class="t-xs muted">Registered 12 Oct 2026, 09:02</span></div></div></div>
+        <dl class="dl" style="grid-template-columns: 1fr; margin: 0"><div><dt>Department given at sign-up</dt><dd>Mathematics and Computer Science</dd></div></dl>
+        <fieldset class="field" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Decision <span class="req" aria-hidden="true">*</span></legend>
+          <div class="stack-sm"><sc-for list="{{decs}}" as="d" hint-placeholder-count="3"><label class="radio-card {{d.cls}}"><input type="radio" name="ur-d" checked="{{d.on}}" onChange="{{d.pick}}"><span class="badge" data-s="acct-{{d.s}}">{{d.s}}</span><span class="t-sm">{{d.t}}</span></label></sc-for></div>
+        </fieldset>
+        <sc-if value="{{isApprove}}" hint-placeholder-val="{{ true }}">
+          <div class="field"><label class="label" for="ur-role">Role <span class="req" aria-hidden="true">*</span></label><select id="ur-role" class="select {{roleCls}}" aria-invalid="{{roleAria}}"><option>{{roleVal}}</option><option>Admin</option><option>Director</option><option>Academic Officer</option><option>Quality Inspector</option><option>Viewer</option></select>
+            <sc-if value="{{roleErr}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Choose a role before approving.</span></sc-if><span class="help">Controls what the user can see and do. <a href="RolePermissions.dc.html">See permissions</a></span></div>
+          <div class="field"><label class="label" for="ur-dept">Department</label><select id="ur-dept" class="select"><option>Mathematics and Computer Science</option><option>— None —</option></select></div>
+        </sc-if>
+        <sc-if value="{{isReject}}" hint-placeholder-val="{{ false }}"><div class="field"><label class="label" for="ur-why">Reason <span class="opt">(sent to the applicant)</span></label><textarea id="ur-why" class="textarea">We couldn’t confirm this email belongs to university staff. Please register with your official moau.edu.ng address.</textarea></div></sc-if>
+        <sc-if value="{{isDisable}}" hint-placeholder-val="{{ false }}"><div class="alert alert-warning"><span class="a-icon"><dc-import name="Icon" i="ban" s="18" hint-size="18px,18px"></dc-import></span><div>Disabled accounts can’t sign in. Their records and history are kept.</div></div></sc-if>
+      </div>
+      <div class="drawer-foot"><a class="btn btn-secondary" href="Users.dc.html">Cancel</a><a class="btn {{ctaCls}}" href="{{ctaHref}}">{{cta}}</a></div>
+    </form>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"approve","options":["approve","approve-missing-role","reject","disable"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { d: null }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'approve';
+    var d = this.state.d || (v.indexOf('approve') === 0 ? 'approve' : v);
+    var miss = v === 'approve-missing-role' && !this.state.d;
+    var D = [['approve', 'Active', 'Approve and activate'], ['reject', 'Disabled', 'Reject this registration'], ['disable', 'Disabled', 'Disable (keep record)']];
+    var C = { approve: ['Approve account', 'btn-primary', 'Login.dc.html'], reject: ['Reject registration', 'btn-danger', 'Users.dc.html'], disable: ['Disable account', 'btn-danger', 'Users.dc.html'] }[d];
+    return {
+      isApprove: d === 'approve', isReject: d === 'reject', isDisable: d === 'disable', roleErr: miss, roleCls: miss ? 'is-invalid' : '', roleAria: miss ? 'true' : 'false', roleVal: miss ? 'Choose a role…' : 'Academic Officer',
+      cta: C[0], ctaCls: C[1], ctaHref: C[2],
+      decs: D.map(function (x) { var on = x[0] === d; return { s: x[1], t: x[2], on: on, cls: on ? 'is-on' : '', pick: function () { self.setState({ d: x[0] }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

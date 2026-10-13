@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invoices · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="pay" crumbs="Payments>My invoices" hint-size="100%,64px"></dc-import>
+    <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — no real money moves</div>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">My invoices</h1><p class="sub">1 unpaid · NGN 25,000.00 due</p></div><a class="btn btn-secondary" href="PaymentHistory.dc.html">Payment history</a></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field"><span class="label">Status</span><select class="select"><option>All statuses</option><option>Unpaid</option><option>Paid</option><option>Cancelled</option></select></label>
+          <label class="field"><span class="label">Issued from</span><input class="input" type="date" value="2026-01-01"></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Invoice</th><th scope="col">Description</th><th scope="col" class="r">Amount</th><th scope="col">Issued</th><th scope="col">Due</th><th scope="col">Status</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+                <tr><td class="td-lead" data-label="Invoice"><a class="mono strong" href="InvoiceDetail.dc.html">{{r.n}}</a></td><td data-label="Description">{{r.d}}</td><td data-label="Amount" class="r num strong">{{r.a}}</td><td data-label="Issued" class="num">{{r.i}}</td><td data-label="Due" class="num">{{r.due}}</td><td data-label="Status"><span class="badge" data-s="inv-{{r.s}}">{{r.s}}</span></td>
+                  <td class="td-actions"><sc-if value="{{r.unpaid}}" hint-placeholder-val="{{ false }}"><a class="btn btn-primary btn-sm" href="PaymentStart.dc.html">Pay now</a></sc-if><sc-if value="{{r.paid}}" hint-placeholder-val="{{ true }}"><a class="btn btn-ghost btn-sm" href="Receipt.dc.html">Receipt</a></sc-if></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No invoices" text="Invoices raised for you by CAPQA will appear here." icon="receipt" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var R = [['0318', 'Hall booking fee — 1000-Seater Auditorium', 25000, '12 Oct 2026', '26 Oct 2026', 'Unpaid'], ['0287', 'Departmental workshop venue — Arts Theatre', 40000, '9 Sep 2026', '23 Sep 2026', 'Paid'], ['0251', 'Replacement staff ID card', 2500, '2 Aug 2026', '16 Aug 2026', 'Paid'], ['0233', 'Hall booking — cancelled event', 30000, '18 Jul 2026', '1 Aug 2026', 'Cancelled'], ['0190', 'Late course file submission fee', 5000, '3 Jun 2026', '17 Jun 2026', 'Paid']];
+    return { isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      rows: R.map(function (r) { return { n: 'INV-2026-' + r[0], d: r[1], a: 'NGN ' + r[2].toLocaleString('en-NG') + '.00', i: r[3], due: r[4], s: r[5], unpaid: r[5] === 'Unpaid', paid: r[5] === 'Paid' }; }) };
+  }
+}
+</script>
+</body>
+</html>

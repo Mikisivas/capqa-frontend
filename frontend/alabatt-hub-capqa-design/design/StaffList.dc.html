@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff list · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dept" crumbs="Departments>Staff" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Staff</h1><p class="sub">Academic staff across 24 departments · 612 total</p></div><a class="btn btn-primary" href="StaffAdd.dc.html"><dc-import name="Icon" i="user-plus" s="16" hint-size="16px,16px"></dc-import>Add staff member</a></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Name or staff number"></span></label>
+          <label class="field"><span class="label">Department</span><select class="select"><option>Mathematics and Computer Science</option><option>All departments</option></select></label>
+          <label class="field"><span class="label">Rank</span><select class="select"><option>All ranks</option><option>Professor</option><option>Senior Lecturer</option><option>Lecturer I</option></select></label>
+          <label class="field"><span class="label">Employment</span><select class="select"><option>All</option><option>Full-time</option><option>Part-time</option><option>Visiting</option></select></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col" aria-sort="ascending"><button type="button" class="th-sort is-active">Name<dc-import name="Icon" i="arrow-up" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Staff no.</th><th scope="col">Rank</th><th scope="col">Department</th><th scope="col">Employment</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+                <tr><td class="td-lead" data-label="Name"><span class="row" style="flex-wrap: nowrap; gap: 10px"><span class="avatar avatar-sm">{{r.ini}}</span><span class="strong">{{r.n}}</span></span></td><td data-label="Staff no." class="mono">{{r.no}}</td><td data-label="Rank">{{r.r}}</td><td data-label="Department">{{r.d}}</td><td data-label="Employment">{{r.e}}</td><td class="td-actions"><div class="row" style="flex-wrap: nowrap; justify-content: flex-end; gap: 4px"><a class="btn btn-ghost btn-icon btn-sm" href="DeptEdit.dc.html" aria-label="Edit {{r.n}}"><dc-import name="Icon" i="edit" s="16" hint-size="16px,16px"></dc-import></a><a class="btn btn-ghost btn-icon btn-sm" href="DeptEdit.dc.html" aria-label="Delete {{r.n}}" style="color: #b42318"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></a></div></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of 38</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No staff recorded for this department" text="Add academic staff so the NUC staff-to-student ratio can be calculated." cta="Add staff member" href="StaffAdd.dc.html" icon="users" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var R = [['Dr. Stephen Akuma', 'SA', '0412', 'Senior Lecturer', 'Full-time'], ['Dr. Rebecca Ape', 'RA', '0377', 'Lecturer I', 'Full-time'], ['Mr. Aondona Gbaden', 'AG', '0619', 'Assistant Lecturer', 'Full-time'], ['Mrs. Mnena Gbaa', 'MG', '0533', 'Lecturer I', 'Full-time'], ['Prof. Terfa Iorliam', 'TI', '0108', 'Professor', 'Full-time'], ['Dr. Joy Ochai', 'JO', '0702', 'Lecturer II', 'Part-time'], ['Prof. Samuel Okwute', 'SO', 'V-021', 'Professor', 'Visiting'], ['Mr. David Orjime', 'DO', '0688', 'Graduate Assistant', 'Full-time']];
+    return { isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      rows: R.map(function (r) { return { n: r[0], ini: r[1], no: 'MOAU/SS/' + r[2], r: r[3], d: 'Mathematics and Computer Science', e: r[4] }; }) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Backup status · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="settings" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="settings" crumbs="Administration>Backup" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 1040px">
+      <div class="page-head"><div><h1 class="h1">Backup</h1><p class="sub">Automatic daily backups at 01:00 WAT · kept for 30 days</p></div>
+        <sc-if value="{{running}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Backing up… {{pct}}</button></sc-if>
+        <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-primary" onClick="{{run}}"><dc-import name="Icon" i="database" s="16" hint-size="16px,16px"></dc-import>Back up now</button></sc-if>
+      </div>
+      <div class="tabs" role="tablist"><a class="tab" role="tab" aria-selected="false" href="RolePermissions.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Role permissions</a><a class="tab" role="tab" aria-selected="false" href="SecuritySettings.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Security</a><a class="tab" role="tab" aria-selected="true" href="Backup.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Backup</a></div>
+      <section class="grid-stats" aria-live="polite">
+        <div class="card stat"><span class="s-label"><span class="ico-box" style="background: #ecfdf3; color: #15703c"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span>Last backup</span><span class="s-value" style="font-size: 22px; line-height: 30px">{{last}}</span><span class="s-foot"><span class="badge tone-success">Successful</span> · 1.84 GB</span></div>
+        <div class="card stat"><span class="s-label"><span class="ico-box"><dc-import name="Icon" i="clock" s="18" hint-size="18px,18px"></dc-import></span>Next scheduled</span><span class="s-value" style="font-size: 22px; line-height: 30px">Tue 13 Oct, 01:00</span><span class="s-foot">in 8 hours</span></div>
+        <div class="card stat"><span class="s-label"><span class="ico-box"><dc-import name="Icon" i="database" s="18" hint-size="18px,18px"></dc-import></span>Storage used</span><span class="s-value" style="font-size: 22px; line-height: 30px">53.6 GB</span><span class="s-foot">of 100 GB · 30 backups</span></div>
+      </section>
+      <sc-if value="{{running}}" hint-placeholder-val="{{ false }}"><div class="card card-body stack-sm" role="status"><div class="row-between t-sm"><span class="strong">Manual backup in progress</span><span class="num">{{pct}}</span></div><div class="progress" role="progressbar" aria-label="Backup progress" aria-valuenow="{{pctN}}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{pct}}"></span></div><span class="t-xs muted">You can leave this page. CAPQA stays available during backup.</span></div></sc-if>
+      <section class="card">
+        <div class="card-head"><h2 class="h3">History</h2></div>
+        <div class="table-wrap"><table class="table table-stack">
+          <thead><tr><th scope="col">Started</th><th scope="col">Type</th><th scope="col">Duration</th><th scope="col" class="r">Size</th><th scope="col">Result</th><th scope="col">By</th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="7"><tr class="{{r.cls}}"><td class="td-lead num" data-label="Started">{{r.t}}</td><td data-label="Type">{{r.k}}</td><td data-label="Duration" class="num">{{r.d}}</td><td data-label="Size" class="r num">{{r.s}}</td><td data-label="Result"><span class="badge {{r.tone}}">{{r.res}}</span></td><td data-label="By">{{r.by}}</td></tr></sc-for>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { p: -1 }; }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    var self = this, p = this.state.p, running = p >= 0 && p < 100;
+    var R = [['Mon 12 Oct 2026, 01:00', 'Scheduled', '6 min 12 s', '1.84 GB', 'Successful', 'System'], ['Sun 11 Oct 2026, 01:00', 'Scheduled', '6 min 03 s', '1.83 GB', 'Successful', 'System'], ['Sat 10 Oct 2026, 14:32', 'Manual', '5 min 58 s', '1.83 GB', 'Successful', 'Mr. Tersoo Ahule'], ['Sat 10 Oct 2026, 01:00', 'Scheduled', '1 min 40 s', '—', 'Failed', 'System'], ['Fri 9 Oct 2026, 01:00', 'Scheduled', '5 min 51 s', '1.82 GB', 'Successful', 'System'], ['Thu 8 Oct 2026, 01:00', 'Scheduled', '5 min 49 s', '1.81 GB', 'Successful', 'System']];
+    return {
+      running: running, idle: !running, pct: Math.max(p, 0) + '%', pctN: Math.max(p, 0), last: p >= 100 ? 'Today, just now' : 'Today, 01:06',
+      run: function () { self.setState({ p: 0 }); clearInterval(self.t); self.t = setInterval(function () { var n = self.state.p + 10; self.setState({ p: n }); if (n >= 100) clearInterval(self.t); }, 400); },
+      rows: R.map(function (r) { var bad = r[4] === 'Failed'; return { t: r[0], k: r[1], d: r[2], s: r[3], res: bad ? 'Failed — disk timeout' : r[4], tone: bad ? 'tone-danger' : 'tone-success', by: r[5], cls: bad ? 'is-warn' : '' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

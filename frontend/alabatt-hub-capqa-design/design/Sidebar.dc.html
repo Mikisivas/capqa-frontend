@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sidebar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<nav class="sb capqa {{modeCls}} {{colCls}}" aria-label="Main navigation" style="font-family: 'IBM Plex Sans', system-ui, sans-serif">
+  <div class="sb-inner">
+    <div class="sb-brand">
+      <div class="logo-slot">RFMOAUM</div>
+      <sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto">
+          <span class="brand-hub" style="color: #fcd34d">ALABATT-HUB</span>
+          <span class="sb-name">CAPQA</span>
+          <span class="sb-sub">Centre for Academic Planning and Quality Assurance</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{isDrawer}}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="tb-icon" aria-label="Close menu" onClick="{{close}}" style="color: #d7f2df; margin-left: auto"><dc-import name="Icon" i="x" s="20" hint-size="20px,20px"></dc-import></button>
+      </sc-if>
+    </div>
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <sc-if value="{{wide}}" hint-placeholder-val="{{ true }}"><div class="sb-group">{{g.label}}</div></sc-if>
+        <sc-if value="{{narrow}}" hint-placeholder-val="{{ false }}"><hr class="divider" style="background: rgba(255,255,255,.12); margin: 8px 6px"></sc-if>
+        <sc-for list="{{g.items}}" as="it" hint-placeholder-count="3">
+          <a class="sb-item {{it.cls}}" href="{{it.href}}" aria-current="{{it.cur}}" aria-label="{{it.label}}" title="{{it.label}}">
+            <dc-import name="Icon" i="{{it.icon}}" s="20" hint-size="20px,20px"></dc-import>
+            <sc-if value="{{wide}}" hint-placeholder-val="{{ true }}"><span>{{it.label}}</span></sc-if>
+            <sc-if value="{{it.showCount}}" hint-placeholder-val="{{ false }}"><span class="count">{{it.count}}</span></sc-if>
+          </a>
+        </sc-for>
+      </div>
+    </sc-for>
+    <div class="sb-foot">
+      <sc-if value="{{wide}}" hint-placeholder-val="{{ true }}">
+        <div style="padding: 4px 10px 10px; font-size: 12px; color: #b0e4c0">Signed in as <strong style="color: #fff">{{role}}</strong></div>
+      </sc-if>
+      <sc-if value="{{isRail}}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="sb-collapse" onClick="{{toggle}}" aria-expanded="{{expanded}}" aria-label="{{toggleLabel}}">
+          <dc-import name="Icon" i="panel" s="20" hint-size="20px,20px"></dc-import>
+          <sc-if value="{{wide}}" hint-placeholder-val="{{ true }}"><span>Collapse sidebar</span></sc-if>
+        </button>
+      </sc-if>
+    </div>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","default":"Admin","options":["Admin","Director","Academic Officer","Quality Inspector","Viewer"]},"active":{"editor":"enum","default":"dashboard","options":["dashboard","tasks","dispatch","halls","audit","eval","dept","reports","pay","notif","users","auditlog","settings"]},"mode":{"editor":"enum","default":"static","options":["static","rail","drawer"]},"collapsed":{"editor":"boolean","default":false},"onClose":{"editor":null},"$preview":{"width":256,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { collapsed: null }; }
+  renderVals() {
+    var role = this.props.role ?? 'Admin';
+    var code = { 'Admin': 'A', 'Director': 'D', 'Academic Officer': 'O', 'Quality Inspector': 'Q', 'Viewer': 'V' }[role] || 'A';
+    var active = this.props.active ?? 'dashboard';
+    var mode = this.props.mode ?? 'static';
+    var col = this.state.collapsed === null ? (this.props.collapsed ?? false) : this.state.collapsed;
+    if (mode === 'drawer') col = false;
+    var G = [
+      ['Overview', [['dashboard', 'Dashboard', 'dashboard', 'Dashboard', 'ADOQV'], ['tasks', 'My tasks', 'tasks', 'MyTasks', 'ADOQ']]],
+      ['Operations', [['dispatch', 'E-Dispatch', 'mail', 'MailList', 'ADOV'], ['halls', 'Classrooms and Halls', 'building', 'HallsList', 'ADOQV'], ['audit', 'Exam Hall Audit', 'clipboard', 'AuditsList', 'ADQ']]],
+      ['Quality', [['eval', 'Staff Evaluation', 'star', 'EvalList', 'ADQ'], ['dept', 'Departments and Accreditation', 'landmark', 'DeptList', 'ADOQV'], ['reports', 'Reports', 'report', 'ReportsList', 'ADOQV']]],
+      ['Finance and alerts', [['pay', 'Payments', 'card', 'PaymentHistory', 'ADO'], ['notif', 'Notifications', 'bell', 'NotificationCentre', 'ADOQV']]],
+      ['Administration', [['users', 'Users', 'users', 'Users', 'A'], ['auditlog', 'Audit log', 'log', 'AuditLog', 'A'], ['settings', 'Security and backup', 'shield', 'SecuritySettings', 'A']]]
+    ];
+    var groups = G.map(function (g) {
+      return { label: g[0], items: g[1].filter(function (it) { return it[4].indexOf(code) >= 0; }).map(function (it) {
+        var on = it[0] === active;
+        return { key: it[0], label: it[1], icon: it[2], href: it[3] + '.dc.html', cls: on ? 'is-active' : '', cur: on ? 'page' : 'false', showCount: it[0] === 'notif', count: 3 };
+      }) };
+    }).filter(function (g) { return g.items.length > 0; });
+    var self = this;
+    return {
+      role: role, groups: groups, wide: !col, narrow: col,
+      isRail: mode !== 'drawer', isDrawer: mode === 'drawer',
+      modeCls: 'sb-' + mode, colCls: col ? 'is-collapsed' : '',
+      expanded: col ? 'false' : 'true', toggleLabel: col ? 'Expand sidebar' : 'Collapse sidebar',
+      toggle: function () { self.setState({ collapsed: !col }); },
+      close: function () { if (self.props.onClose) self.props.onClose(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

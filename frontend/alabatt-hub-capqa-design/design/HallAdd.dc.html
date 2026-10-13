@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add hall · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="halls" crumbs="Classrooms and Halls>Add hall" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Add hall</h1><p class="sub">Add a lecture theatre, room or lab that can be allocated.</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="ha-name">Hall name <span class="req" aria-hidden="true">*</span></label><input id="ha-name" class="input" value="Faculty of Science Lecture Theatre" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="ha-bld">Building <span class="opt">(optional)</span></label><input id="ha-bld" class="input" value="Faculty of Science Complex" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="ha-dept">Department <span class="opt">(optional)</span></label><select id="ha-dept" class="select" disabled="{{saving}}"><option>Mathematics and Computer Science</option><option>Physics</option><option>— Shared, no department —</option></select></div>
+          <div class="field">
+            <label class="label" for="ha-cap">Capacity <span class="req" aria-hidden="true">*</span></label>
+            <input id="ha-cap" class="input num {{invCls}}" type="number" min="1" max="10000" value="{{cap}}" aria-invalid="{{invAria}}" aria-describedby="ha-cap-h" disabled="{{saving}}">
+            <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Capacity must be between 1 and 10,000 seats.</span></sc-if>
+            <span class="help" id="ha-cap-h">Seats available, 1 to 10,000</span>
+          </div>
+          <div class="field"><label class="label" for="ha-type">Hall type <span class="opt">(optional)</span></label><select id="ha-type" class="select" disabled="{{saving}}"><option>Lecture theatre</option><option>Lecture room</option><option>Auditorium</option><option>Laboratory</option><option>Computer lab</option></select></div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Equipment <span class="opt">(optional)</span></legend>
+            <div class="radio-cards">
+              <label class="radio-card is-on"><input type="checkbox" checked style="accent-color: #166534; width: 18px; height: 18px"><dc-import name="Icon" i="volume" s="18" hint-size="18px,18px"></dc-import>Audio system</label>
+              <label class="radio-card is-on"><input type="checkbox" checked style="accent-color: #166534; width: 18px; height: 18px"><dc-import name="Icon" i="monitor" s="18" hint-size="18px,18px"></dc-import>Projector</label>
+              <label class="radio-card"><input type="checkbox" style="accent-color: #166534; width: 18px; height: 18px"><dc-import name="Icon" i="snow" s="18" hint-size="18px,18px"></dc-import>Air conditioning</label>
+            </div>
+          </fieldset>
+        </div></div>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="HallsList.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="HallDetail.dc.html">Add hall</a></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    return { invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', cap: v === 'invalid' ? '12000' : '350' };
+  }
+}
+</script>
+</body>
+</html>

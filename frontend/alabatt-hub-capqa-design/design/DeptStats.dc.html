@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Update department statistics · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dept" crumbs="Departments>Mathematics and Computer Science>Statistics" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Update department statistics</h1><p class="sub">Dept. of Mathematics and Computer Science</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="ds-sess">Session <span class="req" aria-hidden="true">*</span></label><select id="ds-sess" class="select"><option>2025/2026</option><option>2024/2025</option></select><span class="help">Last updated 2 Sep 2026 by Mrs. Ngozi Okafor</span></div>
+          <div class="field"><label class="label" for="ds-prof">Professors <span class="req" aria-hidden="true">*</span></label><input id="ds-prof" class="input num" type="number" min="0" value="6"></div>
+          <div class="field"><label class="label" for="ds-staff">Academic staff (total) <span class="req" aria-hidden="true">*</span></label><input id="ds-staff" class="input num {{invCls}}" type="number" min="0" value="{{staff}}" aria-invalid="{{invAria}}"><sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Total staff can’t be fewer than professors (6).</span></sc-if></div>
+          <div class="field span-2"><label class="label" for="ds-stu">Students enrolled <span class="req" aria-hidden="true">*</span></label><input id="ds-stu" class="input num" type="number" min="0" value="1062"></div>
+        </div></div>
+        <section class="card card-body" aria-live="polite">
+          <div class="row-between"><div><div class="t-sm muted">Staff-to-student ratio (preview)</div><div class="t-2xl strong num">1 : 28</div></div><div style="text-align: right"><div class="t-sm muted">NUC benchmark · Computer Science</div><div class="t-2xl strong num">1 : 30</div></div><span class="badge" data-s="pass">Meets benchmark</span></div>
+        </section>
+        <div class="action-bar"><a class="btn btn-secondary" href="DeptDetail.dc.html">Cancel</a><a class="btn btn-primary" href="DeptCompliance.dc.html"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save statistics</a></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { var v = this.props.view ?? 'default'; return { invalid: v === 'invalid', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', staff: v === 'invalid' ? '4' : '38' }; }
+}
+</script>
+</body>
+</html>

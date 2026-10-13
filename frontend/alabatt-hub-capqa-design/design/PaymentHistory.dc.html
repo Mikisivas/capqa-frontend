@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Payment history · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="pay" crumbs="Payments>Payment history" hint-size="100%,64px"></dc-import>
+    <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — test transactions only</div>
+    <main class="page">
+      <div class="page-head">
+        <div><h1 class="h1">Payment history</h1><p class="sub">All amounts in NGN</p></div>
+        <div class="row"><a class="btn btn-secondary" href="InvoiceList.dc.html"><dc-import name="Icon" i="receipt" s="16" hint-size="16px,16px"></dc-import>Invoices</a><button type="button" class="btn btn-secondary"><dc-import name="Icon" i="download" s="16" hint-size="16px,16px"></dc-import>Export CSV</button><a class="btn btn-primary" href="InvoiceGenerate.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Generate invoice</a></div>
+      </div>
+      <section class="grid-stats" aria-label="Totals">
+        <div class="card stat"><span class="s-label">Received this month</span><span class="s-value">₦ 412,500</span><span class="s-foot">18 successful payments</span></div>
+        <div class="card stat"><span class="s-label">Pending</span><span class="s-value">₦ 50,000</span><span class="s-foot">2 awaiting verification</span></div>
+        <div class="card stat"><span class="s-label">Failed</span><span class="s-value">3</span><span class="s-foot">this month</span></div>
+      </section>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Payer, invoice or reference"></span></label>
+          <label class="field"><span class="label">Status</span><select class="select"><option>All statuses</option><option>Pending</option><option>Successful</option><option>Failed</option></select></label>
+          <label class="field"><span class="label">From</span><input class="input" type="date" value="2026-10-01"></label>
+          <label class="field"><span class="label">To</span><input class="input" type="date" value="2026-10-12"></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Reference</th><th scope="col">Payer</th><th scope="col">Invoice</th><th scope="col">Description</th><th scope="col" class="r">Amount</th><th scope="col">Status</th><th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Date<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+                <tr class="{{r.cls}}"><td class="td-lead mono t-sm" data-label="Reference">{{r.ref}}<sc-if value="{{r.isNew}}" hint-placeholder-val="{{ false }}"> <span class="badge tone-success no-glyph">Just now</span></sc-if></td><td data-label="Payer">{{r.p}}</td><td data-label="Invoice"><a class="mono t-sm" href="InvoiceDetail.dc.html">{{r.inv}}</a></td><td data-label="Description">{{r.d}}</td><td data-label="Amount" class="r num strong">{{r.a}}</td><td data-label="Status"><span class="badge" data-s="pay-{{r.s}}">{{r.s}}</span></td><td data-label="Date" class="num">{{r.dt}}</td><td class="td-actions"><sc-if value="{{r.ok}}" hint-placeholder-val="{{ true }}"><a class="btn btn-ghost btn-sm" href="Receipt.dc.html">Receipt</a></sc-if></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of 64</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No payments in this period" text="Payments appear here once a payer completes checkout." cta="Generate invoice" href="InvoiceGenerate.dc.html" icon="card" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var R = [['TXN-T-7F21C9', 'Mrs. Ngozi Okafor', '0318', 'Hall booking fee — 1000-Seater Auditorium', 25000, 'Successful', '12 Oct 2026, 16:21', true], ['TXN-T-7F21D0', 'Mrs. Ngozi Okafor', '0318', 'Hall booking fee — 1000-Seater Auditorium', 25000, 'Failed', '12 Oct 2026, 16:18', false], ['TXN-T-7F1A44', 'Dept. of Accounting', '0315', 'Accreditation self-study review', 50000, 'Pending', '11 Oct 2026, 11:02', false], ['TXN-T-7F18B2', 'Dr. Rose Aondoakaa', '0312', 'Replacement staff ID card', 2500, 'Successful', '10 Oct 2026, 09:40', false], ['TXN-T-7F12E0', 'Faculty of Science', '0309', 'Exam hall booking — CSC 101', 75000, 'Successful', '8 Oct 2026, 14:15', false], ['TXN-T-7F0F31', 'Dept. of Theatre Arts', '0305', 'Arts Theatre booking — convocation play', 40000, 'Successful', '6 Oct 2026, 10:30', false], ['TXN-T-7F0B07', 'Mr. Peter Ikyaator', '0301', 'Late course file submission fee', 5000, 'Failed', '3 Oct 2026, 17:55', false], ['TXN-T-7F0911', 'Dept. of Economics', '0298', 'External examiner hosting', 120000, 'Successful', '1 Oct 2026, 12:20', false]];
+    return { isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      rows: R.map(function (r) { return { ref: r[0], p: r[1], inv: 'INV-2026-' + r[2], d: r[3], a: 'NGN ' + r[4].toLocaleString('en-NG') + '.00', s: r[5], dt: r[6], isNew: r[7], cls: r[7] ? 'is-selected' : '', ok: r[5] === 'Successful' }; }) };
+  }
+}
+</script>
+</body>
+</html>

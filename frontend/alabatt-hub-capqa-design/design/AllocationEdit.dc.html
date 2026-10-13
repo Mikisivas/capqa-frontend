@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit allocation · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Allocations>Edit allocation" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Edit allocation</h1><p class="sub">EDU 212 Curriculum Studies · Education Block LR 3 · Tue 14 Oct, 14:00–16:00</p></div><button type="button" class="btn btn-secondary" style="color: #b42318" onClick="{{openCancel}}"><dc-import name="Icon" i="x-circle" s="16" hint-size="16px,16px"></dc-import>Cancel allocation</button></div>
+      <div class="alert alert-warning"><span class="a-icon"><dc-import name="Icon" i="alert" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Currently overcrowded</div>142 students are booked into 120 seats (118%). Move to a larger hall or reduce the group.</div></div>
+      <form class="stack-lg">
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="ae-hall">Hall <span class="req" aria-hidden="true">*</span></label><select id="ae-hall" class="select"><option>Management Sciences Hall A — 500 seats</option><option>Education Block LR 3 — 120 seats</option></select><span class="help" style="color: #15703c; display: flex; gap: 6px; align-items: center"><dc-import name="Icon" i="check-circle" s="16" hint-size="16px,16px"></dc-import>Available at this time · 142 of 500 seats (28%)</span></div>
+          <div class="field"><label class="label" for="ae-course">Course <span class="opt">(optional)</span></label><input id="ae-course" class="input" value="EDU 212 — Curriculum Studies"></div>
+          <div class="field"><label class="label" for="ae-level">Level</label><select id="ae-level" class="select"><option>200</option></select></div>
+          <div class="field"><label class="label" for="ae-pur">Purpose</label><select id="ae-pur" class="select"><option>Class</option><option>Exam</option><option>Event</option></select></div>
+          <div class="field"><label class="label" for="ae-n">Expected students</label><input id="ae-n" class="input num" type="number" value="142"></div>
+          <div class="field"><label class="label" for="ae-s">Start</label><input id="ae-s" class="input" type="datetime-local" value="2026-10-14T14:00"></div>
+          <div class="field"><label class="label" for="ae-e">End</label><input id="ae-e" class="input" type="datetime-local" value="2026-10-14T16:00"></div>
+        </div></div>
+        <div class="action-bar"><a class="btn btn-secondary" href="Allocations.dc.html">Discard</a><a class="btn btn-primary" href="Allocations.dc.html"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save changes</a></div>
+      </form>
+    </main>
+  </div>
+  <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="ac-h">
+        <div class="modal-head"><div class="row" style="flex-wrap: nowrap; gap: 12px; align-items: flex-start"><span class="modal-icon danger"><dc-import name="Icon" i="calendar" s="20" hint-size="20px,20px"></dc-import></span><div><h2 class="h3" id="ac-h">Cancel this allocation?</h2><p class="t-sm muted" style="margin-top: 4px">Education Block LR 3 will be freed for Tue 14 Oct, 14:00–16:00. The course lecturer is notified.</p></div></div></div>
+        <div class="modal-body" style="padding-top: 0"><div class="field"><label class="label" for="ac-r">Reason <span class="opt">(optional)</span></label><input id="ac-r" class="input" value="Moved to Management Sciences Hall A"></div></div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{close}}">Keep allocation</button><a class="btn btn-danger" href="Allocations.dc.html">Cancel allocation</a></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dialog":{"editor":"enum","default":"none","options":["none","cancel"]},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { d: null }; }
+  renderVals() {
+    var self = this, d = this.state.d || (this.props.dialog ?? 'none');
+    return { open: d === 'cancel', openCancel: function () { self.setState({ d: 'cancel' }); }, close: function () { self.setState({ d: 'none' }); } };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My profile · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="none" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="none" crumbs="Account>My profile" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head">
+        <div><h1 class="h1">My profile</h1><p class="sub">Your account details as held by CAPQA.</p></div>
+        <a class="btn btn-secondary" href="EditProfile.dc.html"><dc-import name="Icon" i="edit" s="16" hint-size="16px,16px"></dc-import>Edit profile</a>
+      </div>
+      <section class="card">
+        <div class="card-body" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+          <span class="avatar avatar-lg">NO</span>
+          <div style="flex: 1 1 200px"><h2 class="h2">Mrs. Ngozi Okafor</h2><p class="muted">Academic Officer · Dept. of Mathematics and Computer Science</p></div>
+          <span class="badge" data-s="acct-Active">Active</span>
+        </div>
+        <hr class="divider">
+        <dl class="dl card-body" style="margin: 0">
+          <div><dt>Full name</dt><dd>Mrs. Ngozi Okafor</dd></div>
+          <div><dt>Username</dt><dd class="mono">n.okafor</dd></div>
+          <div><dt>Email</dt><dd>n.okafor@moau.edu.ng</dd></div>
+          <div><dt>Role</dt><dd>Academic Officer</dd></div>
+          <div><dt>Department</dt><dd>Dept. of Mathematics and Computer Science</dd></div>
+          <div><dt>Last login</dt><dd>Mon, 12 Oct 2026 · 08:42 WAT</dd></div>
+        </dl>
+      </section>
+      <div class="alert alert-info"><span class="a-icon"><dc-import name="Icon" i="info" s="18" hint-size="18px,18px"></dc-import></span><div>Your role is set by an administrator. Contact the CAPQA Admin office if it is wrong.</div></div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

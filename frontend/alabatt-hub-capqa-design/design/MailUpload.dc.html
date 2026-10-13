@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Upload documents · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dispatch" crumbs="E-Dispatch>Upload documents" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Upload documents</h1><p class="sub">Step 2 of 2 — attach scans to <span class="mono strong">CAPQA/DSP/2026/0145</span></p></div></div>
+      <ol class="stepper" aria-label="Progress"><li class="step done"><span class="bar"></span>1 · Mail details</li><li class="step current" aria-current="step"><span class="bar"></span>2 · Upload documents</li></ol>
+      <div class="alert alert-success" role="status"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Mail details saved</div>NUC accreditation visit — confirmation of resource verification · Office of the Registrar</div></div>
+      <form class="stack-lg">
+        <section class="card card-body stack" aria-labelledby="up-h">
+          <h2 class="h3" id="up-h">Documents</h2>
+          <label class="uploader {{dragCls}}" onDragEnter="{{dragOn}}" onDragLeave="{{dragOff}}">
+            <span class="ico-box" style="width: 48px; height: 48px"><dc-import name="Icon" i="upload" s="22" hint-size="22px,22px"></dc-import></span>
+            <span><span class="strong">Drag and drop files here</span> or <span style="color: #166534; font-weight: 600; text-decoration: underline">browse your device</span></span>
+            <span class="help">PDF, DOCX, JPG or PNG · up to 10 MB each · up to 10 files</span>
+            <input type="file" multiple class="sr-only">
+          </label>
+          <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px" aria-label="Files" aria-live="polite">
+            <li class="file-row"><span class="f-ico">PDF</span><div class="f-main"><span class="f-name">Registry_letter_NUC_visit_revised.pdf</span><span class="t-xs" style="color: #15703c; display: flex; gap: 4px; align-items: center"><dc-import name="Icon" i="check-circle" s="14" hint-size="14px,14px"></dc-import>Uploaded · 1.9 MB</span></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Remove Registry_letter_NUC_visit_revised.pdf"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></button></li>
+            <li class="file-row"><span class="f-ico" style="background: #eff6ff; color: #1d4ed8">DOC</span><div class="f-main"><span class="f-name">Resource_verification_checklist.docx</span><div class="progress" role="progressbar" aria-label="Uploading Resource_verification_checklist.docx" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><span style="width: 64%"></span></div><span class="t-xs muted">Uploading · 184 KB of 288 KB · 64%</span></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Cancel upload"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button></li>
+            <li class="file-row" style="border-color: #fecdca"><span class="f-ico">JPG</span><div class="f-main"><span class="f-name">scan_appendix_0031.jpg</span><span class="err"><dc-import name="Icon" i="alert-circle" s="14" hint-size="14px,14px"></dc-import>14.2 MB — larger than the 10 MB limit</span></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Remove scan_appendix_0031.jpg"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></button></li>
+          </ul>
+        </section>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="MailRecord.dc.html"><dc-import name="Icon" i="arrow-left" s="16" hint-size="16px,16px"></dc-import>Back</a>
+          <a class="btn btn-primary" href="MailDetail.dc.html">Finish<dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></a>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { drag: false }; }
+  renderVals() {
+    var self = this;
+    return { dragCls: this.state.drag ? 'is-drag' : '', dragOn: function () { self.setState({ drag: true }); }, dragOff: function () { self.setState({ drag: false }); } };
+  }
+}
+</script>
+</body>
+</html>

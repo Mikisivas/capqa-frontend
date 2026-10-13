@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Finalise audit · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="audit" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="audit" crumbs="Exam Hall Audit>AUD-2026-0087" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 600px; margin: 0 auto">
+      <sc-if value="{{locked}}" hint-placeholder-val="{{ false }}">
+        <div class="banner-locked" role="status"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import><span class="strong">Finalised — read-only</span><span class="muted">12 Oct 2026, 10:24 · Mr. Emmanuel Ochoga</span></div>
+      </sc-if>
+      <sc-if value="{{draft}}" hint-placeholder-val="{{ true }}">
+        <div class="alert alert-success" role="status"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Audit saved as draft</div>Review it, then finalise to share the result.</div></div>
+      </sc-if>
+      <div class="stack-sm"><div class="row"><span class="mono t-sm muted">AUD-2026-0087</span><span class="badge" data-s="life-{{life}}">{{life}}</span></div><h1 class="h1">Faculty of Science Lecture Theatre</h1><p class="muted">Audited 12 Oct 2026 by Mr. Emmanuel Ochoga</p></div>
+      <section class="card {{roCls}}">
+        <div class="card-body stack-sm">
+          <sc-for list="{{items}}" as="r" hint-placeholder-count="5"><div class="row-between"><span>{{r.n}}</span><span class="row" style="gap: 8px"><span class="stars-sm" aria-hidden="true"><sc-for list="{{r.st}}" as="s" hint-placeholder-count="5"><span style="color: {{s.c}}; display: flex"><dc-import name="Icon" i="star" s="16" f="{{ true }}" hint-size="16px,16px"></dc-import></span></sc-for></span><span class="strong num">{{r.v}}/5</span></span></div></sc-for>
+          <hr class="divider" style="margin: 8px 0">
+          <div class="row-between"><span class="strong">Result</span><span class="badge" data-s="aud-Needs Attention">Needs Attention</span></div>
+        </div>
+      </section>
+      <sc-if value="{{draft}}" hint-placeholder-val="{{ true }}">
+        <div class="action-bar"><a class="btn btn-secondary btn-lg" href="AuditWizard.dc.html">Edit</a><button type="button" class="btn btn-primary btn-lg" onClick="{{ask}}"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import>Finalise</button></div>
+      </sc-if>
+      <sc-if value="{{locked}}" hint-placeholder-val="{{ false }}">
+        <div class="action-bar"><a class="btn btn-primary btn-lg" href="AuditSummary.dc.html">View result summary</a></div>
+      </sc-if>
+    </main>
+  </div>
+  <sc-if value="{{confirm}}" hint-placeholder-val="{{ true }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="fz-h" aria-describedby="fz-d">
+        <div class="modal-body" style="align-items: center; text-align: center; padding-top: 28px">
+          <span class="modal-icon brand"><dc-import name="Icon" i="lock" s="22" hint-size="22px,22px"></dc-import></span>
+          <h2 class="h2" id="fz-h">Finalise this audit?</h2>
+          <p class="muted" id="fz-d">Finalised audits become read-only. The result <span class="badge" data-s="aud-Needs Attention">Needs Attention</span> is shared with the Director and the hall’s department.</p>
+        </div>
+        <div class="modal-foot"><button type="button" class="btn btn-secondary" onClick="{{cancel}}">Not yet</button><button type="button" class="btn btn-primary" onClick="{{finalise}}">Finalise audit</button></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"confirm","options":["draft","confirm","locked"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { v: null }; }
+  renderVals() {
+    var self = this, v = this.state.v || (this.props.view ?? 'confirm');
+    var I = [['Ventilation', 3], ['Lighting', 4], ['Seating', 4], ['Audio system', 2], ['Cleanliness', 4]];
+    return {
+      locked: v === 'locked', draft: v !== 'locked', confirm: v === 'confirm', life: v === 'locked' ? 'Finalised' : 'Draft', roCls: v === 'locked' ? 'readonly' : '',
+      items: I.map(function (i) { return { n: i[0], v: i[1], st: [1, 2, 3, 4, 5].map(function (n) { return { c: n <= i[1] ? '#d97706' : '#cbd5e1' }; }) }; }),
+      ask: function () { self.setState({ v: 'confirm' }); }, cancel: function () { self.setState({ v: 'draft' }); }, finalise: function () { self.setState({ v: 'locked' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

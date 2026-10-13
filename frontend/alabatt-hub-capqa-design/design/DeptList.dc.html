@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Departments · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dept" crumbs="Departments>All departments" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div><h1 class="h1">Departments and accreditation</h1><p class="sub">Session 2025/2026 · 24 departments</p></div>
+        <div class="row">
+          <a class="btn btn-secondary" href="ComplianceDashboard.dc.html"><dc-import name="Icon" i="shield" s="16" hint-size="16px,16px"></dc-import>Compliance dashboard</a>
+          <a class="btn btn-secondary" href="NucBenchmark.dc.html">NUC benchmarks</a>
+          <a class="btn btn-primary" href="DeptAdd.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Add department</a>
+        </div>
+      </div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Department name"></span></label>
+          <label class="field"><span class="label">Faculty</span><select class="select"><option>All faculties</option><option>Science</option><option>Management Sciences</option><option>Social Sciences</option><option>Arts</option><option>Education</option></select></label>
+          <label class="field"><span class="label">Compliance</span><select class="select"><option>All</option><option>Meets NUC ratio</option><option>Below NUC ratio</option></select></label>
+          <label class="field"><span class="label">Session</span><select class="select"><option>2025/2026</option><option>2024/2025</option></select></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Department</th><th scope="col" class="r">Staff</th><th scope="col" class="r">Students</th><th scope="col" class="r">Ratio</th><th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Quality score<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Compliance</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+                <tr><td class="td-lead" data-label="Department"><a class="strong" href="DeptDetail.dc.html">{{r.n}}</a><br><span class="t-xs muted">Faculty of {{r.f}}</span></td><td data-label="Staff" class="r num">{{r.st}}</td><td data-label="Students" class="r num">{{r.su}}</td><td data-label="Ratio" class="r num">1 : {{r.ratio}}</td><td data-label="Quality score"><div style="display: flex; gap: 10px; align-items: center; min-width: 140px"><div class="progress" style="flex: 1 1 auto"><span style="width: {{r.qw}}; background: {{r.qc}}"></span></div><span class="num strong" style="width: 28px; text-align: right">{{r.q}}</span></div></td><td data-label="Compliance"><span class="badge" data-s="{{r.cs}}">{{r.ct}}</span></td><td class="td-actions"><a class="btn btn-ghost btn-sm" href="DeptDetail.dc.html">Open</a></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of 24</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No departments yet" text="Add departments to record staff, students, courses and accreditation." cta="Add department" href="DeptAdd.dc.html" icon="landmark" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var R = [['Mathematics and Computer Science', 'Science', 38, 1062, 30, 82], ['Accounting', 'Management Sciences', 26, 940, 30, 78], ['Economics', 'Social Sciences', 22, 780, 30, 74], ['Biological Sciences', 'Science', 31, 590, 20, 71], ['Physics', 'Science', 18, 420, 20, 64], ['English', 'Arts', 15, 410, 25, 58], ['History', 'Arts', 9, 300, 25, 52], ['Theatre Arts', 'Arts', 8, 280, 25, 41]];
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      rows: R.map(function (r) { var ratio = Math.round(r[3] / r[2]), pass = ratio <= r[4]; return { n: r[0], f: r[1], st: r[2], su: r[3].toLocaleString('en-NG'), ratio: ratio, q: r[5], qw: r[5] + '%', qc: r[5] >= 70 ? '#1a763f' : r[5] >= 50 ? '#d97706' : '#dc2626', cs: pass ? 'pass' : 'fail', ct: pass ? 'Meets NUC ratio' : 'Below NUC ratio' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

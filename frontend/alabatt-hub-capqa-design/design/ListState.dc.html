@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>List state</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="capqa" style="background: #fff; font-family: 'IBM Plex Sans', system-ui, sans-serif; width: 100%">
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+    <div role="status" aria-live="polite" aria-busy="true" style="display: flex; flex-direction: column">
+      <span class="sr-only">Loading…</span>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: 2fr 3fr 2fr 1fr; gap: 24px; align-items: center; padding: 16px; border-bottom: 1px solid #e2e8f0">
+          <span class="sk" style="height: 12px; width: {{r.a}}"></span>
+          <span class="sk" style="height: 12px; width: {{r.b}}"></span>
+          <span class="sk" style="height: 12px; width: 70%"></span>
+          <span class="sk" style="height: 22px; width: 72px; border-radius: 9999px"></span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ true }}">
+    <div class="empty">
+      <span class="e-icon"><dc-import name="Icon" i="{{icon}}" s="26" hint-size="26px,26px"></dc-import></span>
+      <h3 class="h3">{{title}}</h3>
+      <p>{{text}}</p>
+      <sc-if value="{{hasCta}}" hint-placeholder-val="{{ true }}">
+        <a class="btn btn-primary" href="{{href}}"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>{{cta}}</a>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+    <div class="empty" role="alert">
+      <span class="e-icon bad"><dc-import name="Icon" i="alert-circle" s="26" hint-size="26px,26px"></dc-import></span>
+      <h3 class="h3">{{errTitle}}</h3>
+      <p>{{errText}}</p>
+      <div class="row" style="justify-content: center">
+        <button type="button" class="btn btn-secondary"><dc-import name="Icon" i="refresh" s="16" hint-size="16px,16px"></dc-import>Try again</button>
+      </div>
+      <span class="t-xs muted mono">Error reference: REQ-7F21C</span>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","default":"empty","options":["loading","empty","error"]},"title":{"editor":"text","default":"Nothing here yet"},"text":{"editor":"text","default":"Records you add will appear here."},"cta":{"editor":"text","default":""},"href":{"editor":"text","default":"#"},"icon":{"editor":"text","default":"inbox"},"$preview":{"width":800,"height":360}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var k = this.props.kind ?? 'empty';
+    var w = [['60%', '80%'], ['75%', '55%'], ['50%', '70%'], ['68%', '85%'], ['58%', '62%'], ['72%', '50%']];
+    var cta = this.props.cta ?? '';
+    return {
+      isLoading: k === 'loading', isEmpty: k === 'empty', isError: k === 'error',
+      rows: w.map(function (x) { return { a: x[0], b: x[1] }; }),
+      title: this.props.title ?? 'Nothing here yet', text: this.props.text ?? 'Records you add will appear here.',
+      cta: cta, hasCta: cta !== '', href: this.props.href ?? '#', icon: this.props.icon ?? 'inbox',
+      errTitle: 'We couldn’t load this list', errText: 'The server didn’t respond. Check your connection and try again. If it keeps happening, contact the ICT Directorate with the reference below.'
+    };
+  }
+}
+</script>
+</body>
+</html>

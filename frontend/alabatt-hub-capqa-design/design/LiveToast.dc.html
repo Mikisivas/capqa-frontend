@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Live update toast · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="dispatch" crumbs="E-Dispatch>Mail list" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Mail list</h1><p class="sub">Updates arrive live — no need to refresh.</p></div><button type="button" class="btn btn-secondary" onClick="{{again}}"><dc-import name="Icon" i="bell" s="16" hint-size="16px,16px"></dc-import>Replay live event</button></div>
+      <div class="card"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></div>
+    </main>
+  </div>
+  <div class="toasts" aria-live="polite">
+    <sc-if value="{{show}}" hint-placeholder-val="{{ true }}">
+      <div class="toast toast-live" role="status">
+        <span class="t-icon"><dc-import name="Icon" i="stamp" s="16" hint-size="16px,16px"></dc-import></span>
+        <div class="t-body">
+          <div class="row-between"><span class="t-title">New approval request</span><span class="t-xs muted">now</span></div>
+          <div class="t-text"><span class="mono">CAPQA/DSP/2026/0144</span> · Release of 2nd semester examination allowances · from the Bursary Department</div>
+          <div class="row" style="margin-top: 10px"><a class="btn btn-primary btn-sm" href="MailApproval.dc.html">Review</a><button type="button" class="btn btn-ghost btn-sm" onClick="{{hide}}">Dismiss</button></div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{show}}" hint-placeholder-val="{{ true }}">
+      <div class="toast toast-success" role="status"><span class="t-icon"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">Mail forwarded</div><div class="t-text">CAPQA/DSP/2026/0141 sent to Mr. Emmanuel Ochoga.</div></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Dismiss" onClick="{{hide}}"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button></div>
+      <div class="toast toast-error" role="alert"><span class="t-icon"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">Connection lost</div><div class="t-text">Live updates paused. Reconnecting in 10 s…</div></div><button type="button" class="btn btn-ghost btn-sm">Retry now</button></div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { show: true }; }
+  renderVals() { var self = this; return { show: this.state.show, hide: function () { self.setState({ show: false }); }, again: function () { self.setState({ show: false }); setTimeout(function () { self.setState({ show: true }); }, 400); } }; }
+}
+</script>
+</body>
+</html>

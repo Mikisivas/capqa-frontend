@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit result · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="audit" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="audit" crumbs="Exam Hall Audit>AUD-2026-0087>Result" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 760px; margin: 0 auto">
+      <section role="status" style="border-radius: 12px; padding: 24px; background: {{bg}}; border: 1px solid {{bd}}; color: {{fg}}; display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap">
+        <span style="display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: {{fg}}; color: #fff; flex: none"><dc-import name="Icon" i="{{icon}}" s="28" hint-size="28px,28px"></dc-import></span>
+        <div style="flex: 1 1 240px"><span class="eyebrow" style="color: inherit">Audit result</span><h1 class="h1" style="color: inherit">{{result}}</h1><p style="margin-top: 4px">{{msg}}</p></div>
+        <div style="text-align: right"><div class="t-3xl strong num">{{avg}}</div><div class="t-xs">average of 5 items</div></div>
+      </section>
+      <div class="banner-locked"><dc-import name="Icon" i="lock" s="18" hint-size="18px,18px"></dc-import><span class="strong">Finalised — read-only</span><span class="muted">AUD-2026-0087 · 12 Oct 2026, 10:24</span></div>
+      <section class="card">
+        <div class="card-head"><div><h2 class="h3">Faculty of Science Lecture Theatre</h2><p class="t-sm muted">Faculty of Science Complex · 350 seats · audited by Mr. Emmanuel Ochoga</p></div></div>
+        <div class="card-body stack">
+          <sc-for list="{{items}}" as="r" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center">
+              <span style="color: #475569; display: flex"><dc-import name="Icon" i="{{r.i}}" s="20" hint-size="20px,20px"></dc-import></span>
+              <div class="stack-sm" style="gap: 4px"><span class="strong">{{r.n}}</span><div class="progress" style="height: 6px" role="img" aria-label="{{r.n}} {{r.v}} of 5"><span style="width: {{r.w}}; background: {{r.c}}"></span></div></div>
+              <span class="num strong">{{r.v}} / 5</span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      <section class="card card-body stack-sm"><h2 class="h3">Comments</h2><p>Two ceiling fans on the east side are not working. Seating is adequate for 350; 12 broken chairs were removed. Audio system cuts out at the back rows.</p>
+        <div class="row" style="margin-top: 8px"><div style="width: 96px; height: 72px; border-radius: 8px; background: #e2e8f0; display: grid; place-items: center; color: #475569" role="img" aria-label="Photo: ventilation fans"><dc-import name="Icon" i="camera" s="20" hint-size="20px,20px"></dc-import></div><div style="width: 96px; height: 72px; border-radius: 8px; background: #e2e8f0; display: grid; place-items: center; color: #475569" role="img" aria-label="Photo: speaker at rear"><dc-import name="Icon" i="camera" s="20" hint-size="20px,20px"></dc-import></div></div>
+      </section>
+      <div class="action-bar"><a class="btn btn-secondary btn-lg" href="HallAuditHistory.dc.html"><dc-import name="Icon" i="history" s="18" hint-size="18px,18px"></dc-import>Hall history</a><button type="button" class="btn btn-secondary btn-lg"><dc-import name="Icon" i="printer" s="18" hint-size="18px,18px"></dc-import>Print</button><a class="btn btn-primary btn-lg" href="AuditsList.dc.html">Done</a></div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"result":{"editor":"enum","default":"Needs Attention","options":["Suitable","Needs Attention","Not Suitable"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var r = this.props.result ?? 'Needs Attention';
+    var T = {
+      'Suitable': ['#ecfdf3', '#abefc6', '#15703c', 'check-circle', 'This hall is ready for examinations.'],
+      'Needs Attention': ['#fffaeb', '#fedf89', '#93370d', 'alert', 'Usable after fixes: ventilation and the audio system scored below 3.'],
+      'Not Suitable': ['#fef3f2', '#fecdca', '#b42318', 'x-circle', 'Do not use this hall for examinations until it is re-audited.']
+    }[r];
+    var I = [['Ventilation', 'wind', 3], ['Lighting', 'sun', 4], ['Seating', 'seat', 4], ['Audio system', 'volume', 2], ['Cleanliness', 'sparkles', 4]];
+    return {
+      result: r, bg: T[0], bd: T[1], fg: T[2], icon: T[3], msg: T[4], avg: '3.4',
+      items: I.map(function (i) { return { n: i[0], i: i[1], v: i[2], w: (i[2] * 20) + '%', c: i[2] >= 4 ? '#1a763f' : i[2] === 3 ? '#d97706' : '#dc2626' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

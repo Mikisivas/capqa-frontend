@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Role permissions · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="settings" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="settings" crumbs="Administration>Role permissions" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Role permissions</h1><p class="sub">Admin always has every permission. Changes apply at each user’s next sign-in.</p></div><div class="row"><a class="btn btn-secondary" href="SecuritySettings.dc.html">Security settings</a><button type="button" class="btn btn-primary" disabled="{{clean}}"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save changes{{dirtyTxt}}</button></div></div>
+      <div class="tabs" role="tablist"><a class="tab" role="tab" aria-selected="true" href="RolePermissions.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Role permissions</a><a class="tab" role="tab" aria-selected="false" href="SecuritySettings.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Security</a><a class="tab" role="tab" aria-selected="false" href="Backup.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Backup</a></div>
+      <section class="card">
+        <div class="table-wrap"><table class="table" style="min-width: 760px">
+          <caption class="sr-only">Permissions by role. Checked means allowed.</caption>
+          <thead><tr><th scope="col" style="width: 38%">Permission</th><sc-for list="{{roles}}" as="r" hint-placeholder-count="5"><th scope="col" style="text-align: center">{{r}}</th></sc-for></tr></thead>
+          <tbody>
+            <sc-for list="{{groups}}" as="g" hint-placeholder-count="6">
+              <tr><th scope="rowgroup" colspan="6" style="background: #fff; font-size: 13px; color: #0f172a; padding-top: 16px">{{g.n}}</th></tr>
+              <sc-for list="{{g.perms}}" as="p" hint-placeholder-count="3">
+                <tr><th scope="row" style="font-weight: 400; font-size: 14px; letter-spacing: 0; color: #1e293b; background: #fff; position: static">{{p.n}}</th>
+                  <sc-for list="{{p.cells}}" as="c" hint-placeholder-count="5"><td style="text-align: center"><input type="checkbox" checked="{{c.on}}" disabled="{{c.lock}}" onChange="{{c.flip}}" aria-label="{{c.label}}" style="width: 20px; height: 20px; accent-color: #166534"></td></sc-for>
+                </tr>
+              </sc-for>
+            </sc-for>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { over: {} }; }
+  renderVals() {
+    var self = this, roles = ['Admin', 'Director', 'Academic Officer', 'Quality Inspector', 'Viewer'], codes = ['A', 'D', 'O', 'Q', 'V'];
+    var G = [
+      ['E-Dispatch', [['View mail', 'ADOV'], ['Record and edit mail', 'AO'], ['Assign and forward', 'ADO'], ['Approve or reject (stamp)', 'D'], ['Archive and delete', 'A']]],
+      ['Classrooms and Halls', [['View halls and timetable', 'ADOQV'], ['Add and edit halls', 'A'], ['Allocate halls', 'ADO']]],
+      ['Exam Hall Audit', [['View audits', 'ADQ'], ['Create and finalise audits', 'AQ']]],
+      ['Staff Evaluation (confidential)', [['View evaluations', 'ADQ'], ['Create evaluations', 'ADQ']]],
+      ['Departments and Reports', [['Edit departments, staff, courses', 'AO'], ['Record quality scores', 'AQ'], ['Build reports', 'ADOQ'], ['Finalise reports', 'AD']]],
+      ['Payments and Administration', [['Generate invoices', 'A'], ['Manage users and roles', 'A'], ['View audit log', 'A']]]
+    ];
+    var over = this.state.over, n = Object.keys(over).length;
+    return {
+      roles: roles, clean: n === 0, dirtyTxt: n ? ' (' + n + ')' : '',
+      groups: G.map(function (g) { return { n: g[0], perms: g[1].map(function (p) { return { n: p[0], cells: codes.map(function (c, i) {
+        var key = p[0] + '|' + c, base = p[1].indexOf(c) >= 0, on = key in over ? over[key] : base, lock = c === 'A';
+        return { on: on, lock: lock, label: roles[i] + ': ' + p[0], flip: function () { var o = Object.assign({}, self.state.over); if (key in o) delete o[key]; else o[key] = !base; self.setState({ over: o }); } };
+      }) }; }) }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

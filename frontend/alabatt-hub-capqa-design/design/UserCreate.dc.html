@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Create user · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="users" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="users" crumbs="Administration>Users>Create user" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Create user</h1><p class="sub">The account is active straight away. We email a link to set a password.</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="uc-name">Full name <span class="req" aria-hidden="true">*</span></label><input id="uc-name" class="input" value="Mrs. Mwuese Ugbede" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="uc-user">Username <span class="req" aria-hidden="true">*</span></label><input id="uc-user" class="input mono {{invCls}}" value="{{user}}" aria-invalid="{{invAria}}" disabled="{{saving}}"><sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>This username is taken.</span></sc-if><span class="help">3–50 characters: letters, numbers, . _ -</span></div>
+          <div class="field"><label class="label" for="uc-email">Email <span class="req" aria-hidden="true">*</span></label><input id="uc-email" class="input" type="email" value="m.ugbede@moau.edu.ng" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="uc-role">Role <span class="req" aria-hidden="true">*</span></label><select id="uc-role" class="select" disabled="{{saving}}"><option>Quality Inspector</option><option>Admin</option><option>Director</option><option>Academic Officer</option><option>Viewer</option></select></div>
+          <div class="field"><label class="label" for="uc-dept">Department <span class="opt">(optional)</span></label><select id="uc-dept" class="select" disabled="{{saving}}"><option>— CAPQA (no department) —</option><option>Mathematics and Computer Science</option></select></div>
+          <label class="check span-2"><input type="checkbox" checked>Email a “set your password” link (expires in 48 hours)</label>
+        </div></div>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="Users.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Creating…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="Users.dc.html"><dc-import name="Icon" i="user-plus" s="16" hint-size="16px,16px"></dc-import>Create user</a></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { var v = this.props.view ?? 'default'; return { invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', user: v === 'invalid' ? 'e.ochoga' : 'm.ugbede' }; }
+}
+</script>
+</body>
+</html>

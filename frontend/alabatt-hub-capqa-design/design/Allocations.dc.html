@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Allocations · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Allocations" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Allocations</h1><p class="sub">Hall bookings for classes, exams and events.</p></div><div class="row"><a class="btn btn-secondary" href="Timetable.dc.html"><dc-import name="Icon" i="calendar" s="16" hint-size="16px,16px"></dc-import>Timetable view</a><a class="btn btn-primary" href="HallAllocate.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Allocate hall</a></div></div>
+      <div class="tabs" role="tablist" aria-label="Halls views">
+        <a class="tab" role="tab" aria-selected="false" href="HallsList.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Halls</a>
+        <a class="tab" role="tab" aria-selected="true" href="Allocations.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Allocations</a>
+        <a class="tab" role="tab" aria-selected="false" href="Timetable.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Timetable</a>
+        <a class="tab" role="tab" aria-selected="false" href="CapacityAnalysis.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Capacity analysis</a>
+      </div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field"><span class="label">Department</span><select class="select"><option>All departments</option><option>Mathematics and Computer Science</option><option>Physics</option><option>Accounting</option></select></label>
+          <label class="field"><span class="label">Level</span><select class="select"><option>All levels</option><option>100</option><option>200</option><option>300</option><option>400</option><option>500</option><option>600</option></select></label>
+          <label class="field"><span class="label">From</span><input class="input" type="datetime-local" value="2026-10-13T08:00"></label>
+          <label class="field"><span class="label">To</span><input class="input" type="datetime-local" value="2026-10-17T18:00"></label>
+          <button type="button" class="btn btn-secondary">Apply</button>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Hall</th><th scope="col">Course / event</th><th scope="col">Purpose</th><th scope="col">Level</th><th scope="col" class="r">Students</th><th scope="col" aria-sort="ascending"><button type="button" class="th-sort is-active">Start<dc-import name="Icon" i="arrow-up" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">End</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+                <tr class="{{r.cls}}"><td class="td-lead" data-label="Hall"><a class="strong" href="HallDetail.dc.html">{{r.h}}</a></td><td data-label="Course">{{r.c}}</td><td data-label="Purpose"><span class="badge" data-s="pur-{{r.p}}">{{r.p}}</span></td><td data-label="Level">{{r.l}}</td><td data-label="Students" class="r num"><span class="strong">{{r.n}}</span> <span class="muted">/ {{r.cap}}</span><sc-if value="{{r.over}}" hint-placeholder-val="{{ false }}"><br><span class="badge" data-s="hall-Overcrowded">Overcrowded</span></sc-if></td><td data-label="Start" class="num">{{r.s}}</td><td data-label="End" class="num">{{r.e}}</td><td class="td-actions"><div class="row" style="flex-wrap: nowrap; justify-content: flex-end; gap: 4px"><a class="btn btn-ghost btn-sm" href="AllocationEdit.dc.html">Edit</a><a class="btn btn-ghost btn-sm" href="AllocationEdit.dc.html" style="color: #b42318">Cancel</a></div></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–8 of 64 this week</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No allocations in this time window" text="Widen the dates or clear the department and level filters." cta="Allocate hall" href="HallAllocate.dc.html" icon="calendar" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+  <sc-if value="{{toast}}" hint-placeholder-val="{{ true }}">
+    <div class="toasts"><div class="toast toast-success" role="status"><span class="t-icon"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div class="t-body"><div class="t-title">Hall allocated</div><div class="t-text">Arts Theatre · CSC 101 Exam · Wed 15 Oct, 12:00–15:00</div></div><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Dismiss" onClick="{{dismiss}}"><dc-import name="Icon" i="x" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { toast: true }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default';
+    var R = [['Faculty of Science Lecture Theatre', 'CMP 411 Software Engineering', 'Class', '400', 118, 350, 'Mon 13 Oct 08:00', '10:00'], ['Management Sciences Hall B', 'ACC 301 Financial Reporting', 'Class', '300', 276, 250, 'Mon 13 Oct 10:00', '12:00'], ['Faculty of Science Lecture Theatre', 'MTH 201 Mathematical Methods', 'Class', '200', 290, 350, 'Tue 14 Oct 10:00', '12:00'], ['Education Block LR 3', 'EDU 212 Curriculum Studies', 'Class', '200', 142, 120, 'Tue 14 Oct 14:00', '16:00'], ['Arts Theatre', 'CSC 101 Introduction to Computing', 'Exam', '100', 380, 400, 'Wed 15 Oct 12:00', '15:00'], ['1000-Seater Auditorium', 'Matriculation ceremony rehearsal', 'Event', '—', 850, 1000, 'Thu 16 Oct 10:00', '14:00'], ['ICT Centre Lab 2', 'CMP 211 Programming II (practical)', 'Class', '200', 72, 80, 'Thu 16 Oct 14:00', '17:00'], ['Faculty of Science Lecture Theatre', 'STA 211 Probability I', 'Exam', '200', 310, 350, 'Fri 17 Oct 09:00', '12:00']];
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error', toast: this.state.toast && v === 'default',
+      dismiss: function () { self.setState({ toast: false }); },
+      rows: R.map(function (r) { var over = r[4] > r[5]; return { h: r[0], c: r[1], p: r[2], l: r[3], n: r[4], cap: r[5], s: r[6], e: r[7], over: over, cls: over ? 'is-warn' : '' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

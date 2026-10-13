@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mail list · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dispatch" crumbs="E-Dispatch>Mail list" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div><h1 class="h1">Mail list</h1><p class="sub">Incoming mail recorded by CAPQA, session 2025/2026.</p></div>
+        <div class="row">
+          <a class="btn btn-secondary" href="MailArchive.dc.html"><dc-import name="Icon" i="archive" s="16" hint-size="16px,16px"></dc-import>Archive</a>
+          <a class="btn btn-primary" href="MailRecord.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Record mail</a>
+        </div>
+      </div>
+      <section class="card" aria-label="Mail">
+        <form class="filter-bar" role="search">
+          <label class="field grow"><span class="label">Search</span><span class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Reference, sender or subject"></span></label>
+          <label class="field"><span class="label">Status</span><select class="select"><option>All statuses</option><option>Draft</option><option>Pending</option><option>Forwarded</option><option>Reviewed</option><option>Approved</option><option>Rejected</option></select></label>
+          <label class="field"><span class="label">Priority</span><select class="select"><option>All priorities</option><option>High</option><option>Medium</option><option>Low</option></select></label>
+          <label class="field"><span class="label">Assigned to</span><select class="select"><option>Anyone</option><option>Prof. Msughter Iorkyaa</option><option>Mrs. Ngozi Okafor</option><option>Mr. Emmanuel Ochoga</option><option>Unassigned</option></select></label>
+          <fieldset class="field" style="flex: 2 1 300px; border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Date received</legend><div class="row" style="flex-wrap: nowrap"><input class="input" type="date" value="2026-09-01" aria-label="From"><span class="muted">to</span><input class="input" type="date" value="2026-10-12" aria-label="To"></div></fieldset>
+          <label class="field"><span class="label">Sort by</span><select class="select"><option>Date received · newest first</option><option>Date received · oldest first</option><option>Priority · high to low</option><option>Priority · low to high</option><option>Sender · A–Z</option><option>Sender · Z–A</option><option>Status · A–Z</option><option>Status · Z–A</option></select></label>
+          <button type="button" class="btn btn-ghost">Clear</button>
+        </form>
+        <div class="chips" style="padding: 12px 16px 0" aria-label="Active filters">
+          <span class="chip">Received 1 Sep – 12 Oct 2026<button type="button" aria-label="Remove date filter"><dc-import name="Icon" i="x" s="14" hint-size="14px,14px"></dc-import></button></span>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div>
+            <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+              <div class="bulk-bar" style="margin-top: 12px"><span>{{selCount}} selected</span><a class="btn btn-secondary btn-sm" href="MailAssign.dc.html"><dc-import name="Icon" i="forward" s="16" hint-size="16px,16px"></dc-import>Assign / forward</a><a class="btn btn-secondary btn-sm" href="MailArchive.dc.html"><dc-import name="Icon" i="archive" s="16" hint-size="16px,16px"></dc-import>Archive</a><button type="button" class="btn btn-ghost btn-sm" onClick="{{clearSel}}">Clear selection</button></div>
+            </sc-if>
+            <div class="table-wrap" style="margin-top: 12px"><table class="table table-stack">
+              <thead><tr>
+                <th class="td-check" scope="col"><input type="checkbox" aria-label="Select all on this page"></th>
+                <th scope="col">Subject and reference no.</th>
+                <th scope="col"><button type="button" class="th-sort">Sender<dc-import name="Icon" i="sort" s="14" hint-size="14px,14px"></dc-import></button></th>
+                <th scope="col"><button type="button" class="th-sort">Priority<dc-import name="Icon" i="sort" s="14" hint-size="14px,14px"></dc-import></button></th>
+                <th scope="col"><button type="button" class="th-sort">Status<dc-import name="Icon" i="sort" s="14" hint-size="14px,14px"></dc-import></button></th>
+                <th scope="col">Assigned to</th>
+                <th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Date received<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th>
+                <th scope="col" class="r"><span class="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+                  <tr class="{{r.selCls}}">
+                    <td class="td-check"><input type="checkbox" checked="{{r.sel}}" onChange="{{r.toggle}}" aria-label="Select {{r.ref}}"></td>
+                    <td class="td-lead" data-label="Subject" style="min-width: 280px"><a href="MailDetail.dc.html" class="strong" style="color: #0f172a; text-decoration: none">{{r.subj}}</a><span class="cell-sub mono">{{r.ref}}</span></td>
+                    <td data-label="Sender" style="min-width: 160px">{{r.from}}</td>
+                    <td data-label="Priority"><span class="badge" data-s="pri-{{r.pri}}">{{r.pri}}</span></td>
+                    <td data-label="Status"><span class="badge" data-s="mail-{{r.st}}">{{r.st}}</span></td>
+                    <td data-label="Assigned to" style="min-width: 150px">{{r.to}}</td>
+                    <td data-label="Received" class="num" style="white-space: nowrap">{{r.date}}</td>
+                    <td class="td-actions"><a class="btn btn-ghost btn-sm" href="MailDetail.dc.html" aria-label="Open {{r.ref}}">Open<dc-import name="Icon" i="chev-right" s="14" hint-size="14px,14px"></dc-import></a></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table></div>
+            <div class="pagination"><span>Showing 1–10 of 148</span>
+              <div class="row"><label class="row t-sm" style="gap: 6px">Rows <select class="select" style="width: 84px; height: 36px"><option>10</option><option>20</option><option>50</option></select></label>
+              <div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" disabled>…</button><button type="button">15</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><div style="margin-top: 12px"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></div></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No mail recorded yet" text="When the Registry or a department sends mail to CAPQA, record it here so it can be assigned, reviewed and approved." cta="Record mail" href="MailRecord.dc.html" icon="mail" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: {} }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default', sel = this.state.sel;
+    var R = [
+      ['0144', 'Bursary Department', 'Release of 2nd semester examination allowances', 'High', 'Pending', 'Prof. Msughter Iorkyaa', '12 Oct 2026'],
+      ['0143', 'Dept. of Mathematics and Computer Science', 'CMP 411 course file for NUC review', 'Medium', 'Draft', 'Unassigned', '11 Oct 2026'],
+      ['0142', 'Office of the Registrar', 'NUC accreditation visit — revised schedule', 'High', 'Pending', 'Prof. Msughter Iorkyaa', '10 Oct 2026'],
+      ['0141', 'Faculty of Science', 'Request for course file audit', 'Medium', 'Forwarded', 'Mr. Emmanuel Ochoga', '9 Oct 2026'],
+      ['0140', 'Faculty of Science', 'Request for additional exam halls, 2nd semester', 'High', 'Reviewed', 'Prof. Msughter Iorkyaa', '8 Oct 2026'],
+      ['0139', 'National Universities Commission', 'Updated BMAS for Computer Science', 'High', 'Approved', 'Mrs. Ngozi Okafor', '7 Oct 2026'],
+      ['0138', 'Dept. of Theatre Arts', 'Use of Arts Theatre for convocation play', 'Low', 'Rejected', 'Mrs. Ngozi Okafor', '6 Oct 2026'],
+      ['0137', 'Bursary Department', 'Staff development workshop budget', 'Medium', 'Pending', 'Prof. Msughter Iorkyaa', '6 Oct 2026'],
+      ['0136', 'Directorate of ICT', 'Projector replacement for lecture theatres', 'Medium', 'Approved', 'Mrs. Ngozi Okafor', '3 Oct 2026'],
+      ['0135', 'Dept. of Economics', 'Request for external examiner list', 'Low', 'Forwarded', 'Mr. Emmanuel Ochoga', '2 Oct 2026']
+    ];
+    var n = Object.keys(sel).filter(function (k) { return sel[k]; }).length;
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      hasSel: n > 0, selCount: n, clearSel: function () { self.setState({ sel: {} }); },
+      rows: R.map(function (r) {
+        var ref = 'CAPQA/DSP/2026/' + r[0], on = !!sel[r[0]];
+        return { ref: ref, from: r[1], subj: r[2], pri: r[3], st: r[4], to: r[5], date: r[6], sel: on, selCls: on ? 'is-selected' : '',
+          toggle: function () { var s = Object.assign({}, self.state.sel); s[r[0]] = !on; self.setState({ sel: s }); } };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

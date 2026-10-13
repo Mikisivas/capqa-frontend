@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Security settings · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="settings" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="settings" crumbs="Administration>Security settings" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Security settings</h1><p class="sub">Applies to every CAPQA account.</p></div></div>
+      <div class="tabs" role="tablist"><a class="tab" role="tab" aria-selected="false" href="RolePermissions.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Role permissions</a><a class="tab" role="tab" aria-selected="true" href="SecuritySettings.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Security</a><a class="tab" role="tab" aria-selected="false" href="Backup.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Backup</a></div>
+      <sc-if value="{{saved}}" hint-placeholder-val="{{ false }}"><div class="alert alert-success" role="status"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div>Security settings saved. Recorded in the audit log.</div></div></sc-if>
+      <form class="stack-lg">
+        <section class="card"><div class="card-head"><h2 class="h3">Password rules</h2></div><div class="card-body stack">
+          <div class="grid-form">
+            <div class="field"><label class="label" for="ss-min">Minimum length</label><input id="ss-min" class="input num" type="number" min="8" max="64" value="8"><span class="help">8 to 64 characters</span></div>
+            <div class="field"><label class="label" for="ss-exp">Expire passwords after</label><select id="ss-exp" class="select"><option>Never</option><option>90 days</option><option>180 days</option></select></div>
+          </div>
+          <sc-for list="{{rules}}" as="r" hint-placeholder-count="4"><label class="row-between" style="flex-wrap: nowrap; min-height: 44px"><span>{{r.t}}</span><span class="switch"><input type="checkbox" checked="{{r.on}}" onChange="{{r.flip}}" aria-label="{{r.t}}"></span></label></sc-for>
+        </div></section>
+        <section class="card"><div class="card-head"><h2 class="h3">Sessions and sign-in</h2></div><div class="card-body grid-form">
+          <div class="field"><label class="label" for="ss-idle">Log out after inactivity</label><select id="ss-idle" class="select"><option>15 minutes</option><option>30 minutes</option><option>60 minutes</option></select><span class="help">Users get a 60-second warning first</span></div>
+          <div class="field"><label class="label" for="ss-max">Maximum session length</label><select id="ss-max" class="select"><option>8 hours</option><option>12 hours</option><option>24 hours</option></select></div>
+          <div class="field"><label class="label" for="ss-lock">Lock account after failed sign-ins</label><select id="ss-lock" class="select"><option>5 attempts</option><option>3 attempts</option><option>10 attempts</option></select></div>
+          <div class="field"><label class="label" for="ss-lockfor">Lock for</label><select id="ss-lockfor" class="select"><option>15 minutes</option><option>30 minutes</option><option>Until an admin unlocks</option></select></div>
+        </div></section>
+        <div class="action-bar"><button type="button" class="btn btn-secondary">Reset to defaults</button><button type="button" class="btn btn-primary" onClick="{{save}}"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save settings</button></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { r: [true, true, true, true], saved: false }; }
+  renderVals() {
+    var self = this, T = ['Require uppercase and lowercase letters', 'Require a number', 'Block the 10,000 most common passwords', 'Require a symbol'];
+    return { saved: this.state.saved, save: function () { self.setState({ saved: true }); },
+      rules: T.map(function (t, i) { return { t: t, on: self.state.r[i], flip: function () { var a = self.state.r.slice(); a[i] = !a[i]; self.setState({ r: a, saved: false }); } }; }) };
+  }
+}
+</script>
+</body>
+</html>

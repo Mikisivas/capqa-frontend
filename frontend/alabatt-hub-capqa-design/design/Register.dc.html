@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Register · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="capqa" style="min-height: 100vh; background: #f8fafc; display: flex; flex-direction: column; align-items: center; padding: 32px 16px 48px; gap: 24px">
+  <a href="Login.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #0f172a">
+    <div class="logo-slot on-light" style="width: 44px; height: 44px; font-size: 8px">RFMOAUM</div>
+    <div class="brand"><span class="brand-hub">ALABATT-HUB</span><span class="brand-name">CAPQA</span><span class="t-xs muted">Rev. Fr. Moses Orshio Adasu University, Makurdi</span></div>
+  </a>
+  <main class="card" style="width: 100%; max-width: 560px">
+    <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+      <div class="card-body empty" role="status" style="padding: 48px 28px">
+        <span class="e-icon" style="background: #ecfdf3; color: #15703c"><dc-import name="Icon" i="check-circle" s="28" hint-size="28px,28px"></dc-import></span>
+        <h1 class="h2">Account created. Waiting for admin approval.</h1>
+        <p>We’ll email <strong>s.akuma@moau.edu.ng</strong> once an administrator approves your account and assigns your role. This usually takes one working day.</p>
+        <a class="btn btn-secondary" href="Login.dc.html"><dc-import name="Icon" i="arrow-left" s="16" hint-size="16px,16px"></dc-import>Back to sign in</a>
+        <a class="t-sm" href="Users.dc.html">Prototype: continue as Admin to approve</a>
+      </div>
+    </sc-if>
+    <sc-if value="{{form}}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div class="card-head" style="display: block"><h1 class="h2">Create your CAPQA account</h1><p class="muted t-sm" style="margin-top: 4px">An administrator assigns your role after approval — you don’t choose it here.</p></div>
+        <form class="card-body stack" onSubmit="{{submit}}" novalidate>
+          <sc-if value="{{errors}}" hint-placeholder-val="{{ false }}">
+            <div class="alert alert-danger" role="alert"><span class="a-icon"><dc-import name="Icon" i="alert-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Fix 2 fields to continue</div>Username and email need attention.</div></div>
+          </sc-if>
+          <div class="field"><label class="label" for="rg-name">Full name <span class="req" aria-hidden="true">*</span></label><input id="rg-name" class="input" autocomplete="name" value="Dr. Stephen Akuma" disabled="{{saving}}"></div>
+          <div class="field">
+            <label class="label" for="rg-user">Username <span class="req" aria-hidden="true">*</span></label>
+            <input id="rg-user" class="input {{errCls}}" value="{{userVal}}" aria-describedby="rg-user-h" aria-invalid="{{ariaInv}}" disabled="{{saving}}">
+            <sc-if value="{{errors}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Use letters, numbers, . _ or - only (no spaces).</span></sc-if>
+            <span class="help" id="rg-user-h">3 to 50 characters: letters, numbers, . _ -</span>
+          </div>
+          <div class="field">
+            <label class="label" for="rg-email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input id="rg-email" class="input {{errCls}}" type="email" autocomplete="email" value="{{emailVal}}" aria-invalid="{{ariaInv}}" disabled="{{saving}}">
+            <sc-if value="{{errors}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>An account with this email already exists. <a href="ForgotPassword.dc.html">Reset password?</a></span></sc-if>
+          </div>
+          <div class="field">
+            <label class="label" for="rg-pw">Password <span class="req" aria-hidden="true">*</span></label>
+            <input id="rg-pw" class="input" type="password" autocomplete="new-password" value="{{pw}}" onChange="{{setPw}}" aria-describedby="rg-pw-list" disabled="{{saving}}">
+            <div class="meter {{lvCls}}" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="row-between t-xs"><span class="muted">Strength</span><span class="strong">{{lvText}}</span></div>
+            <ul class="pw-checklist" id="rg-pw-list" aria-live="polite">
+              <sc-for list="{{rules}}" as="r" hint-placeholder-count="4">
+                <li class="{{r.cls}}"><dc-import name="Icon" i="{{r.icon}}" s="16" hint-size="16px,16px"></dc-import>{{r.t}}<span class="sr-only">{{r.sr}}</span></li>
+              </sc-for>
+            </ul>
+          </div>
+          <div class="field">
+            <label class="label" for="rg-dept">Department <span class="opt">(optional)</span></label>
+            <select id="rg-dept" class="select" disabled="{{saving}}"><option>Dept. of Mathematics and Computer Science</option><option>Dept. of Physics</option><option>Dept. of Economics</option><option>Dept. of Accounting</option><option>Dept. of Theatre Arts</option><option>— Not in a department —</option></select>
+          </div>
+          <div class="action-bar" style="margin: 8px 0 0; position: static; padding: 0; border: 0; box-shadow: none; background: none">
+            <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary btn-lg btn-block is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Creating account…</button></sc-if>
+            <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><button type="submit" class="btn btn-primary btn-lg btn-block">Create account</button></sc-if>
+          </div>
+          <p class="t-sm muted" style="text-align: center">Already registered? <a href="Login.dc.html" class="strong">Sign in</a></p>
+        </form>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","errors","saving","success"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { pw: 'Makurdi2026', done: false }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default', pw = this.state.pw;
+    var tests = [['At least 8 characters', pw.length >= 8], ['An uppercase and a lowercase letter', /[a-z]/.test(pw) && /[A-Z]/.test(pw)], ['A number', /\d/.test(pw)], ['A symbol (e.g. ! @ # $)', /[^A-Za-z0-9]/.test(pw)]];
+    var n = tests.filter(function (t) { return t[1]; }).length;
+    var done = this.state.done || v === 'success';
+    return {
+      done: done, form: !done, errors: v === 'errors', saving: v === 'saving', idle: v !== 'saving',
+      errCls: v === 'errors' ? 'is-invalid' : '', ariaInv: v === 'errors' ? 'true' : 'false',
+      userVal: v === 'errors' ? 'stephen akuma' : 's.akuma', emailVal: v === 'errors' ? 'stephen.akuma@moau.edu.ng' : 's.akuma@moau.edu.ng',
+      pw: pw, lvCls: 'lv' + Math.max(n, pw.length ? 1 : 0), lvText: ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'][n],
+      rules: tests.map(function (t) { return { t: t[0], cls: t[1] ? 'ok' : '', icon: t[1] ? 'check-circle' : 'x-circle', sr: t[1] ? ' — met' : ' — not met' }; }),
+      setPw: function (e) { self.setState({ pw: e.target.value }); },
+      submit: function (e) { e.preventDefault(); self.setState({ done: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reports · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="reports" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="reports" crumbs="Reports>All reports" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Reports</h1><p class="sub">Drafts can be regenerated. Finalised reports are locked.</p></div><a class="btn btn-primary" href="ReportBuilder.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Build report</a></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field"><span class="label">Type</span><select class="select"><option>All types</option><option>Dispatch</option><option>Classroom usage</option><option>Departmental audit</option><option>Staff evaluation</option><option>Payment history</option></select></label>
+          <label class="field"><span class="label">Status</span><select class="select"><option>Draft and finalised</option><option>Draft</option><option>Finalised</option></select></label>
+          <label class="field"><span class="label">Created by</span><select class="select"><option>Anyone</option><option>Prof. Msughter Iorkyaa</option><option>Mrs. Ngozi Okafor</option></select></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col">Report</th><th scope="col">Type</th><th scope="col">Created by</th><th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Date<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Format</th><th scope="col">Status</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+                <tr class="{{r.cls}}"><td class="td-lead" data-label="Report"><a class="strong" href="ReportPreview.dc.html">{{r.n}}</a><sc-if value="{{r.isNew}}" hint-placeholder-val="{{ false }}"> <span class="badge tone-success no-glyph">New</span></sc-if></td><td data-label="Type">{{r.t}}</td><td data-label="Created by">{{r.by}}</td><td data-label="Date" class="num">{{r.d}}</td><td data-label="Format">{{r.f}}</td><td data-label="Status"><span class="badge" data-s="life-{{r.s}}">{{r.s}}</span></td>
+                  <td class="td-actions"><div class="row" style="flex-wrap: nowrap; justify-content: flex-end; gap: 4px"><sc-if value="{{r.draft}}" hint-placeholder-val="{{ true }}"><a class="btn btn-secondary btn-sm" href="ReportFinalise.dc.html"><dc-import name="Icon" i="lock" s="14" hint-size="14px,14px"></dc-import>Finalise</a></sc-if><a class="btn btn-ghost btn-sm" href="ReportDownload.dc.html"><dc-import name="Icon" i="download" s="14" hint-size="14px,14px"></dc-import>Download</a></div></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–7 of 23</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No reports yet" text="Build a dispatch, classroom usage, audit, evaluation or payment report." cta="Build report" href="ReportBuilder.dc.html" icon="report" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var R = [['Classroom usage — 2025/2026 S2', 'Classroom usage', 'Prof. Msughter Iorkyaa', '12 Oct 2026', 'PDF', 'Draft', true], ['Dispatch summary — September 2026', 'Dispatch', 'Mrs. Ngozi Okafor', '1 Oct 2026', 'Excel', 'Finalised', false], ['Departmental audit — Faculty of Science', 'Departmental audit', 'Mr. Emmanuel Ochoga', '28 Sep 2026', 'PDF', 'Finalised', false], ['Staff evaluation — 2025/2026 S1', 'Staff evaluation', 'Prof. Msughter Iorkyaa', '15 Jun 2026', 'PDF', 'Finalised', false], ['Payment history — Q3 2026', 'Payment history', 'Mr. Tersoo Ahule', '10 Oct 2026', 'Excel', 'Draft', false], ['Exam hall readiness — 2nd semester', 'Departmental audit', 'Mr. Emmanuel Ochoga', '9 Oct 2026', 'PDF', 'Draft', false], ['Dispatch summary — August 2026', 'Dispatch', 'Mrs. Ngozi Okafor', '1 Sep 2026', 'Excel', 'Finalised', false]];
+    return { isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error',
+      rows: R.map(function (r) { return { n: r[0], t: r[1], by: r[2], d: r[3], f: r[4], s: r[5], isNew: r[6], draft: r[5] === 'Draft', cls: r[6] ? 'is-selected' : '' }; }) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Timetable · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Timetable" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div><h1 class="h1">Timetable</h1><p class="sub">Week of 13–17 October 2026 · built from allocations</p></div>
+        <div class="row">
+          <div class="row" style="gap: 4px"><button type="button" class="btn btn-secondary btn-icon" aria-label="Previous week"><dc-import name="Icon" i="chev-left" s="18" hint-size="18px,18px"></dc-import></button><button type="button" class="btn btn-secondary">This week</button><button type="button" class="btn btn-secondary btn-icon" aria-label="Next week"><dc-import name="Icon" i="chev-right" s="18" hint-size="18px,18px"></dc-import></button></div>
+          <a class="btn btn-primary" href="HallAllocate.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>Allocate</a>
+        </div>
+      </div>
+      <div class="row-between">
+        <div class="legend" aria-label="Legend"><span class="badge" data-s="pur-Class">Class</span><span class="badge" data-s="pur-Exam">Exam</span><span class="badge" data-s="pur-Event">Event</span></div>
+        <label class="row t-sm" style="gap: 8px">Department <select class="select" style="width: 220px"><option>All departments</option><option>Mathematics and Computer Science</option></select></label>
+      </div>
+      <section class="card only-md" style="overflow-x: auto; display: block" aria-label="Weekly timetable grid">
+        <div class="tt" role="grid">
+          <div class="tt-h" role="columnheader">Hall</div>
+          <sc-for list="{{days}}" as="d" hint-placeholder-count="5"><div class="tt-h" role="columnheader">{{d}}</div></sc-for>
+          <sc-for list="{{grid}}" as="row" hint-placeholder-count="5">
+            <div class="tt-hall" role="rowheader">{{row.hall}}<div class="t-xs muted" style="font-weight: 400">{{row.cap}} seats</div></div>
+            <sc-for list="{{row.cells}}" as="c" hint-placeholder-count="5">
+              <div class="tt-cell" role="gridcell">
+                <sc-for list="{{c}}" as="s" hint-placeholder-count="1">
+                  <button type="button" class="slot slot-{{s.k}}" onClick="{{s.open}}" aria-label="{{s.p}}: {{s.c}}, {{s.t}}"><b>{{s.code}}</b><span>{{s.t}}</span><span class="t-xs">{{s.p}} · {{s.n}}</span></button>
+                </sc-for>
+              </div>
+            </sc-for>
+          </sc-for>
+        </div>
+      </section>
+      <section class="lt-md" style="flex-direction: column; gap: 12px" aria-label="Day agenda">
+        <div class="tabs" role="tablist"><sc-for list="{{dayTabs}}" as="t" hint-placeholder-count="5"><button type="button" class="tab" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div>
+        <sc-for list="{{agenda}}" as="s" hint-placeholder-count="3">
+          <button type="button" class="slot slot-{{s.k}}" onClick="{{s.open}}" style="padding: 12px; gap: 4px"><b style="font-size: 14px">{{s.c}}</b><span>{{s.t}} · {{s.hall}}</span><span>{{s.p}} · {{s.n}} students</span></button>
+        </sc-for>
+      </section>
+    </main>
+  </div>
+  <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+    <div class="drawer-layer">
+      <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="tt-d">
+        <div class="drawer-head"><div class="stack-sm" style="gap: 4px"><span class="badge" data-s="pur-{{sel.p}}">{{sel.p}}</span><h2 class="h3" id="tt-d">{{sel.c}}</h2></div><button type="button" class="btn btn-ghost btn-icon" aria-label="Close" onClick="{{close}}"><dc-import name="Icon" i="x" s="18" hint-size="18px,18px"></dc-import></button></div>
+        <div class="drawer-body">
+          <dl class="dl" style="grid-template-columns: 1fr; margin: 0">
+            <div><dt>Hall</dt><dd>{{sel.hall}}</dd></div>
+            <div><dt>When</dt><dd>{{sel.day}} · {{sel.t}}</dd></div>
+            <div><dt>Expected students</dt><dd>{{sel.n}} of {{sel.cap}} seats</dd></div>
+            <div><dt>Booked by</dt><dd>Mrs. Ngozi Okafor</dd></div>
+          </dl>
+        </div>
+        <div class="drawer-foot"><a class="btn btn-secondary" href="AllocationEdit.dc.html" style="color: #b42318">Cancel booking</a><a class="btn btn-primary" href="AllocationEdit.dc.html">Edit</a></div>
+      </aside>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { sel: null, day: 0 }; }
+  renderVals() {
+    var self = this;
+    var days = ['Mon 13', 'Tue 14', 'Wed 15', 'Thu 16', 'Fri 17'];
+    var halls = [['Faculty of Science Lecture Theatre', 350], ['1000-Seater Auditorium', 1000], ['Management Sciences Hall B', 250], ['Arts Theatre', 400], ['ICT Centre Lab 2', 80]];
+    var S = [
+      [0, 0, 'CMP 411', 'CMP 411 Software Engineering', '08:00–10:00', 'Class', 118], [0, 1, 'MTH 201', 'MTH 201 Mathematical Methods', '10:00–12:00', 'Class', 290], [0, 2, 'MTH 201', 'MTH 201 Mathematical Methods', '10:00–13:00', 'Class', 290], [0, 4, 'STA 211', 'STA 211 Probability I', '09:00–12:00', 'Exam', 310],
+      [1, 3, 'Matric. rehearsal', 'Matriculation ceremony rehearsal', '10:00–14:00', 'Event', 850], [1, 4, 'GST 111', 'GST 111 Use of English', '13:00–16:00', 'Exam', 920],
+      [2, 0, 'ACC 301', 'ACC 301 Financial Reporting', '10:00–12:00', 'Class', 276], [2, 2, 'BUS 205', 'BUS 205 Principles of Management', '08:00–10:00', 'Class', 210],
+      [3, 2, 'CSC 101', 'CSC 101 Introduction to Computing', '12:00–15:00', 'Exam', 380], [3, 3, 'Convocation play', 'Theatre Arts convocation play', '16:00–19:00', 'Event', 320],
+      [4, 1, 'CMP 211', 'CMP 211 Programming II (practical)', '14:00–17:00', 'Class', 72], [4, 3, 'CMP 211', 'CMP 211 Programming II (practical)', '14:00–17:00', 'Class', 72]
+    ];
+    var mk = function (s) { var o = { code: s[2], c: s[3], t: s[4], p: s[5], n: s[6], k: s[5].toLowerCase(), hall: halls[s[0]][0], cap: halls[s[0]][1], day: days[s[1]] }; o.open = function () { self.setState({ sel: o }); }; return o; };
+    var all = S.map(mk);
+    var grid = halls.map(function (h, hi) { return { hall: h[0], cap: h[1].toLocaleString('en-NG'), cells: days.map(function (d, di) { return all.filter(function (x) { return x.hall === h[0] && x.day === d; }); }) }; });
+    var day = this.state.day;
+    return {
+      days: days, grid: grid, sel: this.state.sel || {}, hasSel: !!this.state.sel, close: function () { self.setState({ sel: null }); },
+      dayTabs: days.map(function (d, i) { return { label: d, sel: i === day ? 'true' : 'false', pick: function () { self.setState({ day: i }); } }; }),
+      agenda: all.filter(function (x) { return x.day === days[day]; })
+    };
+  }
+}
+</script>
+</body>
+</html>

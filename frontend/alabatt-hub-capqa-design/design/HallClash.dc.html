@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Clash detected · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Allocate hall>Clash" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="alert alert-danger" role="alert" style="padding: 16px 20px"><span class="a-icon"><dc-import name="Icon" i="alert-circle" s="22" hint-size="22px,22px"></dc-import></span><div><h1 class="h2" style="color: inherit">Clash detected</h1><p style="margin-top: 4px">Faculty of Science Lecture Theatre is already booked for part of this time. Nothing has been saved.</p></div></div>
+      <div class="grid-2" style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr))">
+        <section class="card" aria-labelledby="c1">
+          <div class="card-head"><h2 class="h3" id="c1">Your request</h2><span class="badge" data-s="pur-Exam">Exam</span></div>
+          <dl class="dl card-body" style="grid-template-columns: 1fr; margin: 0">
+            <div><dt>Course</dt><dd>CSC 101 — Introduction to Computing · 100 level</dd></div>
+            <div><dt>Time</dt><dd>Wed, 15 Oct 2026 · <strong>12:00–15:00</strong></dd></div>
+            <div><dt>Expected students</dt><dd>380</dd></div>
+          </dl>
+        </section>
+        <section class="card" aria-labelledby="c2" style="border-color: #fecdca">
+          <div class="card-head" style="background: #fef3f2; border-radius: 8px 8px 0 0"><h2 class="h3" id="c2">Conflicting booking</h2><span class="badge" data-s="pur-Class">Class</span></div>
+          <dl class="dl card-body" style="grid-template-columns: 1fr; margin: 0">
+            <div><dt>Course</dt><dd>MTH 201 — Mathematical Methods · 200 level</dd></div>
+            <div><dt>Time</dt><dd>Wed, 15 Oct 2026 · <strong>10:00–13:00</strong></dd></div>
+            <div><dt>Booked by</dt><dd>Mrs. Ngozi Okafor · 2 Oct 2026</dd></div>
+          </dl>
+        </section>
+      </div>
+      <section class="card card-body stack-sm" aria-labelledby="ov-h">
+        <h2 class="h3" id="ov-h">Overlap · 12:00–13:00 (1 hour)</h2>
+        <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 0; font-size: 12px; color: #475569"><span>09:00</span><span>10:00</span><span>11:00</span><span>12:00</span><span>13:00</span><span>14:00</span><span>15:00</span><span>16:00</span></div>
+        <div style="position: relative; height: 72px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px" role="img" aria-label="MTH 201 from 10:00 to 13:00 overlaps your request from 12:00 to 15:00 for one hour">
+          <div class="slot slot-class" style="position: absolute; top: 6px; left: 12.5%; width: 37.5%; height: 28px; cursor: default"><b>MTH 201 · 10:00–13:00</b></div>
+          <div class="slot slot-exam" style="position: absolute; top: 38px; left: 37.5%; width: 37.5%; height: 28px; cursor: default"><b>Your CSC 101 · 12:00–15:00</b></div>
+          <div style="position: absolute; top: 0; bottom: 0; left: 37.5%; width: 12.5%; background: repeating-linear-gradient(135deg, rgba(220,38,38,.18) 0 6px, transparent 6px 12px); border-left: 2px solid #dc2626; border-right: 2px solid #dc2626"></div>
+        </div>
+      </section>
+      <div class="action-bar">
+        <a class="btn btn-secondary" href="HallAllocate.dc.html"><dc-import name="Icon" i="arrow-left" s="16" hint-size="16px,16px"></dc-import>Change time</a>
+        <a class="btn btn-primary" href="HallAlternatives.dc.html"><dc-import name="Icon" i="sparkles" s="16" hint-size="16px,16px"></dc-import>Suggest alternatives</a>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Payment receipt · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="pay" crumbs="Payments>Receipt RCT-2026-0412" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 760px; margin: 0 auto">
+      <div class="row-between"><h1 class="h1">Receipt</h1><div class="row"><button type="button" class="btn btn-secondary"><dc-import name="Icon" i="printer" s="16" hint-size="16px,16px"></dc-import>Print</button><button type="button" class="btn btn-primary"><dc-import name="Icon" i="download" s="16" hint-size="16px,16px"></dc-import>Download PDF</button></div></div>
+      <article class="card" style="padding: 0" aria-label="Receipt RCT-2026-0412">
+        <div class="banner-test" style="border-radius: 8px 8px 0 0">TEST MODE RECEIPT — NOT A VALID PROOF OF PAYMENT</div>
+        <div class="card-body stack-lg" style="padding: 32px">
+          <header class="row-between" style="align-items: flex-start">
+            <div class="row" style="gap: 12px; flex-wrap: nowrap"><div class="logo-slot on-light" style="width: 52px; height: 52px; font-size: 8px">RFMOAUM</div><div><div class="t-xs strong" style="letter-spacing: .04em">REV. FR. MOSES ORSHIO ADASU UNIVERSITY, MAKURDI</div><div class="brand-hub">ALABATT-HUB CAPQA</div><div class="strong" style="color: #166534">Centre for Academic Planning and Quality Assurance</div></div></div>
+            <span class="badge" data-s="pay-Successful">Successful</span>
+          </header>
+          <div style="text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px"><div class="t-sm muted">Amount paid</div><div class="t-3xl strong num">NGN 25,000.00</div><div class="t-xs muted">Twenty-five thousand naira only</div></div>
+          <dl class="dl" style="margin: 0">
+            <div><dt>Receipt no.</dt><dd class="mono">RCT-2026-0412</dd></div>
+            <div><dt>Payment reference</dt><dd class="mono">TXN-T-7F21C9</dd></div>
+            <div><dt>Payer</dt><dd>Mrs. Ngozi Okafor</dd></div>
+            <div><dt>Date paid</dt><dd>Monday, 12 October 2026 · 16:21 WAT</dd></div>
+            <div><dt>Invoice</dt><dd class="mono">INV-2026-0318</dd></div>
+            <div><dt>Method</dt><dd>Debit card ending 4081 (test)</dd></div>
+            <div style="grid-column: 1 / -1"><dt>Description</dt><dd>Hall booking fee — 1000-Seater Auditorium, departmental seminar</dd></div>
+          </dl>
+          <footer class="t-xs muted" style="border-top: 1px dashed #cbd5e1; padding-top: 12px">Issued electronically by CAPQA. Verify at the CAPQA office with the receipt number.</footer>
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

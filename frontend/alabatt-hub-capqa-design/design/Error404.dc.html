@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Page not found · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="none" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="none" crumbs="Page not found" hint-size="100%,64px"></dc-import>
+    <main class="page" style="flex: 1 1 auto; justify-content: center; align-items: center">
+      <div class="empty" style="max-width: 520px">
+        <span class="mono t-xs strong muted" style="letter-spacing: .1em">ERROR 404</span>
+        <span class="e-icon" style="width: 72px; height: 72px"><dc-import name="Icon" i="search" s="32" hint-size="32px,32px"></dc-import></span>
+        <h1 class="h1">We can’t find that page</h1>
+        <p>The link may be wrong, or the record — for example a mail item or hall — may have been archived or deleted.</p>
+        <label class="input-wrap" style="width: 100%; max-width: 380px"><span class="sr-only">Search CAPQA</span><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input class="input" type="search" placeholder="Search mail, halls, staff…"></label>
+        <div class="row" style="justify-content: center">
+          <a class="btn btn-primary" href="Dashboard.dc.html">Go to dashboard</a>
+          <a class="btn btn-secondary" href="MailArchive.dc.html">Check the mail archive</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

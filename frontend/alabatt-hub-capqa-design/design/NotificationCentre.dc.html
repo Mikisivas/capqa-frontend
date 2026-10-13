@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notifications · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="notif" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="notif" crumbs="Notifications" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 960px">
+      <div class="page-head"><div><h1 class="h1">Notifications</h1><p class="sub">{{unreadText}}</p></div><div class="row"><a class="btn btn-ghost" href="NotificationPrefs.dc.html"><dc-import name="Icon" i="settings" s="16" hint-size="16px,16px"></dc-import>Preferences</a><button type="button" class="btn btn-secondary" onClick="{{markAll}}" disabled="{{noUnread}}"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import>Mark all as read</button></div></div>
+      <div class="tabs" role="tablist"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><button type="button" class="tab" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div>
+      <section class="card">
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <ul style="list-style: none; margin: 0; padding: 0">
+            <sc-for list="{{items}}" as="n" hint-placeholder-count="8">
+              <li style="display: flex; gap: 12px; align-items: flex-start; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: {{n.bg}}">
+                <span class="notif-ico" style="background: {{n.ib}}; color: {{n.fg}}"><dc-import name="Icon" i="{{n.icon}}" s="18" hint-size="18px,18px"></dc-import></span>
+                <div style="flex: 1 1 auto; min-width: 0" class="stack-sm">
+                  <div class="row" style="gap: 8px"><span class="badge" data-s="ntf-{{n.type}}">{{n.type}}</span><span class="t-xs muted">{{n.when}}</span><sc-if value="{{n.unread}}" hint-placeholder-val="{{ false }}"><span class="t-xs strong" style="color: #166534; display: inline-flex; align-items: center; gap: 4px"><span class="dot-unread" style="margin: 0"></span>Unread</span></sc-if></div>
+                  <span class="{{n.wt}}">{{n.text}}</span>
+                  <sc-if value="{{n.hasLink}}" hint-placeholder-val="{{ true }}"><a class="t-sm strong" href="{{n.href}}" onClick="{{n.read}}">{{n.cta}}</a></sc-if>
+                </div>
+                <div class="row" style="gap: 2px; flex-wrap: nowrap">
+                  <sc-if value="{{n.unread}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Mark as read" onClick="{{n.read}}"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></button></sc-if>
+                  <button type="button" class="btn btn-ghost btn-icon btn-sm" aria-label="Delete notification" onClick="{{n.del}}"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import></button>
+                </div>
+              </li>
+            </sc-for>
+          </ul>
+          <div class="pagination"><span>Showing 1–8 of 46</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="You’re all caught up" text="Approval requests, assigned tasks, deadlines and system updates appear here." icon="bell" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { read: {}, gone: {}, tab: 'All' }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default', st = this.state;
+    var T = { 'Pending approval': ['clock', '#93370d', '#fffaeb'], 'Assigned task': ['tasks', '#1d4ed8', '#eff6ff'], 'Deadline': ['alert', '#b42318', '#fef3f2'], 'System update': ['info', '#334155', '#f1f5f9'] };
+    var N = [
+      [1, 'Pending approval', 'CAPQA/DSP/2026/0144 from the Bursary Department is waiting for your approval.', '2 min ago', true, 'MailApproval', 'Review and approve'],
+      [2, 'Pending approval', 'CAPQA/DSP/2026/0142 — NUC accreditation visit, revised schedule — waiting 2 days.', '1 h ago', true, 'MailApproval', 'Review and approve'],
+      [3, 'Deadline', 'NUC self-study report for Mathematics and Computer Science is due Friday, 17 October.', 'Yesterday', true, 'DeadlineReminder', 'View deadline'],
+      [4, 'Assigned task', 'Mrs. Ngozi Okafor assigned you CAPQA/DSP/2026/0140 — additional exam halls.', 'Yesterday', false, 'MailDetail', 'Open mail'],
+      [5, 'Assigned task', 'Mr. Emmanuel Ochoga finalised the audit of 1000-Seater Auditorium: Not Suitable.', '8 Oct', false, 'AuditDetail', 'View audit'],
+      [6, 'System update', 'Scheduled maintenance on Sunday, 19 October, 02:00–03:00 WAT.', '7 Oct', false, '', ''],
+      [7, 'Deadline', 'Second semester hall allocations close on Friday, 24 October.', '5 Oct', false, 'Allocations', 'View allocations'],
+      [8, 'System update', 'Report builder now exports Excel workbooks.', '1 Oct', false, '', '']
+    ];
+    var tabs = ['All', 'Unread', 'Pending approval', 'Deadline', 'System update'];
+    var items = N.filter(function (n) { return !st.gone[n[0]]; }).map(function (n) {
+      var t = T[n[1]], unread = n[4] && !st.read[n[0]];
+      return { id: n[0], type: n[1], text: n[2], when: n[3], unread: unread, hasLink: !!n[5], href: n[5] + '.dc.html', cta: n[6], icon: t[0], fg: t[1], ib: t[2], bg: unread ? '#effaf2' : '#fff', wt: unread ? 'strong' : '',
+        read: function () { var r = Object.assign({}, self.state.read); r[n[0]] = true; self.setState({ read: r }); },
+        del: function () { var g = Object.assign({}, self.state.gone); g[n[0]] = true; self.setState({ gone: g }); } };
+    }).filter(function (n) { return st.tab === 'All' || (st.tab === 'Unread' ? n.unread : n.type === st.tab); });
+    var u = N.filter(function (n) { return n[4] && !st.read[n[0]] && !st.gone[n[0]]; }).length;
+    return {
+      isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error', items: items,
+      unreadText: u ? u + ' unread' : 'All read', noUnread: u === 0,
+      markAll: function () { var r = {}; N.forEach(function (n) { r[n[0]] = true; }); self.setState({ read: r }); },
+      tabs: tabs.map(function (t) { return { label: t, sel: t === st.tab ? 'true' : 'false', pick: function () { self.setState({ tab: t }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

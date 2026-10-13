@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit log · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="auditlog" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="auditlog" crumbs="Administration>Audit log" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Audit log</h1><p class="sub">Every create, update, delete, approval and sign-in. Entries can’t be edited.</p></div><button type="button" class="btn btn-secondary"><dc-import name="Icon" i="download" s="16" hint-size="16px,16px"></dc-import>Export CSV</button></div>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field"><span class="label">User</span><select class="select"><option>All users</option><option>Prof. Msughter Iorkyaa</option><option>Mrs. Ngozi Okafor</option><option>Mr. Emmanuel Ochoga</option><option>Mr. Tersoo Ahule</option></select></label>
+          <label class="field"><span class="label">Resource type</span><select class="select"><option>All resources</option><option>Mail</option><option>Hall</option><option>Allocation</option><option>Audit</option><option>Evaluation</option><option>Department</option><option>Report</option><option>Payment</option><option>User</option></select></label>
+          <label class="field"><span class="label">From</span><input class="input" type="date" value="2026-10-01"></label>
+          <label class="field"><span class="label">To</span><input class="input" type="date" value="2026-10-12"></label>
+        </div>
+        <sc-if value="{{isDefault}}" hint-placeholder-val="{{ true }}">
+          <div class="table-wrap"><table class="table table-stack">
+            <thead><tr><th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Date and time<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Who</th><th scope="col">Action</th><th scope="col">Resource type</th><th scope="col">Record ID</th><th scope="col" class="r"><span class="sr-only">Details</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+                <tr><td class="td-lead num mono t-sm" data-label="When">{{r.t}}</td><td data-label="Who">{{r.w}}</td><td data-label="Action"><span class="tag" style="background: {{r.bg}}; color: {{r.fg}}; border-color: transparent; font-weight: 600">{{r.a}}</span></td><td data-label="Resource">{{r.r}}</td><td data-label="Record ID" class="mono t-sm">{{r.id}}</td><td class="td-actions"><a class="btn btn-ghost btn-sm" href="AuditLogDetail.dc.html">Details</a></td></tr>
+              </sc-for>
+            </tbody>
+          </table></div>
+          <div class="pagination"><span>Showing 1–50 of 2,318 · 50 per page</span><div class="pager"><button type="button" disabled aria-label="Previous page"><dc-import name="Icon" i="chev-left" s="16" hint-size="16px,16px"></dc-import></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" disabled>…</button><button type="button">47</button><button type="button" aria-label="Next page"><dc-import name="Icon" i="chev-right" s="16" hint-size="16px,16px"></dc-import></button></div></div>
+        </sc-if>
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="loading" hint-size="100%,360px"></dc-import></sc-if>
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="empty" title="No activity for these filters" text="Try another user, resource type or date range." icon="log" hint-size="100%,320px"></dc-import></sc-if>
+        <sc-if value="{{isError}}" hint-placeholder-val="{{ false }}"><dc-import name="ListState" kind="error" hint-size="100%,320px"></dc-import></sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","loading","empty","error"]},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.view ?? 'default';
+    var A = { Create: ['#eff6ff', '#1d4ed8'], Update: ['#fffaeb', '#93370d'], Delete: ['#fef3f2', '#b42318'], Approve: ['#ecfdf3', '#15703c'], Finalise: ['#f1f5f9', '#1e293b'], 'Sign in': ['#f1f5f9', '#334155'] };
+    var R = [['12 Oct 2026 16:21:07', 'Mrs. Ngozi Okafor', 'Create', 'Payment', 'pay_8812'], ['12 Oct 2026 16:02:44', 'Prof. Msughter Iorkyaa', 'Finalise', 'Report', 'rpt_031'], ['12 Oct 2026 15:40:12', 'Prof. Msughter Iorkyaa', 'Approve', 'Mail', 'mail_0142'], ['12 Oct 2026 14:58:30', 'Mr. Tersoo Ahule', 'Update', 'User', 'usr_0461'], ['12 Oct 2026 12:10:05', 'Mrs. Ngozi Okafor', 'Create', 'Allocation', 'alc_2207'], ['12 Oct 2026 10:24:51', 'Mr. Emmanuel Ochoga', 'Finalise', 'Audit', 'aud_0087'], ['12 Oct 2026 09:33:19', 'Mrs. Ngozi Okafor', 'Update', 'Hall', 'hall_0018'], ['12 Oct 2026 09:14:02', 'Mrs. Ngozi Okafor', 'Create', 'Mail', 'mail_0145'], ['12 Oct 2026 08:42:11', 'Mrs. Ngozi Okafor', 'Sign in', 'Session', 'ses_91f2'], ['11 Oct 2026 17:05:48', 'Mr. Tersoo Ahule', 'Delete', 'Allocation', 'alc_2190'], ['11 Oct 2026 15:12:37', 'Mr. Emmanuel Ochoga', 'Create', 'Evaluation', 'evl_0412'], ['11 Oct 2026 11:47:20', 'Mr. Tersoo Ahule', 'Update', 'Department', 'dept_007']];
+    return { isDefault: v === 'default', isLoading: v === 'loading', isEmpty: v === 'empty', isError: v === 'error', rows: R.map(function (r) { return { t: r[0], w: r[1], a: r[2], r: r[3], id: r[4], bg: A[r[2]][0], fg: A[r[2]][1] }; }) };
+  }
+}
+</script>
+</body>
+</html>

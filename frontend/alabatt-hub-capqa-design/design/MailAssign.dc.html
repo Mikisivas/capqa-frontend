@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Assign or forward mail · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dispatch" crumbs="E-Dispatch>CAPQA/DSP/2026/0142" hint-size="100%,64px"></dc-import>
+    <main class="page" aria-hidden="true">
+      <div class="page-head"><div class="stack-sm"><span class="mono strong muted">CAPQA/DSP/2026/0142</span><h1 class="h1">NUC accreditation visit — revised schedule</h1></div></div>
+      <div class="card" style="height: 360px"></div>
+    </main>
+  </div>
+  <div class="modal-layer">
+    <form class="modal modal-lg" role="dialog" aria-modal="true" aria-labelledby="as-h">
+      <div class="modal-head">
+        <div><h2 class="h2" id="as-h">Assign or forward</h2><p class="t-sm muted" style="margin-top: 2px"><span class="mono">CAPQA/DSP/2026/0142</span> · currently unassigned</p></div>
+        <a class="btn btn-ghost btn-icon btn-sm" href="MailDetail.dc.html" aria-label="Close"><dc-import name="Icon" i="x" s="18" hint-size="18px,18px"></dc-import></a>
+      </div>
+      <div class="modal-body">
+        <fieldset style="border: 0; padding: 0; margin: 0" class="field">
+          <legend class="label" style="margin-bottom: 6px">Action</legend>
+          <div class="radio-cards">
+            <sc-for list="{{modes}}" as="m" hint-placeholder-count="2"><label class="radio-card {{m.cls}}"><input type="radio" name="as-mode" checked="{{m.on}}" onChange="{{m.pick}}"><span><span class="strong">{{m.t}}</span><br><span class="t-xs muted">{{m.d}}</span></span></label></sc-for>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="label" for="as-staff">Staff member <span class="req" aria-hidden="true">*</span></label>
+          <div class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input id="as-staff" class="input is-focus" value="Iork" role="combobox" aria-expanded="true" aria-controls="as-list" aria-autocomplete="list"></div>
+          <ul id="as-list" role="listbox" style="list-style: none; margin: 0; padding: 6px; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 12px -2px rgba(15,23,42,.10)">
+            <li role="option" aria-selected="true" class="menu-item" style="background: #effaf2"><span class="avatar avatar-sm" style="background: #fef3c7; color: #92400e">MI</span><span><span class="strong">Prof. Msughter Iorkyaa</span><br><span class="t-xs muted">Director · CAPQA</span></span><span style="margin-left: auto; color: #166534"><dc-import name="Icon" i="check" s="18" hint-size="18px,18px"></dc-import></span></li>
+            <li role="option" aria-selected="false" class="menu-item"><span class="avatar avatar-sm">TI</span><span><span class="strong">Dr. Terver Iorkighir</span><br><span class="t-xs muted">Academic Officer · Dept. of Physics</span></span></li>
+          </ul>
+        </div>
+        <div class="field"><label class="label" for="as-note">Note to recipient <span class="opt">(optional)</span></label><textarea id="as-note" class="textarea" style="min-height: 80px">Please review and approve before the HODs’ meeting on Wednesday.</textarea></div>
+        <label class="check"><input type="checkbox" checked>Notify by email and in-app</label>
+      </div>
+      <div class="modal-foot">
+        <a class="btn btn-secondary" href="MailDetail.dc.html">Cancel</a>
+        <a class="btn btn-primary" href="MailDetail.dc.html"><dc-import name="Icon" i="forward" s="16" hint-size="16px,16px"></dc-import>{{cta}}</a>
+      </div>
+    </form>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { mode: 'Forward' }; }
+  renderVals() {
+    var self = this, m = this.state.mode;
+    return {
+      cta: m === 'Forward' ? 'Forward mail' : 'Assign mail',
+      modes: [['Assign', 'Make them responsible for handling it'], ['Forward', 'Send for their review or approval']].map(function (x) { return { t: x[0], d: x[1], on: x[0] === m, cls: x[0] === m ? 'is-on' : '', pick: function () { self.setState({ mode: x[0] }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

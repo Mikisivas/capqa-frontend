@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hall detail · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="halls" crumbs="Classrooms and Halls>Faculty of Science Lecture Theatre" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div class="stack-sm" style="gap: 6px"><div class="row"><span class="badge" data-s="hall-Suitable">Suitable</span><span class="tag">Lecture theatre</span></div><h1 class="h1">Faculty of Science Lecture Theatre</h1><p class="muted row" style="gap: 6px"><dc-import name="Icon" i="pin" s="16" hint-size="16px,16px"></dc-import>Faculty of Science Complex · Dept. of Mathematics and Computer Science</p></div>
+        <div class="row">
+          <a class="btn btn-secondary" href="HallEdit.dc.html"><dc-import name="Icon" i="edit" s="16" hint-size="16px,16px"></dc-import>Edit</a>
+          <a class="btn btn-secondary" href="AuditWizard.dc.html"><dc-import name="Icon" i="clipboard" s="16" hint-size="16px,16px"></dc-import>Start audit</a>
+          <a class="btn btn-primary" href="HallAllocate.dc.html"><dc-import name="Icon" i="calendar" s="16" hint-size="16px,16px"></dc-import>Allocate</a>
+        </div>
+      </div>
+      <section class="grid-stats" aria-label="Key figures">
+        <div class="card stat"><span class="s-label"><span class="ico-box"><dc-import name="Icon" i="seat" s="18" hint-size="18px,18px"></dc-import></span>Capacity</span><span class="s-value">350</span><span class="s-foot">seats</span></div>
+        <div class="card stat"><span class="s-label"><span class="ico-box"><dc-import name="Icon" i="calendar" s="18" hint-size="18px,18px"></dc-import></span>Booked this week</span><span class="s-value">22 h</span><span class="s-foot">of 45 teaching hours · 49%</span></div>
+        <div class="card stat"><span class="s-label"><span class="ico-box"><dc-import name="Icon" i="clipboard" s="18" hint-size="18px,18px"></dc-import></span>Latest audit</span><span class="s-value">4.4<span class="t-base muted"> / 5</span></span><span class="s-foot"><span class="badge" data-s="aud-Suitable">Suitable</span> · 2 Oct 2026</span></div>
+      </section>
+      <div class="split">
+        <div class="stack-lg" style="min-width: 0">
+          <section class="card">
+            <div class="card-head"><h2 class="h3">Upcoming allocations</h2><a class="t-sm strong" href="Allocations.dc.html">All allocations</a></div>
+            <div class="table-wrap"><table class="table table-stack">
+              <thead><tr><th scope="col">When</th><th scope="col">Course / event</th><th scope="col">Purpose</th><th scope="col">Level</th><th scope="col" class="r">Students</th></tr></thead>
+              <tbody>
+                <sc-for list="{{alloc}}" as="a" hint-placeholder-count="5">
+                  <tr class="{{a.cls}}"><td class="td-lead" data-label="When">{{a.when}}</td><td data-label="Course">{{a.c}}</td><td data-label="Purpose"><span class="badge" data-s="pur-{{a.p}}">{{a.p}}</span></td><td data-label="Level">{{a.l}}</td><td data-label="Students" class="r num"><span class="strong">{{a.n}}</span><sc-if value="{{a.over}}" hint-placeholder-val="{{ false }}"> <span class="badge" data-s="hall-Overcrowded">Over by {{a.by}}</span></sc-if></td></tr>
+                </sc-for>
+              </tbody>
+            </table></div>
+          </section>
+          <section class="card">
+            <div class="card-head"><h2 class="h3">Audit history</h2><a class="t-sm strong" href="HallAuditHistory.dc.html">Full history</a></div>
+            <div class="card-body">
+              <ol class="timeline">
+                <li class="tl-item"><span class="tl-dot ok"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div><div class="row"><span class="t-sm strong">2 Oct 2026</span><span class="badge" data-s="aud-Suitable">Suitable</span><span class="t-sm muted">4.4 / 5 · Mr. Emmanuel Ochoga</span></div><div class="tl-meta">All items rated 4 or above.</div></div></li>
+                <li class="tl-item"><span class="tl-dot warn"><dc-import name="Icon" i="alert" s="16" hint-size="16px,16px"></dc-import></span><div><div class="row"><span class="t-sm strong">18 Jun 2026</span><span class="badge" data-s="aud-Needs Attention">Needs Attention</span><span class="t-sm muted">3.2 / 5 · Mr. Emmanuel Ochoga</span></div><div class="tl-meta">Audio system faulty; two ceiling fans not working.</div></div></li>
+                <li class="tl-item"><span class="tl-dot ok"><dc-import name="Icon" i="check" s="16" hint-size="16px,16px"></dc-import></span><div><div class="row"><span class="t-sm strong">20 Jan 2026</span><span class="badge" data-s="aud-Suitable">Suitable</span><span class="t-sm muted">4.0 / 5 · Dr. Aondohemba Tyokase</span></div></div></li>
+              </ol>
+            </div>
+          </section>
+        </div>
+        <aside class="stack-lg">
+          <section class="card card-body stack">
+            <h2 class="h3">Hall information</h2>
+            <dl class="dl" style="grid-template-columns: 1fr; margin: 0">
+              <div><dt>Building</dt><dd>Faculty of Science Complex</dd></div>
+              <div><dt>Department</dt><dd>Mathematics and Computer Science</dd></div>
+              <div><dt>Type</dt><dd>Lecture theatre</dd></div>
+              <div><dt>Equipment</dt><dd><div class="row" style="gap: 6px"><span class="tag"><dc-import name="Icon" i="volume" s="12" hint-size="12px,12px"></dc-import>Audio</span><span class="tag"><dc-import name="Icon" i="monitor" s="12" hint-size="12px,12px"></dc-import>Projector</span><span class="tag"><dc-import name="Icon" i="snow" s="12" hint-size="12px,12px"></dc-import>AC</span></div></dd></div>
+              <div><dt>Added</dt><dd>14 Jan 2025 by Mr. Tersoo Ahule</dd></div>
+            </dl>
+          </section>
+          <section class="card card-body stack" style="border-color: #fecdca">
+            <h2 class="h3">Danger zone</h2>
+            <p class="t-sm muted">Deleting removes the hall and cancels its future allocations.</p>
+            <a class="btn btn-secondary" href="HallEdit.dc.html" style="color: #b42318; align-self: flex-start"><dc-import name="Icon" i="trash" s="16" hint-size="16px,16px"></dc-import>Delete hall</a>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var A = [['Mon 13 Oct · 08:00–10:00', 'CMP 411 Software Engineering', 'Class', '400', 118, 0], ['Tue 14 Oct · 10:00–12:00', 'MTH 201 Mathematical Methods', 'Class', '200', 290, 0], ['Wed 15 Oct · 12:00–15:00', 'CSC 101 Introduction to Computing', 'Exam', '100', 380, 30], ['Thu 16 Oct · 14:00–16:00', 'Departmental seminar', 'Event', '—', 160, 0], ['Fri 17 Oct · 09:00–12:00', 'STA 211 Probability I', 'Exam', '200', 310, 0]];
+    return { alloc: A.map(function (a) { return { when: a[0], c: a[1], p: a[2], l: a[3], n: a[4], over: a[5] > 0, by: a[5], cls: a[5] > 0 ? 'is-warn' : '' }; }) };
+  }
+}
+</script>
+</body>
+</html>

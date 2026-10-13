@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invoice detail · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="pay" crumbs="Payments>Invoices>INV-2026-0318" hint-size="100%,64px"></dc-import>
+    <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — no real money moves</div>
+    <main class="page" style="max-width: 920px">
+      <div class="page-head">
+        <div class="stack-sm" style="gap: 6px"><div class="row"><span class="mono strong">INV-2026-0318</span><span class="badge" data-s="inv-Unpaid">Unpaid</span></div><h1 class="h1">Hall booking fee</h1></div>
+        <div class="row"><button type="button" class="btn btn-secondary"><dc-import name="Icon" i="download" s="16" hint-size="16px,16px"></dc-import>Download PDF</button><a class="btn btn-primary btn-lg" href="PaymentStart.dc.html"><dc-import name="Icon" i="card" s="18" hint-size="18px,18px"></dc-import>Pay now</a></div>
+      </div>
+      <section class="card">
+        <div class="card-body" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px">
+          <div class="stack-sm" style="gap: 4px"><span class="eyebrow">Billed to</span><span class="strong">Mrs. Ngozi Okafor</span><span class="t-sm muted">n.okafor@moau.edu.ng<br>Dept. of Mathematics and Computer Science</span></div>
+          <div class="stack-sm" style="gap: 4px"><span class="eyebrow">Issued by</span><span class="strong">CAPQA, RFMOAUM</span><span class="t-sm muted">Mr. Tersoo Ahule, Admin</span></div>
+          <dl class="dl" style="grid-template-columns: auto auto; gap: 6px 16px; margin: 0"><div><dt>Issued</dt><dd>12 Oct 2026</dd></div><div><dt>Due</dt><dd>26 Oct 2026</dd></div></dl>
+        </div>
+        <div class="table-wrap" style="border-top: 1px solid #e2e8f0"><table class="table">
+          <thead><tr><th scope="col">Description</th><th scope="col" class="r">Qty</th><th scope="col" class="r">Amount</th></tr></thead>
+          <tbody><tr><td>Hall booking fee — 1000-Seater Auditorium, departmental seminar (Thu 16 Oct 2026, 10:00–14:00)</td><td class="r num">1</td><td class="r num">NGN 25,000.00</td></tr></tbody>
+        </table></div>
+        <div class="card-foot" style="justify-content: space-between; background: #fff"><span class="strong">Total due</span><span class="t-2xl strong num">NGN 25,000.00</span></div>
+      </section>
+      <section class="card card-body">
+        <h2 class="h3" style="margin-bottom: 12px">Payment attempts</h2>
+        <dc-import name="ListState" kind="empty" title="No payments yet" text="Payments you make on this invoice appear here." icon="card" hint-size="100%,240px"></dc-import>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Capacity vs enrolment · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="halls" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="halls" crumbs="Classrooms and Halls>Capacity analysis" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Capacity vs enrolment</h1><p class="sub">Session 2025/2026 · Second semester · class and exam allocations</p></div><button type="button" class="btn btn-secondary"><dc-import name="Icon" i="download" s="16" hint-size="16px,16px"></dc-import>Export Excel</button></div>
+      <div class="tabs" role="tablist" aria-label="Halls views">
+        <a class="tab" role="tab" aria-selected="false" href="HallsList.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Halls</a>
+        <a class="tab" role="tab" aria-selected="false" href="Allocations.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Allocations</a>
+        <a class="tab" role="tab" aria-selected="false" href="Timetable.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Timetable</a>
+        <a class="tab" role="tab" aria-selected="true" href="CapacityAnalysis.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Capacity analysis</a>
+      </div>
+      <section class="grid-stats" aria-label="Summary">
+        <div class="card stat"><span class="s-label">Allocations checked</span><span class="s-value">214</span><span class="s-foot">this semester</span></div>
+        <div class="card stat" style="border-color: #fecdca"><span class="s-label" style="color: #b42318"><dc-import name="Icon" i="alert" s="16" hint-size="16px,16px"></dc-import>Overcrowded</span><span class="s-value" style="color: #b42318">17</span><span class="s-foot">8% of allocations · up to 118%</span></div>
+        <div class="card stat"><span class="s-label">Average utilisation</span><span class="s-value">74%</span><span class="s-foot">target 60–90%</span></div>
+      </section>
+      <section class="card">
+        <div class="filter-bar">
+          <label class="field"><span class="label">Department</span><select class="select"><option>All departments</option></select></label>
+          <label class="field"><span class="label">Show</span><select class="select"><option>All allocations</option><option>Overcrowded only</option><option>Under 40% used</option></select></label>
+          <label class="field"><span class="label">Purpose</span><select class="select"><option>Class and exam</option><option>Class</option><option>Exam</option></select></label>
+        </div>
+        <div class="table-wrap"><table class="table table-stack">
+          <thead><tr><th scope="col">Course</th><th scope="col">Hall</th><th scope="col" class="r">Students</th><th scope="col" class="r">Capacity</th><th scope="col" aria-sort="descending"><button type="button" class="th-sort is-active">Utilisation<dc-import name="Icon" i="arrow-down" s="14" hint-size="14px,14px"></dc-import></button></th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+              <tr class="{{r.cls}}"><td class="td-lead" data-label="Course"><span class="strong">{{r.c}}</span><br><span class="t-xs muted">{{r.d}} · {{r.l}} level</span></td><td data-label="Hall">{{r.h}}</td><td data-label="Students" class="r num strong">{{r.n}}</td><td data-label="Capacity" class="r num">{{r.cap}}</td><td data-label="Utilisation"><div style="display: flex; align-items: center; gap: 10px; min-width: 160px"><div class="progress" style="flex: 1 1 auto; position: relative" role="img" aria-label="{{r.pct}} of capacity"><span style="width: {{r.w}}; background: {{r.bar}}"></span></div><span class="num strong" style="width: 44px; text-align: right; color: {{r.txt}}">{{r.pct}}</span></div></td><td data-label="Status"><span class="badge" data-s="hall-{{r.s}}">{{r.s}}</span></td></tr>
+            </sc-for>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var R = [['EDU 212 Curriculum Studies', 'Educational Foundations', 200, 'Education Block LR 3', 142, 120], ['ACC 301 Financial Reporting', 'Accounting', 300, 'Management Sciences Hall B', 276, 250], ['CSC 101 Introduction to Computing', 'Mathematics and Computer Science', 100, 'Faculty of Science Lecture Theatre', 380, 350], ['GST 111 Use of English', 'General Studies', 100, '1000-Seater Auditorium', 920, 1000], ['MTH 201 Mathematical Methods', 'Mathematics and Computer Science', 200, 'Faculty of Science Lecture Theatre', 290, 350], ['ECO 203 Microeconomics II', 'Economics', 200, 'Management Sciences Hall A', 370, 500], ['CMP 411 Software Engineering', 'Mathematics and Computer Science', 400, 'Faculty of Science Lecture Theatre', 118, 350], ['PHY 301 Electromagnetism', 'Physics', 300, 'Physics Lab Hall', 58, 60], ['THA 201 Play Production', 'Theatre Arts', 200, 'Arts Theatre', 64, 400]];
+    return { rows: R.map(function (r) {
+      var p = Math.round(r[4] / r[5] * 100), s = p > 100 ? 'Overcrowded' : p >= 95 ? 'Full' : 'Suitable';
+      return { c: r[0], d: r[1], l: r[2], h: r[3], n: r[4], cap: r[5].toLocaleString('en-NG'), pct: p + '%', w: Math.min(p, 100) + '%', s: s,
+        cls: p > 100 ? 'is-warn' : '', bar: p > 100 ? '#dc2626' : p >= 95 ? '#d97706' : '#1a763f', txt: p > 100 ? '#b42318' : '#0f172a' };
+    }) };
+  }
+}
+</script>
+</body>
+</html>

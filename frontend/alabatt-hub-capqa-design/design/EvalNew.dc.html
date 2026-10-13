@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New staff evaluation · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="eval" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="eval" crumbs="Staff Evaluation>New evaluation" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><div class="row"><span class="tag tag-conf"><dc-import name="Icon" i="lock" s="12" hint-size="12px,12px"></dc-import>Confidential</span></div><h1 class="h1" style="margin-top: 8px">New staff evaluation</h1><p class="sub">Only Admins, the Director and Quality Inspectors can see evaluations.</p></div></div>
+      <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><div class="alert alert-danger" role="alert"><span class="a-icon"><dc-import name="Icon" i="alert-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">2 fields need attention</div>Session format and Assessment quality rating.</div></div></sc-if>
+      <form class="stack-lg" novalidate>
+        <section class="card"><div class="card-head"><h2 class="h3">Who and when</h2></div><div class="card-body grid-form">
+          <div class="field span-2">
+            <label class="label" for="ev-staff">Staff member <span class="req" aria-hidden="true">*</span></label>
+            <div class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input id="ev-staff" class="input" role="combobox" aria-expanded="false" value="Dr. Stephen Akuma" disabled="{{saving}}"></div>
+            <span class="help">Dept. of Mathematics and Computer Science · Senior Lecturer · teaches CMP 411, CMP 312</span>
+          </div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Source <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-cards"><sc-for list="{{sources}}" as="s" hint-placeholder-count="3"><label class="radio-card {{s.cls}}"><input type="radio" name="ev-src" checked="{{s.on}}" onChange="{{s.pick}}"><span class="badge" data-s="src-{{s.v}}">{{s.v}}</span></label></sc-for></div>
+          </fieldset>
+          <div class="field"><label class="label" for="ev-sess">Session <span class="req" aria-hidden="true">*</span></label><input id="ev-sess" class="input num {{invCls}}" value="{{sess}}" inputmode="numeric" aria-invalid="{{invAria}}" aria-describedby="ev-sess-h" disabled="{{saving}}">
+            <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Use the format 2025/2026 (consecutive years).</span></sc-if><span class="help" id="ev-sess-h">Format: 2025/2026</span></div>
+          <fieldset class="field" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Semester <span class="req" aria-hidden="true">*</span></legend><div class="radio-cards"><label class="radio-card"><input type="radio" name="ev-sem">1</label><label class="radio-card is-on"><input type="radio" name="ev-sem" checked>2</label></div></fieldset>
+        </div></section>
+        <section class="card"><div class="card-head"><h2 class="h3">Ratings</h2><span class="t-xs muted">1 = very poor · 5 = excellent</span></div><div class="card-body stack">
+          <sc-for list="{{ratings}}" as="r" hint-placeholder-count="3">
+            <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between">
+              <legend class="sr-only">{{r.n}}</legend>
+              <div style="flex: 1 1 200px"><div class="strong" aria-hidden="true">{{r.n}} <span class="req" style="color: #b42318">*</span></div><div class="t-xs muted">{{r.d}}</div></div>
+              <div class="stack-sm" style="gap: 2px; align-items: flex-end">
+                <div class="stars" role="radiogroup" aria-label="{{r.n}}"><sc-for list="{{r.stars}}" as="s" hint-placeholder-count="5"><button type="button" class="star {{s.cls}}" role="radio" aria-checked="{{s.checked}}" aria-label="{{s.label}}" onClick="{{s.pick}}"><dc-import name="Icon" i="star" s="28" f="{{s.on}}" hint-size="28px,28px"></dc-import></button></sc-for></div>
+                <span class="t-xs {{r.txtCls}}">{{r.txt}}</span>
+              </div>
+            </fieldset>
+          </sc-for>
+        </div></section>
+        <section class="card card-body"><div class="field"><label class="label" for="ev-cm">Comments <span class="opt">(optional)</span></label><textarea id="ev-cm" class="textarea" maxlength="3000" disabled="{{saving}}">Lectures are well prepared and start on time. Continuous assessment marks were returned within two weeks. Students asked for more practical sessions in the ICT Centre.</textarea><span class="counter">176 / 3,000</span></div></section>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="EvalList.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="EvalTrends.dc.html">Save evaluation</a></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { src: 'Peer', r: [4, 5, 0] }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default', words = ['Very poor', 'Poor', 'Fair', 'Good', 'Excellent'];
+    var R = [['Teaching quality', 'Clarity, preparation, use of course outline'], ['Student engagement', 'Participation, feedback, availability'], ['Assessment quality', 'Fair tests, timely marking, alignment with outcomes']];
+    var r = this.state.r.slice(); if (v !== 'invalid' && r[2] === 0) r[2] = 4;
+    return {
+      invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', sess: v === 'invalid' ? '2025-26' : '2025/2026',
+      sources: ['Student', 'Peer', 'Management'].map(function (x) { var on = x === self.state.src; return { v: x, on: on, cls: on ? 'is-on' : '', pick: function () { self.setState({ src: x }); } }; }),
+      ratings: R.map(function (x, i) {
+        var cur = r[i];
+        return { n: x[0], d: x[1], txt: cur ? cur + ' of 5 — ' + words[cur - 1] : 'Required — choose a rating', txtCls: cur ? 'muted' : 'err',
+          stars: [1, 2, 3, 4, 5].map(function (n) { var on = n <= cur; return { on: on, cls: on ? 'on' : '', checked: n === cur ? 'true' : 'false', label: n + ' — ' + words[n - 1], pick: function () { var a = self.state.r.slice(); a[i] = n; self.setState({ r: a }); } }; }) };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

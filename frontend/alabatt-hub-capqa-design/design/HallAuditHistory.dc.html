@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hall audit history · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Quality Inspector" active="audit" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Quality Inspector" active="audit" crumbs="Exam Hall Audit>Faculty of Science Lecture Theatre>History" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 920px">
+      <div class="page-head"><div><h1 class="h1">Audit history</h1><p class="sub">Faculty of Science Lecture Theatre · 6 audits since January 2024</p></div><a class="btn btn-primary" href="AuditWizard.dc.html"><dc-import name="Icon" i="plus" s="16" hint-size="16px,16px"></dc-import>New audit</a></div>
+      <section class="card card-body stack-sm" aria-labelledby="hh-t">
+        <h2 class="h3" id="hh-t">Average rating over time</h2>
+        <svg viewBox="0 0 600 160" width="100%" role="img" aria-label="Average rating: Jan 2024 3.8, Jun 2024 4.1, Jan 2025 3.9, Jun 2025 3.6, Jan 2026 4.0, Jun 2026 3.2, Oct 2026 3.4" style="display: block">
+          <g font-family="IBM Plex Sans, sans-serif" font-size="11" fill="#475569">
+            <line x1="40" y1="130" x2="590" y2="130" stroke="#cbd5e1"></line><line x1="40" y1="90" x2="590" y2="90" stroke="#eef2f6"></line><line x1="40" y1="50" x2="590" y2="50" stroke="#eef2f6"></line><line x1="40" y1="10" x2="590" y2="10" stroke="#eef2f6"></line>
+            <text x="32" y="134" text-anchor="end">2</text><text x="32" y="94" text-anchor="end">3</text><text x="32" y="54" text-anchor="end">4</text><text x="32" y="14" text-anchor="end">5</text>
+            <polyline points="70,58 150,46 230,54 310,66 390,50 470,82 560,74" fill="none" stroke="#166534" stroke-width="2.5"></polyline>
+            <circle cx="70" cy="58" r="4" fill="#166534"></circle><circle cx="150" cy="46" r="4" fill="#166534"></circle><circle cx="230" cy="54" r="4" fill="#166534"></circle><circle cx="310" cy="66" r="4" fill="#d97706"></circle><circle cx="390" cy="50" r="4" fill="#166534"></circle><circle cx="470" cy="82" r="4" fill="#d97706"></circle><circle cx="560" cy="74" r="4" fill="#d97706"></circle>
+            <text x="70" y="150" text-anchor="middle">Jan 24</text><text x="150" y="150" text-anchor="middle">Jun 24</text><text x="230" y="150" text-anchor="middle">Jan 25</text><text x="310" y="150" text-anchor="middle">Jun 25</text><text x="390" y="150" text-anchor="middle">Jan 26</text><text x="470" y="150" text-anchor="middle">Jun 26</text><text x="560" y="150" text-anchor="middle">Oct 26</text>
+          </g>
+        </svg>
+      </section>
+      <section class="card card-body" aria-labelledby="hh-l">
+        <h2 class="h3" id="hh-l" style="margin-bottom: 16px">Timeline</h2>
+        <ol class="timeline">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+            <li class="tl-item"><span class="tl-dot {{r.dot}}"><dc-import name="Icon" i="{{r.i}}" s="16" hint-size="16px,16px"></dc-import></span>
+              <div class="stack-sm" style="gap: 4px">
+                <div class="row"><a class="strong" href="AuditDetail.dc.html">{{r.d}}</a><span class="badge" data-s="aud-{{r.res}}">{{r.res}}</span><span class="t-sm muted">{{r.avg}} / 5 · {{r.by}}</span></div>
+                <span class="t-sm muted">{{r.note}}</span>
+              </div>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var R = [['12 Oct 2026', 'Needs Attention', '3.4', 'Mr. Emmanuel Ochoga', 'Fans on the east side and audio at the rear need repair.'], ['18 Jun 2026', 'Needs Attention', '3.2', 'Mr. Emmanuel Ochoga', 'Audio system faulty; two ceiling fans not working.'], ['20 Jan 2026', 'Suitable', '4.0', 'Dr. Aondohemba Tyokase', 'All items rated 3 or above.'], ['12 Jun 2025', 'Needs Attention', '3.6', 'Dr. Aondohemba Tyokase', 'Lighting dim in rows 18–24.'], ['15 Jan 2025', 'Suitable', '3.9', 'Mr. Emmanuel Ochoga', 'New LED fittings installed.'], ['10 Jun 2024', 'Suitable', '4.1', 'Dr. Aondohemba Tyokase', 'No issues.']];
+    var M = { 'Suitable': ['ok', 'check'], 'Needs Attention': ['warn', 'alert'], 'Not Suitable': ['bad', 'x'] };
+    return { rows: R.map(function (r) { return { d: r[0], res: r[1], avg: r[2], by: r[3], note: r[4], dot: M[r[1]][0], i: M[r[1]][1] }; }) };
+  }
+}
+</script>
+</body>
+</html>

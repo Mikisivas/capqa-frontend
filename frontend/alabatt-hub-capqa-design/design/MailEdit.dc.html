@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Edit mail · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dispatch" crumbs="E-Dispatch>CAPQA/DSP/2026/0142>Edit" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Edit mail</h1><p class="sub"><span class="mono">CAPQA/DSP/2026/0142</span> · <span class="badge" data-s="mail-Forwarded">Forwarded</span></p></div></div>
+      <sc-if value="{{saved}}" hint-placeholder-val="{{ false }}"><div class="alert alert-success" role="status"><span class="a-icon"><dc-import name="Icon" i="check-circle" s="18" hint-size="18px,18px"></dc-import></span><div><div class="a-title">Changes saved</div>The change is recorded in the mail’s timeline and the audit log.</div></div></sc-if>
+      <form class="stack-lg">
+        <div class="card"><div class="card-body grid-form">
+          <div class="field"><label class="label" for="me-ref">Reference number</label><input id="me-ref" class="input mono" value="CAPQA/DSP/2026/0142" readonly><span class="help">Reference numbers can’t be changed after recording</span></div>
+          <div class="field"><label class="label" for="me-date">Date received <span class="req" aria-hidden="true">*</span></label><input id="me-date" class="input" type="date" value="2026-10-10" disabled="{{saving}}"></div>
+          <div class="field span-2"><label class="label" for="me-from">Sender <span class="req" aria-hidden="true">*</span></label><input id="me-from" class="input" value="Office of the Registrar" disabled="{{saving}}"></div>
+          <div class="field span-2"><label class="label" for="me-subj">Subject <span class="req" aria-hidden="true">*</span></label><input id="me-subj" class="input {{invCls}}" value="{{subj}}" aria-invalid="{{invAria}}" disabled="{{saving}}"><sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Subject must be 255 characters or fewer.</span></sc-if></div>
+          <div class="field"><label class="label" for="me-pri">Priority</label><select id="me-pri" class="select" disabled="{{saving}}"><option>High</option><option>Medium</option><option>Low</option></select></div>
+          <div class="field"><label class="label" for="me-due">Due date <span class="opt">(optional)</span></label><input id="me-due" class="input" type="date" value="2026-10-17" disabled="{{saving}}"></div>
+          <div class="field span-2"><label class="label" for="me-desc">Description <span class="opt">(optional)</span></label><textarea id="me-desc" class="textarea" disabled="{{saving}}">The NUC accreditation visit for B.Sc. Computer Science is moved to 3–5 November 2026. Heads of department must confirm resource verification lists and staff files by 24 October 2026.</textarea></div>
+        </div></div>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="MailDetail.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Saving…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-primary" onClick="{{save}}"><dc-import name="Icon" i="save" s="16" hint-size="16px,16px"></dc-import>Save changes</button></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving","saved"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { saved: false }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default';
+    return {
+      saving: v === 'saving', idle: v !== 'saving', saved: this.state.saved || v === 'saved', invalid: v === 'invalid',
+      invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false',
+      subj: 'NUC accreditation visit — revised schedule', save: function () { self.setState({ saved: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Department detail · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Academic Officer" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Academic Officer" active="dept" crumbs="Departments>Mathematics and Computer Science" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head">
+        <div class="stack-sm" style="gap: 6px"><div class="row"><span class="badge" data-s="pass">Meets NUC ratio</span><span class="tag mono">MCS</span></div><h1 class="h1">Dept. of Mathematics and Computer Science</h1><p class="muted">Faculty of Science · HOD: Prof. Terfa Iorliam</p></div>
+        <div class="row"><a class="btn btn-secondary" href="DeptEdit.dc.html"><dc-import name="Icon" i="edit" s="16" hint-size="16px,16px"></dc-import>Edit</a><a class="btn btn-secondary" href="DeptStats.dc.html">Update statistics</a><a class="btn btn-primary" href="QualityScore.dc.html">Record quality score</a></div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Department sections">
+        <sc-for list="{{tabs}}" as="t" hint-placeholder-count="6"><button type="button" class="tab" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for>
+      </div>
+      <sc-if value="{{t0}}" hint-placeholder-val="{{ true }}">
+        <div class="stack-lg" role="tabpanel">
+          <section class="grid-stats">
+            <div class="card stat"><span class="s-label">Academic staff</span><span class="s-value">38</span><span class="s-foot">6 professors</span></div>
+            <div class="card stat"><span class="s-label">Students</span><span class="s-value">1,062</span><span class="s-foot">100–400 level</span></div>
+            <div class="card stat"><span class="s-label">Staff : student</span><span class="s-value">1 : 28</span><span class="s-foot">NUC max 1 : 30</span></div>
+            <div class="card stat"><span class="s-label">Quality score</span><span class="s-value">82</span><span class="s-foot">+4 on last session</span></div>
+          </section>
+          <section class="card card-body stack-sm"><h2 class="h3">Courses by accreditation</h2><div class="row" style="gap: 16px"><span class="badge" data-s="acc-Full">Full · 11</span><span class="badge" data-s="acc-Interim">Interim · 2</span><span class="badge" data-s="acc-Denied">Denied · 0</span></div></section>
+        </div>
+      </sc-if>
+      <sc-if value="{{t1}}" hint-placeholder-val="{{ false }}">
+        <section class="card" role="tabpanel"><div class="card-head"><h2 class="h3">Staff (38)</h2><a class="btn btn-primary btn-sm" href="StaffAdd.dc.html"><dc-import name="Icon" i="plus" s="14" hint-size="14px,14px"></dc-import>Add staff</a></div>
+          <div class="table-wrap"><table class="table table-stack"><thead><tr><th scope="col">Name</th><th scope="col">Rank</th><th scope="col">Staff no.</th><th scope="col">Employment</th></tr></thead><tbody>
+            <tr><td class="td-lead" data-label="Name">Prof. Terfa Iorliam</td><td data-label="Rank">Professor · HOD</td><td data-label="Staff no." class="mono">MOAU/SS/0108</td><td data-label="Employment">Full-time</td></tr>
+            <tr><td class="td-lead" data-label="Name">Dr. Stephen Akuma</td><td data-label="Rank">Senior Lecturer</td><td data-label="Staff no." class="mono">MOAU/SS/0412</td><td data-label="Employment">Full-time</td></tr>
+            <tr><td class="td-lead" data-label="Name">Mrs. Mnena Gbaa</td><td data-label="Rank">Lecturer I</td><td data-label="Staff no." class="mono">MOAU/SS/0533</td><td data-label="Employment">Full-time</td></tr>
+          </tbody></table></div><div class="card-foot" style="justify-content: flex-start"><a class="t-sm strong" href="StaffList.dc.html">View all staff</a></div></section>
+      </sc-if>
+      <sc-if value="{{t2}}" hint-placeholder-val="{{ false }}">
+        <section class="card card-body stack" role="tabpanel"><h2 class="h3">Ratio and benchmark</h2><p>Computer Science benchmark: <strong>1 : 30</strong> (NUC, effective 2023, source: File). Current ratio <strong>1 : 28</strong> — within the benchmark.</p><a class="btn btn-secondary" href="DeptCompliance.dc.html" style="align-self: flex-start">Open compliance view</a></section>
+      </sc-if>
+      <sc-if value="{{t3}}" hint-placeholder-val="{{ false }}">
+        <section class="card" role="tabpanel"><div class="card-head"><h2 class="h3">Courses and accreditation (13)</h2><a class="btn btn-primary btn-sm" href="CourseAdd.dc.html"><dc-import name="Icon" i="plus" s="14" hint-size="14px,14px"></dc-import>Add course</a></div>
+          <div class="table-wrap"><table class="table table-stack"><thead><tr><th scope="col">Code</th><th scope="col">Course</th><th scope="col">Level</th><th scope="col">Accreditation</th><th scope="col" class="r"><span class="sr-only">Actions</span></th></tr></thead><tbody>
+            <tr><td class="td-lead mono" data-label="Code">CMP 411</td><td data-label="Course">Software Engineering</td><td data-label="Level">400</td><td data-label="Accreditation"><span class="badge" data-s="acc-Full">Full</span></td><td class="td-actions"><a class="btn btn-ghost btn-sm" href="CourseAccreditation.dc.html">Change status</a></td></tr>
+            <tr><td class="td-lead mono" data-label="Code">CMP 312</td><td data-label="Course">Database Systems</td><td data-label="Level">300</td><td data-label="Accreditation"><span class="badge" data-s="acc-Interim">Interim</span></td><td class="td-actions"><a class="btn btn-ghost btn-sm" href="CourseAccreditation.dc.html">Change status</a></td></tr>
+            <tr><td class="td-lead mono" data-label="Code">MTH 201</td><td data-label="Course">Mathematical Methods</td><td data-label="Level">200</td><td data-label="Accreditation"><span class="badge" data-s="acc-Full">Full</span></td><td class="td-actions"><a class="btn btn-ghost btn-sm" href="CourseAccreditation.dc.html">Change status</a></td></tr>
+          </tbody></table></div><div class="card-foot" style="justify-content: flex-start"><a class="t-sm strong" href="CourseList.dc.html">View all courses</a></div></section>
+      </sc-if>
+      <sc-if value="{{t4}}" hint-placeholder-val="{{ false }}">
+        <section class="card card-body stack" role="tabpanel"><h2 class="h3">Quality scores</h2>
+          <sc-for list="{{scores}}" as="s" hint-placeholder-count="4"><div class="hbar"><span class="num">{{s.p}}</span><span class="track"><span class="fill" style="width: {{s.w}}"></span></span><span class="num strong" style="text-align: right">{{s.v}}</span></div></sc-for>
+        </section>
+      </sc-if>
+      <sc-if value="{{t5}}" hint-placeholder-val="{{ false }}">
+        <section class="card card-body" role="tabpanel"><h2 class="h3" style="margin-bottom: 16px">History</h2>
+          <ol class="timeline">
+            <li class="tl-item"><span class="tl-dot ok"><dc-import name="Icon" i="star" s="16" hint-size="16px,16px"></dc-import></span><div><div class="t-sm strong">Quality score 82 recorded</div><div class="tl-meta">Mr. Emmanuel Ochoga · 9 Oct 2026</div></div></li>
+            <li class="tl-item"><span class="tl-dot info"><dc-import name="Icon" i="users" s="16" hint-size="16px,16px"></dc-import></span><div><div class="t-sm strong">Statistics updated: 38 staff, 1,062 students</div><div class="tl-meta">Mrs. Ngozi Okafor · 2 Sep 2026</div></div></li>
+            <li class="tl-item"><span class="tl-dot warn"><dc-import name="Icon" i="book" s="16" hint-size="16px,16px"></dc-import></span><div><div class="t-sm strong">CMP 312 accreditation changed Full → Interim</div><div class="tl-meta">Mr. Tersoo Ahule · 14 Jul 2026</div></div></li>
+          </ol>
+        </section>
+      </sc-if>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tab":{"editor":"enum","default":"Overview","options":["Overview","Staff","Ratio and benchmark","Courses and accreditation","Quality scores","History"]},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: null }; }
+  renderVals() {
+    var self = this, L = ['Overview', 'Staff', 'Ratio and benchmark', 'Courses and accreditation', 'Quality scores', 'History'];
+    var cur = this.state.tab || (this.props.tab ?? 'Overview'), i = L.indexOf(cur);
+    return {
+      tabs: L.map(function (l) { return { label: l, sel: l === cur ? 'true' : 'false', pick: function () { self.setState({ tab: l }); } }; }),
+      t0: i === 0, t1: i === 1, t2: i === 2, t3: i === 3, t4: i === 4, t5: i === 5,
+      scores: [['2025/2026', 82], ['2024/2025', 78], ['2023/2024', 73], ['2022/2023', 69]].map(function (s) { return { p: s[0], v: s[1], w: s[1] + '%' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

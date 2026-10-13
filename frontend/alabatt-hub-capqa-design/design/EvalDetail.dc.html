@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Evaluation detail · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="eval" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="eval" crumbs="Staff Evaluation>Dr. Stephen Akuma>EVL-2026-0412" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 960px">
+      <div class="page-head">
+        <div class="stack-sm" style="gap: 6px"><div class="row"><span class="mono t-sm muted">EVL-2026-0412</span><span class="tag tag-conf"><dc-import name="Icon" i="lock" s="12" hint-size="12px,12px"></dc-import>Confidential</span><span class="badge" data-s="src-Peer">Peer</span></div><h1 class="h1">Evaluation of Dr. Stephen Akuma</h1><p class="muted">2025/2026 · Semester 2 · entered 12 Oct 2026 by Mr. Emmanuel Ochoga</p></div>
+        <button type="button" class="btn btn-secondary"><dc-import name="Icon" i="printer" s="16" hint-size="16px,16px"></dc-import>Print</button>
+      </div>
+      <section class="grid-3" aria-label="Ratings">
+        <sc-for list="{{r}}" as="x" hint-placeholder-count="3">
+          <div class="card card-body stack-sm">
+            <span class="t-sm muted strong">{{x.n}}</span>
+            <div class="row" style="gap: 10px"><span class="t-3xl strong num">{{x.v}}</span><span class="muted">/ 5</span></div>
+            <span class="stars-sm" aria-hidden="true"><sc-for list="{{x.st}}" as="s" hint-placeholder-count="5"><span style="color: {{s.c}}; display: flex"><dc-import name="Icon" i="star" s="18" f="{{ true }}" hint-size="18px,18px"></dc-import></span></sc-for></span>
+            <span class="t-xs muted">{{x.w}}</span>
+          </div>
+        </sc-for>
+      </section>
+      <section class="card card-body stack-sm"><h2 class="h3">Comments</h2><p style="line-height: 22px">Lectures are well prepared and start on time. Continuous assessment marks were returned within two weeks. Students asked for more practical sessions in the ICT Centre. Recommend a second practical slot on Thursdays.</p></section>
+      <section class="card">
+        <dl class="dl card-body" style="margin: 0">
+          <div><dt>Staff member</dt><dd><a href="EvalHistory.dc.html">Dr. Stephen Akuma</a></dd></div>
+          <div><dt>Department</dt><dd>Mathematics and Computer Science</dd></div>
+          <div><dt>Session · semester</dt><dd>2025/2026 · 2</dd></div>
+          <div><dt>Average</dt><dd class="num">4.3 / 5</dd></div>
+          <div><dt>Entered by</dt><dd>Mr. Emmanuel Ochoga, Quality Inspector</dd></div>
+          <div><dt>Last viewed</dt><dd>Prof. Msughter Iorkyaa · today, 09:12</dd></div>
+        </dl>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var words = ['Very poor', 'Poor', 'Fair', 'Good', 'Excellent'];
+    return { r: [['Teaching quality', 4], ['Student engagement', 5], ['Assessment quality', 4]].map(function (x) { return { n: x[0], v: x[1], w: words[x[1] - 1], st: [1, 2, 3, 4, 5].map(function (n) { return { c: n <= x[1] ? '#d97706' : '#cbd5e1' }; }) }; }) };
+  }
+}
+</script>
+</body>
+</html>

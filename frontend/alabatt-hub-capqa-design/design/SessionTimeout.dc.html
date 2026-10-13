@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session timeout · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="dispatch" crumbs="E-Dispatch>Mail list" hint-size="100%,64px"></dc-import>
+    <main class="page" aria-hidden="true">
+      <div class="page-head"><h1 class="h1">Mail list</h1></div>
+      <div class="card"><dc-import name="ListState" kind="loading" hint-size="100%,300px"></dc-import></div>
+    </main>
+  </div>
+  <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+    <div class="modal-layer">
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="st-h" aria-describedby="st-d">
+        <div class="modal-body" style="align-items: center; text-align: center; padding-top: 28px">
+          <span class="modal-icon warn"><dc-import name="Icon" i="clock" s="22" hint-size="22px,22px"></dc-import></span>
+          <h2 class="h2" id="st-h">You will be logged out in {{secs}} seconds</h2>
+          <p class="muted" id="st-d">Stay signed in? You’ve been inactive for 14 minutes. Unsaved changes will be lost if you’re logged out.</p>
+          <div class="progress" style="width: 100%" role="progressbar" aria-label="Time remaining" aria-valuemin="0" aria-valuemax="60" aria-valuenow="{{secs}}"><span style="width: {{pct}}; background: #d97706"></span></div>
+          <span class="t-xs muted" aria-live="polite">{{secs}} s remaining</span>
+        </div>
+        <div class="modal-foot">
+          <a class="btn btn-secondary" href="Login.dc.html">Log out now</a>
+          <button type="button" class="btn btn-primary" onClick="{{stay}}">Stay signed in</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { secs: 60, open: true }; }
+  componentDidMount() { var self = this; this.t = setInterval(function () { if (self.state.open && self.state.secs > 0) self.setState({ secs: self.state.secs - 1 }); }, 1000); }
+  componentWillUnmount() { clearInterval(this.t); }
+  renderVals() {
+    var self = this;
+    return { secs: this.state.secs, pct: Math.round(this.state.secs / 60 * 100) + '%', open: this.state.open, stay: function () { self.setState({ open: false }); } };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Record NUC benchmark · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="dept" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="dept" crumbs="Departments>NUC benchmarks>Record benchmark" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Record NUC benchmark</h1><p class="sub">The maximum students per academic staff member that NUC allows for a discipline.</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2"><label class="label" for="nb-disc">Discipline <span class="req" aria-hidden="true">*</span></label><input id="nb-disc" class="input" value="Computer Science"></div>
+          <div class="field"><label class="label" for="nb-max">Maximum students per staff <span class="req" aria-hidden="true">*</span></label><div class="addon"><span class="pre">1 :</span><input id="nb-max" class="input num" type="number" min="1" value="30"></div></div>
+          <div class="field"><label class="label" for="nb-year">Effective year <span class="req" aria-hidden="true">*</span></label><input id="nb-year" class="input num {{invCls}}" type="number" min="2000" max="2200" value="{{year}}" aria-invalid="{{invAria}}"><sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Enter a year between 2000 and 2200.</span></sc-if><span class="help">2000 to 2200</span></div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Source <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-cards"><sc-for list="{{src}}" as="s" hint-placeholder-count="3"><label class="radio-card {{s.cls}}"><input type="radio" name="nb-src" checked="{{s.on}}" onChange="{{s.pick}}"><dc-import name="Icon" i="{{s.i}}" s="18" hint-size="18px,18px"></dc-import><span>{{s.v}}</span></label></sc-for></div>
+          </fieldset>
+          <sc-if value="{{isFile}}" hint-placeholder-val="{{ false }}"><div class="uploader span-2" style="padding: 20px"><dc-import name="Icon" i="upload" s="20" hint-size="20px,20px"></dc-import><span><span class="strong">Upload NUC BMAS document</span> · PDF up to 10 MB</span></div></sc-if>
+        </div></div>
+        <section class="card"><div class="card-head"><h2 class="h3">Current benchmarks</h2></div>
+          <div class="table-wrap"><table class="table"><thead><tr><th scope="col">Discipline</th><th scope="col" class="r">Max ratio</th><th scope="col">Effective</th><th scope="col">Source</th></tr></thead><tbody>
+            <tr><td>Computer Science</td><td class="r num">1 : 30</td><td class="num">2023</td><td>File</td></tr>
+            <tr><td>Physics</td><td class="r num">1 : 20</td><td class="num">2023</td><td>File</td></tr>
+            <tr><td>Accounting</td><td class="r num">1 : 30</td><td class="num">2022</td><td>Manual</td></tr>
+            <tr><td>English</td><td class="r num">1 : 25</td><td class="num">2022</td><td>API</td></tr>
+          </tbody></table></div>
+        </section>
+        <div class="action-bar"><a class="btn btn-secondary" href="DeptList.dc.html">Cancel</a><button type="button" class="btn btn-primary">Save benchmark</button></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { src: 'Manual' }; }
+  renderVals() {
+    var self = this, v = this.props.view ?? 'default';
+    return { invalid: v === 'invalid', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', year: v === 'invalid' ? '1998' : '2026', isFile: this.state.src === 'File',
+      src: [['File', 'file'], ['API', 'refresh'], ['Manual', 'edit']].map(function (x) { var on = x[0] === self.state.src; return { v: x[0], i: x[1], on: on, cls: on ? 'is-on' : '', pick: function () { self.setState({ src: x[0] }); } }; }) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Generate invoice · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="pay" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="pay" crumbs="Payments>Generate invoice" hint-size="100%,64px"></dc-import>
+    <div class="banner-test" role="note"><dc-import name="Icon" i="zap" s="16" hint-size="16px,16px"></dc-import>TEST MODE — invoices and payments use the test gateway. No real money moves.</div>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Generate invoice</h1><p class="sub">The payer is notified and can pay from their Invoices page.</p></div></div>
+      <form class="stack-lg" novalidate>
+        <div class="card"><div class="card-body grid-form">
+          <div class="field span-2">
+            <label class="label" for="ig-payer">Payer <span class="req" aria-hidden="true">*</span></label>
+            <div class="input-wrap"><span class="lead"><dc-import name="Icon" i="search" s="18" hint-size="18px,18px"></dc-import></span><input id="ig-payer" class="input" role="combobox" aria-expanded="false" value="Mrs. Ngozi Okafor" disabled="{{saving}}"></div>
+            <span class="help">n.okafor@moau.edu.ng · Academic Officer · Mathematics and Computer Science</span>
+          </div>
+          <div class="field span-2"><label class="label" for="ig-desc">Description <span class="req" aria-hidden="true">*</span></label><input id="ig-desc" class="input" value="Hall booking fee — 1000-Seater Auditorium, departmental seminar" disabled="{{saving}}"></div>
+          <div class="field"><label class="label" for="ig-amt">Amount <span class="req" aria-hidden="true">*</span></label><div class="addon"><span class="pre">₦</span><input id="ig-amt" class="input num {{invCls}}" inputmode="decimal" value="{{amt}}" aria-invalid="{{invAria}}" disabled="{{saving}}"></div>
+            <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><span class="err"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>Enter an amount greater than NGN 0.</span></sc-if></div>
+          <div class="field"><label class="label" for="ig-cur">Currency</label><select id="ig-cur" class="select" disabled="{{saving}}"><option>NGN — Nigerian naira</option></select></div>
+        </div></div>
+        <section class="card card-body row-between" aria-live="polite"><span class="muted">Invoice total</span><span class="t-2xl strong num">NGN 25,000.00</span></section>
+        <div class="action-bar">
+          <a class="btn btn-secondary" href="InvoiceList.dc.html">Cancel</a>
+          <sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary is-loading" aria-busy="true"><span class="spin" aria-hidden="true"></span>Generating…</button></sc-if>
+          <sc-if value="{{idle}}" hint-placeholder-val="{{ true }}"><a class="btn btn-primary" href="InvoiceDetail.dc.html"><dc-import name="Icon" i="receipt" s="16" hint-size="16px,16px"></dc-import>Generate invoice</a></sc-if>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","default":"default","options":["default","invalid","saving"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { var v = this.props.view ?? 'default'; return { invalid: v === 'invalid', saving: v === 'saving', idle: v !== 'saving', invCls: v === 'invalid' ? 'is-invalid' : '', invAria: v === 'invalid' ? 'true' : 'false', amt: v === 'invalid' ? '0' : '25,000.00' }; }
+}
+</script>
+</body>
+</html>

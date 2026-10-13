@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Report builder · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="reports" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="reports" crumbs="Reports>Report builder" hint-size="100%,64px"></dc-import>
+    <main class="page page-narrow">
+      <div class="page-head"><div><h1 class="h1">Build a report</h1><p class="sub">Reports are saved as drafts. Finalise one to lock it for circulation.</p></div></div>
+      <form class="stack-lg">
+        <section class="card card-body stack">
+          <fieldset style="border: 0; padding: 0; margin: 0" class="field"><legend class="label" style="margin-bottom: 8px">Report type <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-cards" style="grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr))">
+              <sc-for list="{{types}}" as="t" hint-placeholder-count="5"><label class="radio-card {{t.cls}}" style="align-items: flex-start; padding: 14px"><input type="radio" name="rb-t" checked="{{t.on}}" onChange="{{t.pick}}" style="margin-top: 2px"><span class="stack-sm" style="gap: 4px"><span class="row" style="gap: 6px"><dc-import name="Icon" i="{{t.i}}" s="18" hint-size="18px,18px"></dc-import><span class="strong">{{t.v}}</span></span><span class="t-xs muted" style="font-weight: 400">{{t.d}}</span></span></label></sc-for>
+            </div>
+          </fieldset>
+        </section>
+        <section class="card"><div class="card-head"><h2 class="h3">Scope and filters</h2></div><div class="card-body grid-form">
+          <div class="field"><label class="label" for="rb-dept">Department <span class="opt">(optional)</span></label><select id="rb-dept" class="select"><option>All departments</option><option>Mathematics and Computer Science</option><option>Physics</option></select></div>
+          <div class="field"><label class="label" for="rb-sess">Session <span class="opt">(optional)</span></label><select id="rb-sess" class="select"><option>2025/2026</option><option>2024/2025</option><option>All sessions</option></select></div>
+          <sc-if value="{{isDispatch}}" hint-placeholder-val="{{ false }}">
+            <div class="field"><label class="label" for="rb-st">Mail status</label><select id="rb-st" class="select"><option>All statuses</option><option>Approved</option><option>Pending</option></select></div>
+            <div class="field"><label class="label" for="rb-pri">Priority</label><select id="rb-pri" class="select"><option>All priorities</option><option>High</option></select></div>
+          </sc-if>
+          <sc-if value="{{isUsage}}" hint-placeholder-val="{{ true }}">
+            <div class="field"><label class="label" for="rb-pur">Purpose</label><select id="rb-pur" class="select"><option>Class, exam and event</option><option>Exam only</option></select></div>
+            <div class="field"><label class="label" for="rb-oc">Include</label><select id="rb-oc" class="select"><option>All allocations</option><option>Overcrowded only</option></select></div>
+          </sc-if>
+          <sc-if value="{{isOther}}" hint-placeholder-val="{{ false }}">
+            <div class="field"><label class="label" for="rb-sem">Semester</label><select id="rb-sem" class="select"><option>Both semesters</option><option>1</option><option>2</option></select></div>
+            <div class="field"><label class="label" for="rb-src">Group by</label><select id="rb-src" class="select"><option>Department</option><option>Faculty</option></select></div>
+          </sc-if>
+          <div class="field"><label class="label" for="rb-from">From <span class="opt">(optional)</span></label><input id="rb-from" class="input" type="date" value="2026-03-01"></div>
+          <div class="field"><label class="label" for="rb-to">To <span class="opt">(optional)</span></label><input id="rb-to" class="input" type="date" value="2026-10-12"></div>
+          <fieldset class="field span-2" style="border: 0; padding: 0; margin: 0"><legend class="label" style="margin-bottom: 6px">Export format <span class="req" aria-hidden="true">*</span></legend>
+            <div class="radio-cards"><label class="radio-card is-on"><input type="radio" name="rb-f" checked><span class="f-ico" style="width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; background: #fef3f2; color: #b42318; font-size: 10px; font-weight: 700">PDF</span>PDF document</label><label class="radio-card"><input type="radio" name="rb-f"><span style="width: 32px; height: 32px; border-radius: 6px; display: grid; place-items: center; background: #effaf2; color: #166534; font-size: 10px; font-weight: 700">XLS</span>Excel workbook</label></div>
+          </fieldset>
+        </div></section>
+        <div class="action-bar"><a class="btn btn-secondary" href="ReportPreview.dc.html"><dc-import name="Icon" i="eye" s="16" hint-size="16px,16px"></dc-import>Preview</a><a class="btn btn-primary" href="ReportsList.dc.html">Generate report</a></div>
+      </form>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { t: 'Classroom usage' }; }
+  renderVals() {
+    var self = this, t = this.state.t;
+    var T = [['Dispatch', 'mail', 'Mail received, approval times, status'], ['Classroom usage', 'building', 'Allocations, utilisation, overcrowding'], ['Departmental audit', 'clipboard', 'Hall audits, ratios, quality scores'], ['Staff evaluation', 'star', 'Confidential — average ratings by staff'], ['Payment history', 'card', 'Invoices and payments in NGN']];
+    return {
+      isDispatch: t === 'Dispatch', isUsage: t === 'Classroom usage', isOther: t !== 'Dispatch' && t !== 'Classroom usage',
+      types: T.map(function (x) { var on = x[0] === t; return { v: x[0], i: x[1], d: x[2], on: on, cls: on ? 'is-on' : '', pick: function () { self.setState({ t: x[0] }); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

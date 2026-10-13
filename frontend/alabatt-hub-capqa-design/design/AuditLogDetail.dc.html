@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit log entry · ALABATT-HUB CAPQA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Admin" active="auditlog" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Admin" active="auditlog" crumbs="Administration>Audit log>log_58210" hint-size="100%,64px"></dc-import>
+    <main class="page" style="max-width: 1040px">
+      <div class="page-head"><div class="stack-sm" style="gap: 6px"><div class="row"><span class="tag" style="background: #fffaeb; color: #93370d; border-color: transparent; font-weight: 600">Update</span><span class="mono t-sm muted">log_58210</span></div><h1 class="h1">User account updated</h1><p class="muted">Mr. Tersoo Ahule changed <span class="mono">usr_0461</span> (Dr. Stephen Akuma)</p></div><a class="btn btn-secondary" href="AuditLog.dc.html"><dc-import name="Icon" i="arrow-left" s="16" hint-size="16px,16px"></dc-import>Back to log</a></div>
+      <section class="card">
+        <dl class="dl card-body" style="margin: 0; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))">
+          <div><dt>Date and time</dt><dd class="mono">12 Oct 2026 14:58:30 WAT</dd></div>
+          <div><dt>Who</dt><dd>Mr. Tersoo Ahule (Admin)</dd></div>
+          <div><dt>Resource</dt><dd>User · <span class="mono">usr_0461</span></dd></div>
+          <div><dt>IP address</dt><dd class="mono">10.20.4.117</dd></div>
+          <div><dt>Device</dt><dd>Chrome on Windows</dd></div>
+          <div><dt>Request ID</dt><dd class="mono">req_7f21c9a4</dd></div>
+        </dl>
+      </section>
+      <section class="card" aria-labelledby="ba-h">
+        <div class="card-head"><h2 class="h3" id="ba-h">Before and after</h2><span class="t-sm muted">3 fields changed</span></div>
+        <div class="table-wrap"><table class="table table-stack">
+          <thead><tr><th scope="col">Field</th><th scope="col">Before</th><th scope="col">After</th><th scope="col"><span class="sr-only">Change</span></th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+              <tr><td class="td-lead mono t-sm" data-label="Field">{{r.f}}</td>
+                <td data-label="Before"><span class="mono t-sm" style="{{r.bs}}">{{r.b}}</span></td>
+                <td data-label="After"><span class="mono t-sm" style="{{r.as}}">{{r.a}}</span></td>
+                <td data-label="Change"><sc-if value="{{r.ch}}" hint-placeholder-val="{{ false }}"><span class="badge tone-warning">Changed</span></sc-if><sc-if value="{{r.same}}" hint-placeholder-val="{{ true }}"><span class="t-xs muted">Unchanged</span></sc-if></td></tr>
+            </sc-for>
+          </tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var R = [['status', 'Pending', 'Active'], ['role', 'null', 'Academic Officer'], ['department_id', 'null', 'dept_003 (Mathematics and Computer Science)'], ['full_name', 'Dr. Stephen Akuma', 'Dr. Stephen Akuma'], ['email', 's.akuma@moau.edu.ng', 's.akuma@moau.edu.ng'], ['username', 's.akuma', 's.akuma']];
+    return { rows: R.map(function (r) { var ch = r[1] !== r[2]; return { f: r[0], b: r[1], a: r[2], ch: ch, same: !ch,
+      bs: ch ? 'background: #fef3f2; color: #7a271a; padding: 2px 6px; border-radius: 4px; text-decoration: line-through' : '',
+      as: ch ? 'background: #ecfdf3; color: #0f4f2b; padding: 2px 6px; border-radius: 4px; font-weight: 600' : '' }; }) };
+  }
+}
+</script>
+</body>
+</html>

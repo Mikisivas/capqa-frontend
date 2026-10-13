@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Director approval · E-Dispatch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./capqa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="app capqa">
+  <dc-import name="Sidebar" mode="rail" role="Director" active="dispatch" hint-size="256px,100%"></dc-import>
+  <div class="app-main">
+    <dc-import name="Topbar" role="Director" active="dispatch" crumbs="E-Dispatch>CAPQA/DSP/2026/0142>Approval" hint-size="100%,64px"></dc-import>
+    <main class="page">
+      <div class="page-head"><div><h1 class="h1">Approve or reject</h1><p class="sub">Your decision is final and is recorded in the audit log.</p></div></div>
+      <div class="split">
+        <form class="stack-lg" style="min-width: 0" onSubmit="{{submit}}" novalidate>
+          <section class="card">
+            <div class="card-head"><div class="row"><span class="mono strong">CAPQA/DSP/2026/0142</span><span class="badge" data-s="mail-Forwarded">Forwarded</span><span class="badge" data-s="pri-High">High</span></div><a class="t-sm strong" href="MailDetail.dc.html">Open full detail</a></div>
+            <dl class="dl card-body" style="margin: 0">
+              <div style="grid-column: 1 / -1"><dt>Subject</dt><dd>NUC accreditation visit — revised schedule</dd></div>
+              <div><dt>Sender</dt><dd>Office of the Registrar</dd></div>
+              <div><dt>Date received</dt><dd>10 Oct 2026</dd></div>
+              <div><dt>Forwarded by</dt><dd>Mrs. Ngozi Okafor</dd></div>
+              <div><dt>Attachments</dt><dd><a href="MailDetail.dc.html">2 documents</a></dd></div>
+            </dl>
+          </section>
+          <section class="card card-body stack" aria-labelledby="dec-h">
+            <h2 class="h3" id="dec-h">Decision</h2>
+            <div class="radio-cards" role="radiogroup" aria-labelledby="dec-h">
+              <label class="radio-card {{apCls}}"><input type="radio" name="dec" checked="{{isAp}}" onChange="{{pickAp}}"><span style="color: #15703c; display: flex"><dc-import name="Icon" i="check-circle" s="20" hint-size="20px,20px"></dc-import></span><span class="strong">Approve</span></label>
+              <label class="radio-card {{rjCls}}"><input type="radio" name="dec" checked="{{isRj}}" onChange="{{pickRj}}"><span style="color: #b42318; display: flex"><dc-import name="Icon" i="x-circle" s="20" hint-size="20px,20px"></dc-import></span><span class="strong">Reject</span></label>
+            </div>
+            <sc-if value="{{isRj}}" hint-placeholder-val="{{ false }}">
+              <div class="field">
+                <label class="label" for="ap-reason">Reason for rejection <span class="req" aria-hidden="true">*</span><span class="sr-only">(required)</span></label>
+                <textarea id="ap-reason" class="textarea {{rsCls}}" aria-invalid="{{rsAria}}" aria-describedby="ap-reason-e" placeholder="Explain what needs to change. The sender and recorder will see this."></textarea>
+                <sc-if value="{{showErr}}" hint-placeholder-val="{{ false }}"><span class="err" id="ap-reason-e"><dc-import name="Icon" i="alert-circle" s="16" hint-size="16px,16px"></dc-import>A reason is required when rejecting.</span></sc-if>
+                <span class="counter">0 / 2,000</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{isAp}}" hint-placeholder-val="{{ true }}">
+              <div class="field"><label class="label" for="ap-note">Note <span class="opt">(optional)</span></label><textarea id="ap-note" class="textarea" style="min-height: 80px">Approved. Academic Planning to circulate to all HODs today.</textarea></div>
+            </sc-if>
+          </section>
+          <div class="action-bar">
+            <a class="btn btn-secondary" href="MailDetail.dc.html">Cancel</a>
+            <sc-if value="{{isAp}}" hint-placeholder-val="{{ true }}"><a class="btn btn-gold" href="MailDetail-approved.dc.html"><dc-import name="Icon" i="stamp" s="16" hint-size="16px,16px"></dc-import>Approve and stamp</a></sc-if>
+            <sc-if value="{{isRj}}" hint-placeholder-val="{{ false }}"><button type="submit" class="btn btn-danger">Reject mail</button></sc-if>
+          </div>
+        </form>
+        <aside class="card card-body stack" aria-labelledby="sp-h" style="align-self: start; align-items: center; text-align: center">
+          <h2 class="h3" id="sp-h" style="align-self: stretch; text-align: left">Stamp preview</h2>
+          <sc-if value="{{isAp}}" hint-placeholder-val="{{ true }}">
+            <div class="stamp is-preview" role="img" aria-label="Stamp preview: Approved, CAPQA/DSP/2026/0142, Prof. M. Iorkyaa, Director"><div class="stamp-in"><span class="st-top">CAPQA · RFMOAUM</span><span class="st-main">APPROVED</span><span class="st-line mono">CAPQA/DSP/2026/0142</span><span class="st-line">12 Oct 2026 · on approval</span><span class="st-line">Prof. M. Iorkyaa, Director</span></div></div>
+            <p class="t-sm muted">Date and time are set when you approve. The stamp is added to the mail record and every page of the stamped PDF.</p>
+          </sc-if>
+          <sc-if value="{{isRj}}" hint-placeholder-val="{{ false }}">
+            <div class="empty" style="padding: 24px 8px"><span class="e-icon"><dc-import name="Icon" i="ban" s="24" hint-size="24px,24px"></dc-import></span><p class="t-sm">No stamp is added to rejected mail. The status changes to <span class="badge" data-s="mail-Rejected">Rejected</span></p></div>
+          </sc-if>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"decision":{"editor":"enum","default":"approve","options":["approve","reject","reject-missing-reason"]},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { dec: null, tried: false }; }
+  renderVals() {
+    var self = this, d0 = this.props.decision ?? 'approve';
+    var dec = this.state.dec || (d0 === 'approve' ? 'approve' : 'reject');
+    var err = this.state.tried || d0 === 'reject-missing-reason';
+    return {
+      isAp: dec === 'approve', isRj: dec === 'reject', apCls: dec === 'approve' ? 'is-on' : '', rjCls: dec === 'reject' ? 'is-on' : '',
+      showErr: dec === 'reject' && err, rsCls: dec === 'reject' && err ? 'is-invalid' : '', rsAria: err ? 'true' : 'false',
+      pickAp: function () { self.setState({ dec: 'approve', tried: false }); }, pickRj: function () { self.setState({ dec: 'reject' }); },
+      submit: function (e) { e.preventDefault(); self.setState({ tried: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
